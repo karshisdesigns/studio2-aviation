@@ -57,6 +57,29 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .view-btns{display:flex;justify-content:center;gap:8px}
 .vbtn{font-weight:800;font-size:12px;padding:4px 12px;border:3px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
 .vbtn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tour{position:fixed;inset:0;z-index:58;pointer-events:none}
+.tr-card{position:absolute;left:50%;bottom:calc(74px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(980px,calc(100vw - 32px));background:var(--paper);border:4px solid var(--ink);border-radius:26px;box-shadow:8px 8px 0 var(--pink);padding:18px 26px 22px;pointer-events:auto;transition:opacity .35s,transform .35s}
+.tr-card.out{opacity:0;transform:translate(-50%,12px)}
+.tr-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.tr-chip{display:inline-flex;align-items:center;gap:8px;font-weight:900;font-size:13px;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border:3px solid var(--ink);border-radius:999px}
+.tr-n{font-weight:900;font-size:13px;opacity:.55;letter-spacing:.08em}
+.tr-body{display:flex;gap:20px;align-items:center}
+.tr-text{margin:0;flex:1;font-weight:700;font-size:clamp(19px,2.3vw,28px);line-height:1.35;text-wrap:pretty}
+.tr-side:empty{display:none}.tr-side{flex:none;width:132px;text-align:center;font-weight:900;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.tr-side svg{display:block;width:120px;height:120px;margin:0 auto 4px;background:#fff;border:3px solid var(--ink);border-radius:12px}
+.tr-ctl{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:8px;align-items:center;pointer-events:auto;flex-wrap:wrap;justify-content:center;transition:opacity .3s}
+.tr-ctl button{font:inherit;font-weight:900;font-size:14px;min-height:40px;padding:6px 16px;border:3px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.tr-ctl .tr-next{background:var(--red);color:#fff}.tr-ctl button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tr-keys{font-weight:800;font-size:12px;background:rgba(255,255,255,.85);border-radius:999px;padding:4px 10px}
+.tour.nocap .tr-card{opacity:0;pointer-events:none}.tour.noctl .tr-ctl{opacity:0;pointer-events:none}
+.tour.noctl .tr-card{bottom:calc(24px + env(safe-area-inset-bottom))}
+body.touring .dock,body.touring .hl-btns,body.touring .menu-btn,body.touring #callout{visibility:hidden}
+@media (max-width:640px){.tr-side{display:none}.tr-keys{display:none}.tr-card{padding:14px 16px 16px}}
+.guide-pop{position:fixed;inset:0;z-index:57;display:grid;place-items:center;background:rgba(20,20,20,.45);padding:16px}
+.gp-card{background:var(--paper);border:4px solid var(--ink);border-radius:26px;box-shadow:8px 8px 0 var(--orange);padding:22px 24px;max-width:440px;width:100%;text-align:center}
+.gp-face{font-size:44px;line-height:1}.gp-card h3{margin:8px 0 6px;font-size:24px}.gp-card p{margin:0 0 14px;font-weight:700}
+.gp-btns{display:grid;gap:8px}
+.view-btns{flex-wrap:wrap}.view-btns .vbtn{flex:1 1 0;min-width:92px;min-height:34px;font-size:13px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:4px 10px}.view-btns .vbtn svg{width:15px;height:15px;flex:none}
 
 .dock{position:fixed;z-index:6;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom,0px));width:min(560px,calc(100vw - 32px));
   background:var(--paper);border:4px solid var(--ink);border-radius:26px;box-shadow:6px 6px 0 var(--ink);padding:12px 14px;display:grid;gap:8px}
@@ -470,6 +493,10 @@ body.phone-mode .hud-top,body.phone-mode .dock{visibility:hidden}
 <div class="steps" id="steps" aria-hidden="true"></div>
 <div class="banner" id="banner" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status"></div>
+<div class="tour" id="tour" hidden><div class="tr-card" id="tr-card"><div class="tr-top"><span class="tr-chip" id="tr-chip"></span><span class="tr-n" id="tr-n"></span></div><div class="tr-body"><p class="tr-text" id="tr-text"></p><div class="tr-side" id="tr-side"></div></div></div>
+  <div class="tr-ctl" id="tr-ctl"><button type="button" data-t="prev" aria-label="Back">&#9664;</button><button type="button" data-t="voice" id="tr-voice" aria-pressed="false">&#128264; Voice</button><button type="button" data-t="auto" id="tr-auto">Auto</button><button type="button" data-t="next" class="tr-next">Next &#9654;</button><button type="button" data-t="cap" id="tr-cap">Captions</button><button type="button" data-t="exit" aria-label="End the tour">&#10005;</button><span class="tr-keys">Space: next &middot; &larr;: back &middot; V: voice &middot; C: captions &middot; H: hide buttons &middot; Esc: end</span></div></div>
+<div class="guide-pop" id="guide-pop" hidden role="dialog" aria-label="Wanda the marshaller"><div class="gp-card"><div class="gp-face" aria-hidden="true">&#128075;</div><h3>Howdy, I'm Wanda!</h3><p>I'm the gate marshaller. I don't roll, I cheer. Lost or new? I've got you.</p>
+  <div class="gp-btns"><button type="button" class="btn btn-ink" data-g="tour">&#9654; Take the tour</button><button type="button" class="btn" data-g="rules">Quick rules</button><button type="button" class="btn" data-g="close">Back to the game</button></div></div></div>
 <div id="callout" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1194,7 +1221,7 @@ function init3D(){
   const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();let down=null;
   renderer.domElement.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,t:performance.now()}});
   renderer.domElement.addEventListener('pointerup',e=>{if(!down)return;const moved=Math.hypot(e.clientX-down.x,e.clientY-down.y),dt=performance.now()-down.t;down=null;if(moved>7||dt>600||busy)return;
-    ndc.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(ndc,camera);const hit=ray.intersectObject(top)[0];if(!hit||!hit.uv)return;
+    ndc.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(ndc,camera);if(W3.guide&&ray.intersectObject(W3.guide,true).length){openGuide();return}if(TOUR_ON)return;const hit=ray.intersectObject(top)[0];if(!hit||!hit.uv)return;
     const bx=hit.uv.x*BW,by=(1-hit.uv.y)*BH;let best=-1,bd=60;POS.forEach((p,i)=>{const d=Math.hypot(p.x-bx,p.y-by);if(d<bd){bd=d;best=i}});
     if(best>=0){editMode?requireUnlock(()=>editTile(best)):openTile(best)}});
   requestAnimationFrame(loop);}
@@ -1446,16 +1473,17 @@ function buildAirport(){const sc=W3.scene,bh=BH*SC,root=new THREE.Group();sc.add
   // the rest of the terminal, after the O'Hare Global Terminal, in the board's style: three curving glass branches
   // under rainbow pleated roofs meet at a hub with a glowing Chicago-star oculus; gates along the front with parked SCB jets
   const hz=g.z-g.d/2-1.2,AP='#dfe5ec';
-  const ap=slab(19.2,3.6,.7,hz+.05,AP);ap.position.y=-.203;
+  const apB=hz-1.95,apF=-bh/2-.3,ap=slab(23,apF-apB,0,(apB+apF)/2,AP);ap.position.y=-.203;
   const hub=new THREE.Group();hub.position.set(0,0,hz);root.add(hub);
-  hub.add(at(cyl(1.0,1.0,.44,C.sky,32),0,.22,0));for(let k=0;k<32;k++){const a=k/32*Math.PI*2;hub.add(at(box(.025,.44,.025,C.ink,0),Math.sin(a)*1.005,.22,Math.cos(a)*1.005))}
-  hub.add(at(cyl(1.18,1.1,.07,C.paper,32),0,.475,0));
-  RB.forEach((col,k)=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,.05,6,1,false,k/RB.length*Math.PI*2,Math.PI*2/RB.length),toonM(col));w.position.y=.535;hub.add(w)});
-  hub.add(at(cyl(1.21,1.21,.05,C.ink,32,0),0,.505,0));
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(.72,.06,10,40),toonM(C.ink));ring.rotation.x=Math.PI/2;ring.position.y=.58;hub.add(ring);
+  const HU=.2;hub.add(at(cyl(1.0,1.0,.44+HU,C.sky,32),0,(.44+HU)/2,0));for(let k=0;k<32;k++){const a=k/32*Math.PI*2;hub.add(at(box(.025,.44+HU,.025,C.ink,0),Math.sin(a)*1.005,(.44+HU)/2,Math.cos(a)*1.005))}
+  hub.add(at(cyl(1.06,1.06,.035,C.paper,32,.008),0,.3,0));
+  hub.add(at(cyl(1.18,1.1,.07,C.paper,32),0,.475+HU,0));
+  RB.forEach((col,k)=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,.05,6,1,false,k/RB.length*Math.PI*2,Math.PI*2/RB.length),toonM(col));w.position.y=.535+HU;hub.add(w)});
+  hub.add(at(cyl(1.21,1.21,.05,C.ink,32,0),0,.505+HU,0));
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.72,.06,10,40),toonM(C.ink));ring.rotation.x=Math.PI/2;ring.position.y=.58+HU;hub.add(ring);
   const star=new THREE.Shape();for(let k=0;k<12;k++){const a=k/12*Math.PI*2-Math.PI/2,r=k%2?.27:.56;k?star.lineTo(Math.cos(a)*r,Math.sin(a)*r):star.moveTo(Math.cos(a)*r,Math.sin(a)*r)}
-  const s6=flatPart(star,.08,new THREE.MeshBasicMaterial({color:C.red}),gm=>gm.rotateX(Math.PI/2));s6.position.y=.62;hub.add(s6);
-  const s6b=flatPart(star,.05,new THREE.MeshBasicMaterial({color:'#fff2b0'}),gm=>gm.rotateX(Math.PI/2));s6b.scale.setScalar(.55);s6b.position.y=.67;hub.add(s6b);
+  const s6=flatPart(star,.08,new THREE.MeshBasicMaterial({color:C.red}),gm=>gm.rotateX(Math.PI/2));s6.position.y=.62+HU;hub.add(s6);
+  const s6b=flatPart(star,.05,new THREE.MeshBasicMaterial({color:'#fff2b0'}),gm=>gm.rotateX(Math.PI/2));s6b.scale.setScalar(.55);s6b.position.y=.67+HU;hub.add(s6b);
   W3.airAnim.push(T=>{const k=1+Math.sin(T*2.2)*.06;s6.scale.set(k,1,k);s6.rotation.y=T*.25;s6b.rotation.y=-T*.4});
   root.add(at(box(1.5,.34,.42,C.sky,.012),0,.17,g.z-g.d/2-.1));
   // a branch: short glass segments along a curve with a rounded nose, chevron-pleated rainbow roof
@@ -1466,7 +1494,7 @@ function buildAirport(){const sc=W3.scene,bh=BH*SC,root=new THREE.Group();sc.add
       segs.push({x:cx,z:cz,h:hm});x+=Math.cos(hm)*sl;z+=Math.sin(hm)*sl;h+=dh/n}
     const cap=cyl(wid/2,wid/2,.3,C.paper,24,.014);cap.position.set(x,.15,z);root.add(cap);const cr=cyl(wid/2+.06,wid/2+.06,.04,RB[(c0+3)%RB.length],24,.01);cr.position.set(x,.33,z);root.add(cr);
     return{segs,end:{x,z,h},wid}};
-  const west=branch(Math.PI,-.28,5.2,.9,0),east=branch(0,.26,6.9,.9,4);branch(-Math.PI/2,.2,1.6,.82,2);
+  const west=branch(Math.PI,-.26,6.9,.9,0),east=branch(0,.26,6.9,.9,4);branch(-Math.PI/2,.2,1.6,.82,2);
   // front face of a branch nearest a given x (the side facing the board)
   const frontAt=(b,x)=>{let s=b.segs[0];b.segs.forEach(q=>{if(Math.abs(q.x-x)<Math.abs(s.x-x))s=q});let nx=-Math.sin(s.h),nz=Math.cos(s.h);if(nz<0){nx=-nx;nz=-nz}return{x:s.x+nx*b.wid/2,z:s.z+nz*b.wid/2}};
   // rainbow sign above the hub
@@ -1474,17 +1502,43 @@ function buildAirport(){const sc=W3.scene,bh=BH*SC,root=new THREE.Group();sc.add
     const msg='STUDIO 2 GLOBAL TERMINAL';x.font='900 96px "Arial Black", sans-serif';x.textBaseline='middle';let w=x.measureText(msg).width,sc=Math.min(1,1300/w);x.save();x.translate(700,94);x.scale(sc,1);let cx=-w/2;
     [...msg].forEach((ch,i)=>{const cw=x.measureText(ch).width;x.lineWidth=14;x.strokeStyle=C.ink;x.strokeText(ch,cx,0);x.fillStyle=ch.trim()?RB[i%RB.length]:C.ink;x.fillText(ch,cx,0);cx+=cw});x.restore();
     const t=new THREE.CanvasTexture(k);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return t})();
-  const sign=new THREE.Mesh(new THREE.PlaneGeometry(4.6,.6),new THREE.MeshBasicMaterial({map:rs}));sign.position.set(0,1.45,hz-.35);sign.rotation.x=-.3;root.add(sign);
-  [-1.6,1.6].forEach(x=>root.add(at(cyl(.02,.02,.95,C.ink,6,0),x,.98,hz-.4)));
+  const sign=new THREE.Mesh(new THREE.PlaneGeometry(4.6,.6),new THREE.MeshBasicMaterial({map:rs}));sign.position.set(0,1.52,hz-.35);sign.rotation.x=-.3;root.add(sign);
+  [-1.6,1.6].forEach(x=>root.add(at(cyl(.025,.025,1.1,C.ink,6,0),x,1.0,hz-.42)));
+  // marquee bulbs chase around the sign
+  const bOn=new THREE.MeshBasicMaterial({color:'#fff6c8'}),bOff=new THREE.MeshBasicMaterial({color:'#c9a640'}),bulbs=[],bg=new THREE.SphereGeometry(.035,10,8);
+  const bp=[];for(let x=-2.22;x<=2.22;x+=.185)bp.push([x,.27]);for(let y=.09;y>-.27;y-=.18)bp.push([2.22,y]);for(let x=2.22;x>=-2.22;x-=.185)bp.push([x,-.27]);for(let y=-.09;y<.27;y+=.18)bp.push([-2.22,y]);
+  bp.forEach(([x,y])=>{const b=new THREE.Mesh(bg,bOff);b.position.set(x,y,.03);sign.add(b);bulbs.push(b)});
+  W3.airAnim.push(T=>{const k=Math.floor(T*9);bulbs.forEach((b,i)=>b.material=(i+k)%3===0?bOn:bOff)});
+  // a rainbow arch springs from the two glass branches over the hub
+  const arch=new THREE.Group();arch.position.set(0,.3,hz-.62);RB.forEach((col,k)=>{const r=2.78-k*.082,a=new THREE.Mesh(new THREE.TorusGeometry(r,.045,8,64,Math.PI),toonM(col));arch.add(a)});
+  const ao=new THREE.Mesh(new THREE.TorusGeometry(2.49,.4,4,64,Math.PI),W3.outMat||new THREE.MeshBasicMaterial({color:C.ink,side:THREE.BackSide}));ao.scale.set(1,1,.16);arch.add(ao);root.add(arch);
+  // searchlights behind the terminal sweep the sky for the big moment
+  const beamM=new THREE.MeshBasicMaterial({color:'#ffffff',transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}),beams=[];
+  [-5.2,-2.4,2.4,5.2].forEach((x,k)=>{const g2=new THREE.Group();g2.position.set(x,.3,hz-1.35);const geo=new THREE.CylinderGeometry(.55,.05,7,24,1,true);geo.translate(0,3.5,0);g2.add(new THREE.Mesh(geo,beamM));
+    g2.add(at(cyl(.13,.16,.24,C.ink,14,0),0,-.12,0));root.add(g2);beams.push(g2)});
+  W3.airAnim.push(T=>beams.forEach((b,k)=>{const ph=T*.55+k*1.7;b.rotation.z=Math.sin(ph)*.5+(k<2?.18:-.18);b.rotation.x=-.35+Math.cos(ph*.8)*.12}));
   const gsg=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.36),new THREE.MeshBasicMaterial({map:signTex('GATE A',C.sun)}));gsg.position.set(g.x-g.w/2+.95,1.42,g.z+g.d/2+.1);gsg.rotation.x=-.25;root.add(gsg);
   // gates: parked SCB jets nose-in on jet bridges, with yellow lead-in lines
-  const park=(kind,b,x)=>{const c=PT[kind],f=frontAt(b,x),py=c.R*1.5+.03,nose=f.z+.32,pz=nose+c.L/2,pl=makePlane(kind);pl.rotation.y=Math.PI;pl.position.set(x,py,pz);root.add(pl);
-    const llL=c.L+.3,ll=new THREE.Mesh(new THREE.PlaneGeometry(.05,llL),new THREE.MeshBasicMaterial({color:C.sun}));ll.rotation.x=-Math.PI/2;ll.position.set(x,.004,nose-.1+llL/2);root.add(ll);
-    const dx=x-c.R-.02,dz=nose+Math.min(.42,c.L*.24),ax=x-c.R-.75,az=f.z-.03,len=Math.hypot(dx-ax,dz-az),jb=new THREE.Group();jb.position.set((ax+dx)/2,Math.max(.22,py+.04),(az+dz)/2);jb.rotation.y=Math.atan2(dx-ax,dz-az);
-    jb.add(box(.17,.15,len,C.paper,.012));for(let s=-len/2+.1;s<len/2-.04;s+=.15)jb.add(at(box(.175,.055,.05,C.sky,0),0,.015,s));root.add(jb);
-    root.add(at(cyl(.022,.022,jb.position.y,C.ink,8,0),(ax+dx)/2,jb.position.y/2,(az+dz)/2));return pl};
-  const parked=park('b787',east,7.3);park('b737',east,5.0);park('crj',west,-5.1);park('c172',west,-6.6);
-  W3.parked=parked}
+  const standTex=n=>{const k=document.createElement('canvas');k.width=128;k.height=80;const x=k.getContext('2d');x.fillStyle=C.sun;x.font='900 64px "Arial Black", sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(n,64,42);const t=new THREE.CanvasTexture(k);t.encoding=THREE.sRGBEncoding;return t};
+  const paint=(w,l,col,x,z,ang)=>{const gm=new THREE.PlaneGeometry(w,l);gm.rotateX(-Math.PI/2);const m=new THREE.Mesh(gm,new THREE.MeshBasicMaterial(typeof col==='string'?{color:col}:{map:col,transparent:true}));m.position.set(x,.004,z);m.rotation.y=ang;root.add(m);return m};
+  const park=(kind,b,x,num)=>{const c=PT[kind];let s=b.segs[0];b.segs.forEach(q=>{if(Math.abs(q.x-x)<Math.abs(s.x-x))s=q});
+    let nx=-Math.sin(s.h),nz=Math.cos(s.h);if(nz<0){nx=-nx;nz=-nz}
+    const ang=Math.atan2(nx,nz),F={x:s.x+nx*b.wid/2,z:s.z+nz*b.wid/2},py=c.R*1.5+.03,gap=.36,N={x:F.x+nx*gap,z:F.z+nz*gap};
+    const pl=makePlane(kind);pl.rotation.y=Math.atan2(-nx,-nz);pl.position.set(N.x+nx*c.L/2,py,N.z+nz*c.L/2);root.add(pl);
+    // stand markings: lead-in line, stop bar and the stand number
+    const ll=c.L+.55;paint(.05,ll,C.sun,F.x+nx*(.06+ll/2),F.z+nz*(.06+ll/2),ang);paint(.36,.05,C.sun,N.x-nx*.02,N.z-nz*.02,ang);
+    let tx=nz,tz=-nx;if(tx*(-s.x)<0){tx=-tx;tz=-tz}
+    paint(.3,.19,standTex(num),N.x+nx*.2-tx*.32,N.z+nz*.2-tz*.32,ang);
+    // jet bridge: rotunda against the glass, a short corridor out to the forward door on the hub side
+    const dOff=Math.min(.4,c.L*.22),D={x:N.x+nx*dOff+tx*(c.R+.05),z:N.z+nz*dOff+tz*(c.R+.05)},A={x:F.x+tx*(c.R+.5)+nx*.1,z:F.z+tz*(c.R+.5)+nz*.1};
+    const by=Math.max(.22,py+.03),len=Math.hypot(D.x-A.x,D.z-A.z),jb=new THREE.Group();jb.position.set((A.x+D.x)/2,by,(A.z+D.z)/2);jb.rotation.y=Math.atan2(D.x-A.x,D.z-A.z);
+    jb.add(box(.17,.15,len,C.paper,.012));for(let q=-len/2+.12;q<len/2-.08;q+=.14)[-1,1].forEach(sd=>jb.add(at(box(.012,.06,.07,C.sky,0),sd*.088,.015,q)));
+    jb.add(at(box(.2,.17,.06,C.ink,.006),0,0,len/2));root.add(jb);
+    root.add(at(cyl(.13,.13,by+.09,C.paper,18,.01),A.x,(by+.09)/2,A.z));root.add(at(cyl(.14,.14,.03,RB[num.charCodeAt(1)%RB.length],18,.006),A.x,by+.1,A.z));
+    const cx=A.x+(D.x-A.x)*.7,cz=A.z+(D.z-A.z)*.7;root.add(at(cyl(.024,.024,by-.04,C.ink,8,0),cx,(by-.04)/2,cz));root.add(at(box(.18,.05,.08,C.ink,0),cx,.03,cz));
+    return pl};
+  park('b737',west,-6.5,'A1');park('crj',west,-4.75,'A2');const parked=park('b787',east,5.35,'A3');park('crj',east,7.15,'A4');
+  W3.parked=parked;buildGuide(root)}
 // three planes share the runway on a loop: land, roll out, U-turn onto the taxiway, taxi back, line up, take off, fly off
 const RW_SLOTS=[['b787','a380','b787'],['b737','c172','crj'],['crj','b737','b787']],RW_P=44;
 function cyclePath(kind){const r=W3.rw,c=PT[kind],y0=c.R*1.5+.03,z=r.z,U=(r.tz-z)/2,xe=r.xe;
@@ -1570,7 +1624,9 @@ function loop(){
   if(cp){W3.ring.position.set(cp.g.position.x,hAt(cp.g.position.x,cp.g.position.z)+.03,cp.g.position.z);W3.ring.scale.setScalar(1+Math.sin(T*3)*.08);
     W3.arrow.position.set(cp.g.position.x,cp.g.position.y+1.42+Math.sin(T*3)*.07,cp.g.position.z);W3.arrow.rotation.y=T*1.5}
   const c=W3.controls,cam=W3.camera;
-  if(W3.tw){const w=W3.tw;w.t=Math.min(1,w.t+dt/.9);const e=1-Math.pow(1-w.t,3);c.target.lerpVectors(w.fT,w.eT,e);cam.position.lerpVectors(w.fP,w.eP,e);if(w.t>=1)W3.tw=null}
+  if(W3.tourTick)W3.tourTick(dt,T);
+  if(W3.tw){const w=W3.tw;w.t=Math.min(1,w.t+dt/(w.d||.9));const e=w.d?(w.t<.5?4*w.t**3:1-Math.pow(-2*w.t+2,3)/2):1-Math.pow(1-w.t,3);c.target.lerpVectors(w.fT,w.eT,e);cam.position.lerpVectors(w.fP,w.eP,e);if(w.t>=1)W3.tw=null}
+  else if(W3.drift){const v=cam.position.clone().sub(c.target),a=W3.drift*dt;cam.position.copy(c.target).add(v.applyAxisAngle(new THREE.Vector3(0,1,0),a))}
   else if(W3.follow&&cp){const tgt=new THREE.Vector3(cp.g.position.x,0,cp.g.position.z),dl=tgt.sub(c.target).multiplyScalar(Math.min(1,dt*3.5));c.target.add(dl);cam.position.add(dl)}
   c.update();W3.renderer.render(W3.scene,cam)}
 function boardImageSVG(W,base){const H=Math.round(W*BH/BW);
@@ -1895,7 +1951,7 @@ function renderTab(){
   }
   if(tab==='how'){
     const counts={};S.tiles.forEach(t=>counts[t.type]=(counts[t.type]||0)+1);
-    h+=`<div class="dsec"><h3>A turn, step by step</h3><ol class="steps-list">
+    h+=`<div class="dsec"><button class="btn btn-ink" type="button" id="how-tour" style="width:100%;font-size:17px;padding:12px">&#9654; Take the tour: The Ride</button><p class="small" style="margin:6px 0 0">A two-minute guided flight around the board. Read the captions out loud for the studio.</p></div><div class="dsec"><h3>A turn, step by step</h3><ol class="steps-list">
       <li><b>Scan the QR code</b> in the bar at the bottom to play from your phone, or pick your name there and tap <b>Roll</b>.</li>
       <li><b>Tap the die</b> to stop it. Your number pops up.</li>
       <li><b>First roll only:</b> your piece leaves Gate A with a boarding pass to a random seat.</li>
@@ -2087,9 +2143,15 @@ const myPid=()=>lsGet('hp-me');
 const isThursday=()=>new Date().getDay()===4;
 // ---- QR on the big screen
 function qrSvg(text,cell=7){try{const q=qrcode(0,'M');q.addData(text);q.make();return q.createSvgTag({cellSize:cell,margin:2,scalable:true})}catch(e){return ''}}
-function openQR(){const m=$('#qr-modal');$('#qr-code').innerHTML=qrSvg(PLAY_URL,8);m.hidden=false;renderQRCount()}
+// inside Claude, phones would need a Claude sign-in, so this copy points to the public studio screen instead
+const STUDIO_URL='https://karshisdesigns.github.io/studio2-aviation/',IN_CLAUDE=/claude\.ai/.test(PLAY_URL);
+const SCREEN_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%"><rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4M10 8h5v5M15 8l-6 6"/></svg>';
+function openQR(){const m=$('#qr-modal');
+  if(IN_CLAUDE){$('#qr-h').textContent='Play on the studio screen';$('#qr-code').innerHTML=`<p style="font-weight:700;margin:6px 0 14px">Phones join the public studio screen, no sign-in needed. Open it on the TV and the QR code there takes everyone straight to the game.</p><a class="btn btn-ink" href="${STUDIO_URL}" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">Open the studio screen &#8599;</a><p class="small" style="margin-top:10px">${STUDIO_URL.replace('https://','')}</p>`;
+    $$('#qr-modal .qr-steps,#qr-modal .qr-count,#qr-modal .qr-note').forEach(e=>e.hidden=true);m.hidden=false;return}
+  $('#qr-code').innerHTML=qrSvg(PLAY_URL,8);m.hidden=false;renderQRCount()}
 function renderQRCount(){const n=ROOM?ROOM.peers().filter(p=>p.presence&&p.presence.role==='phone').length:0;$$('.qr-count').forEach(e=>e.textContent=ROOM?`${n} phone${n===1?'':'s'} connected`:'Connecting…')}
-function renderQRCorner(){const c=$('#dock-qr');if(!c)return;const show=!PHONE&&!phoneLike();c.hidden=!show;document.querySelector('.dock').classList.toggle('has-qr',show);if(show&&!c.dataset.done){$('#dock-qr-code').innerHTML=qrSvg(PLAY_URL,4);c.dataset.done='1'}renderQRCount()}
+function renderQRCorner(){const c=$('#dock-qr');if(!c)return;const show=!PHONE&&!phoneLike();c.hidden=!show;document.querySelector('.dock').classList.toggle('has-qr',show);if(show&&!c.dataset.done){$('#dock-qr-code').innerHTML=IN_CLAUDE?SCREEN_ICON:qrSvg(PLAY_URL,4);if(IN_CLAUDE)c.querySelector('b').textContent='Studio screen';c.dataset.done='1'}renderQRCount()}
 // ---- room: who is the big screen (the earliest board open), commands in, state out
 function electLeader(){if(!ROOM||PHONE){LEADER=false;return}const boards=ROOM.peers().filter(p=>p.presence&&p.presence.role==='board').sort((a,b)=>(a.presence.since-b.presence.since)||(a.peer<b.peer?-1:1));LEADER=!!(boards[0]&&boards[0].sameTab)}
 const boardOnline=()=>!!(ROOM&&ROOM.peers().some(p=>p.presence&&p.presence.role==='board'));
@@ -2182,6 +2244,99 @@ $('#phone').addEventListener('click',e=>{const t=e.target.closest('button');if(!
   if(t.dataset.got){const w=document.createElement('div');w.className='ph-codebox';w.innerHTML=`<input class="ph-code" inputmode="numeric" maxlength="4" placeholder="Host code" aria-label="Game host code"><button class="ph-got" data-got2="${t.dataset.got}">OK</button>`;t.replaceWith(w);w.querySelector('input').focus();return}
   if(t.dataset.got2){const inp=t.parentElement.querySelector('input');if(!inp||inp.value.trim()!==CODE){toast('That code is not right');return}const [kind,i]=t.dataset.got2.split(':');emit('got',{pid:me,kind,i:+i});t.parentElement.innerHTML='<b class="ph-ok">Marked collected</b>';return}});
 {const _ar=applyRemote;applyRemote=function(d){_ar(d);try{if(PHONE)renderPhone()}catch(e){}}}
+
+/* ---------- Wanda the marshaller: the How to Play cheerleader at Gate A ---------- */
+function buildGuide(root){const g=W3.gate;if(!g)return;const gd=new THREE.Group(),VEST=C.orange,NAVY='#25324a',SKIN='#E8B48A';
+  gd.add(at(cyl(.2,.22,.06,C.sun,28,.012),0,.03,0));gd.add(at(cyl(.16,.16,.012,C.ink,28,0),0,.066,0));
+  [-1,1].forEach(sd=>gd.add(at(cyl(.032,.028,.2,NAVY,10,.01),sd*.045,.17,0)));
+  gd.add(at(cyl(.075,.09,.24,VEST,18,.012),0,.38,0));[.33,.43].forEach(y=>gd.add(at(cyl(.083,.087,.022,C.sun,18,0),0,y,0)));
+  gd.add(at(ball(.075,SKIN,.012),0,.57,0));
+  const hat=new THREE.Mesh(new THREE.SphereGeometry(.082,18,10,0,Math.PI*2,0,Math.PI/2),toonM(C.sun));hat.position.y=.585;gd.add(hat);gd.add(at(cyl(.1,.1,.012,C.sun,20,0),0,.59,0));
+  [-1,1].forEach(sd=>{gd.add(at(ball(.026,C.ink,0),sd*.078,.565,0));gd.add(at(ball(.012,C.ink,0),sd*.026,.575,.07))});
+  const smile=new THREE.Mesh(new THREE.TorusGeometry(.024,.005,6,12,Math.PI),new THREE.MeshBasicMaterial({color:C.ink}));smile.rotation.z=Math.PI;smile.position.set(0,.55,.073);gd.add(smile);
+  const glow=new THREE.MeshBasicMaterial({color:'#FF8A1E'}),tip=new THREE.MeshBasicMaterial({color:'#fff2b0'}),arms=[];
+  [-1,1].forEach(sd=>{const a=new THREE.Group();a.position.set(sd*.085,.47,0);a.add(at(cyl(.02,.02,.17,VEST,8,.008),0,.085,0));
+    const w=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.22,10),glow);w.position.y=.27;a.add(w);const t=new THREE.Mesh(new THREE.SphereGeometry(.024,10,8),tip);t.position.y=.385;a.add(t);gd.add(a);arms.push({a,sd})});
+  const L=labelTex('Need help? Tap Wanda',C.orange),sp=new THREE.Sprite(new THREE.SpriteMaterial({map:L.t,depthTest:false}));sp.scale.set(.2*L.ar,.2,1);sp.position.y=1.12;sp.renderOrder=5;gd.add(sp);
+  gd.scale.setScalar(1.25);gd.position.set(g.x-g.w/2-.42,0,g.z+g.d/2-.3);gd.rotation.y=.35;root.add(gd);W3.guide=gd;
+  W3.airAnim.push(T=>{const k=T*3.2;arms.forEach(({a,sd},i)=>{a.rotation.z=-sd*(.35+.55*(Math.sin(k+i*Math.PI)*.5+.5))});gd.position.y=Math.abs(Math.sin(T*3.2))*.025;sp.position.y=1.12+Math.sin(T*2)*.03})}
+function openGuide(){if(TOUR_ON)return;$('#guide-pop').hidden=false}
+$('#guide-pop').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(e.target.id==='guide-pop'||(b&&b.dataset.g==='close')){$('#guide-pop').hidden=true;return}if(!b)return;
+  $('#guide-pop').hidden=true;if(b.dataset.g==='tour')startTour();else{PUBLIC_HOW=true;openDrawer('how')}});
+
+/* ---------- The Ride: a narrated tour you can read out loud while the camera shows the board ---------- */
+let TOUR_ON=false,TI=0,tAuto=false,tTimer=null,tKey=null,tVoice=false,tAudio=null,tSay=0;
+function tHush(){tSay++;try{speechSynthesis.cancel()}catch(e){}if(tAudio){tAudio.onended=tAudio.onerror=null;tAudio.pause();tAudio=null}}
+function tSpeak(text,done){try{const ss=speechSynthesis,u=new SpeechSynthesisUtterance(text),vs=ss.getVoices();let v=null;
+    for(const r of[/Google US English/i,/Samantha/i,/Aaron/i,/Alex/i,/Microsoft (Guy|Aria|Jenny)/i]){v=vs.find(x=>r.test(x.name)&&/en/i.test(x.lang));if(v)break}
+    if(!v)v=vs.find(x=>/en-US/i.test(x.lang));if(v)u.voice=v;u.rate=.9;u.pitch=1;const t0=Date.now(),need=(text.split(/\s+/).length/2.6+1)*1000,end=()=>{const left=need*.6-(Date.now()-t0);left>0?setTimeout(done,left):done()};u.onend=end;u.onerror=end;ss.speak(u)}catch(e){setTimeout(done,(text.split(/\s+/).length/2.6+1)*1000)}}
+function tPlay(k,text,done){tHush();const my=tSay,fin=()=>{if(my===tSay)done()};const a=new Audio(`voice/${String(k+1).padStart(2,'0')}.mp3`);tAudio=a;let fell=false;
+  const fb=()=>{if(fell||my!==tSay)return;fell=true;tAudio=null;tSpeak(text,fin)};a.onended=fin;a.onerror=fb;a.play().catch(fb)}
+const tTiles=type=>S.tiles.map((t,i)=>t.type===type?i:-1).filter(i=>i>0);
+const tPick=(type,pref)=>{const l=tTiles(type);return pref!=null&&l.includes(pref)?pref:l[Math.floor(l.length/3)]||l[0]};
+function tourBeats(){const tape=S.tiles.findIndex((t,i)=>i>0&&t.prize==='tape'),sk=tPick('create',27),so=tPick('social'),cu=tPick('customs'),rf=tPick('raffle'),tw=tPick('tower',38),tl=tPick('tailwind'),pr=tape>0?tape:tPick('prize');
+  const url=IN_CLAUDE?STUDIO_URL+'#play':PLAY_URL;
+  return[
+  {chip:['Studio 2 Aviation',C.sun],shot:'over',drift:.05,text:`Howdy, y'all. Every Thursday, Studio 2 takes off together. This is Studio 2 Aviation, a board game with no finish line. It isn't about who lands first. It's about everything we pick up along the way.`},
+  {chip:['Gate A',C.sun],shot:'gate',text:`It all starts here, at Gate A in the Studio 2 Global Terminal. Every name in the studio already has a seat. Until your first roll, you wait to board with everyone else.`},
+  {chip:['Meet Wanda',C.orange],shot:'guide',text:`This is Wanda, our gate marshaller. She doesn't play, she cheers. If you're new, stuck or just curious, tap Wanda and she'll walk you through it.`},
+  {chip:['Scan to play',C.sun],shot:'gate2',side:`${qrSvg(url,3)}Scan to play`,text:`To play, scan the QR code on the big screen with your phone. No app, no sign-in. Pick your name and tap Boarding call. The big screen finds you and tells the whole studio you're up.`},
+  {chip:['Roll',C.red],shot:{tile:3,dist:5.2},hop:[0,1,2,3,4,5],text:`Then roll. Tap the die to stop it, and your traveler hops one square for every pip. Your first roll prints a boarding pass and drops you onto the board.`},
+  {chip:['Sketch',C.red],shot:{tile:sk},ring:'create',text:`Red squares are Sketch squares. Draw something, make something, or bring in something that inspired you. Write the square number on it and keep it. At year end, the studio votes on the best sketch.`},
+  {chip:['Coffee chat',C.blue],shot:{tile:so},ring:'social',text:`Blue squares are Coffee chats. Grab a coffee with someone you don't usually sit with, and the card covers two. This is how a studio becomes a team.`},
+  {chip:['Trivia',C.green],shot:{tile:cu},ring:'customs',text:`Green squares are Trivia: airports, architects and Chicago. Answer out loud. The studio is your judge.`},
+  {chip:['Prizes',C.sun],shot:{tile:pr},ring:'prize',text:`Gold squares hold prizes, from a mini tape measure to an architecture walking tour. The three Terminals pay out the big ones.`},
+  {chip:['Upgrade tickets',C.purple],shot:{tile:rf},ring:'raffle',text:`Rainbow squares earn upgrade tickets. Every ticket goes into this season's draw and the Final Boarding Call at the end of the year.`},
+  {chip:['Control Tower',C.purple],shot:{tile:tw,dist:6.5},ring:'tower',text:`The taxiway loops and crosses itself, over bridges and around the tower. Land on a Control Tower and you're Studio Champion, until someone takes it from you.`},
+  {chip:['Tailwinds and holds',C.orange],shot:{tile:tl},ring:['tailwind','bonus','hold','swap'],text:`Some squares push you ahead with a tailwind or let you roll again. A few hold you on the ground for a week. That's flying.`},
+  {chip:['Check-In',C.ink],shot:{tile:0,dist:5},ring:'start',text:`Pass Check-In and you just keep going. There's no last square, only the next Thursday.`},
+  {chip:['See you at the gate',C.pink],shot:'term',drift:-.06,text:`So come by. Roll the die, draw something, meet someone new. The prizes are nice, but the ride is the point. See y'all at the gate.`}]}
+const T_DIR=new THREE.Vector3(.12,.78,.62);
+function tShot(sh){if(!W3.ok)return;const g=W3.gate;W3.drift=0;
+  const go=(x,z,dist,dir,dur)=>{const n=dir.clone().normalize(),lift=dist*.2;flyTo(x+n.x*lift,z+n.z*lift,dist,dir.clone(),false);if(W3.tw)W3.tw.d=dur||2.4};
+  if(sh==='over'){const dist=camFit()*.95;go(0,-.8,dist,new THREE.Vector3(0,.8,.6),2.6)}
+  else if(sh==='term'){go(0,g.z-1.4,camFit()*.8,new THREE.Vector3(.0,.55,.85),3)}
+  else if(sh==='gate'){go(g.x,g.z-.7,6.4,new THREE.Vector3(0,.5,.87))}
+  else if(sh==='guide'){const p=W3.guide.position;go(p.x+.4,p.z-.1,3.2,new THREE.Vector3(.35,.42,.84))}
+  else if(sh==='gate2'){go(g.x+1.2,g.z+.4,5.2,new THREE.Vector3(-.2,.6,.78))}
+  else if(sh&&sh.tile!=null){const P=POS[sh.tile];go(wx(P.x),wz(P.y),sh.dist||4.6,T_DIR)}}
+let tRings=[],tToken=null,tHop=null;
+function tClear(){tRings.forEach(r=>W3.scene.remove(r));tRings=[];tHop=null;if(tToken)tToken.visible=false}
+function tRing(i,col,big){const P=POS[i],r=new THREE.Mesh(new THREE.TorusGeometry(TILE*SC*(big?1.25:1.05),.035,8,40),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.95}));r.rotation.x=-Math.PI/2;const x=wx(P.x),z=wz(P.y);r.position.set(x,hAt(x,z)+.05,z);r.userData.big=big;W3.scene.add(r);tRings.push(r)}
+function tBeat(k){const B=tourBeats();TI=Math.max(0,Math.min(B.length-1,k));const b=B[TI];clearTimeout(tTimer);tHush();
+  const card=$('#tr-card');card.classList.add('out');
+  setTimeout(()=>{$('#tr-text').textContent=b.text;$('#tr-n').textContent=`${TI+1} / ${B.length}`;const ch=$('#tr-chip');ch.textContent=b.chip[0];ch.style.background=b.chip[1];ch.style.color=onDark(b.chip[1]);
+    $('#tr-side').innerHTML=b.side||'';card.classList.remove('out')},260);
+  if(W3.ok){tClear();tShot(b.shot);
+    if(b.ring){const types=[].concat(b.ring);S.tiles.forEach((t,i)=>{if(types.includes(t.type))tRing(i,(TYPES[t.type]||TYPES.blank).fill===C.paper?C.purple:(TYPES[t.type]||TYPES.blank).fill,b.shot&&b.shot.tile===i)})}
+    if(b.hop){if(!tToken){tToken=new THREE.Group();tToken.add(part(PG||(PG=PAWN()),C.sun,1.12,1.06,1.12));W3.scene.add(tToken)}
+      tToken.visible=true;const pts=b.hop.map(i=>({x:wx(POS[i].x),z:wz(POS[i].y)}));tToken.position.set(pts[0].x,hAt(pts[0].x,pts[0].z),pts[0].z);tHop={pts,k:0,t:-1.6};b.hop.forEach(i=>tRing(i,C.red,i===b.hop[b.hop.length-1]))}
+    setTimeout(()=>{if(TOUR_ON&&TI===k&&b.drift)W3.drift=b.drift},2800)}
+  if(tVoice){tPlay(TI,b.text,()=>{tTimer=setTimeout(()=>{if(!TOUR_ON)return;if(TI<B.length-1)tBeat(TI+1);else{tVoice=false;$('#tr-voice').setAttribute('aria-pressed','false')}},1100)})}
+  else if(tAuto){const words=b.text.split(/\s+/).length;tTimer=setTimeout(()=>{if(TI<B.length-1)tBeat(TI+1);else{tAuto=false;$('#tr-auto').setAttribute('aria-pressed','false')}},(words/2.6+2.4)*1000)}}
+W3.tourTick=null;
+function tTick(dt,T){tRings.forEach((r,i)=>{const s=1+Math.sin(T*3+i*.4)*.07*(r.userData.big?1.6:1);r.scale.set(s,s,s)});
+  if(tHop&&tToken){const h=tHop;h.t+=dt/.42;if(h.t<0)return;if(h.t>=1){h.k++;h.t=0;if(h.k>=h.pts.length-1){const e=h.pts[h.pts.length-1];tToken.position.set(e.x,hAt(e.x,e.z),e.z);puff(e);tHop=null;return}puff(h.pts[h.k])}
+    const a=h.pts[h.k],b=h.pts[h.k+1],u=h.t,x=a.x+(b.x-a.x)*u,z=a.z+(b.z-a.z)*u;tToken.position.set(x,hAt(x,z)+Math.sin(Math.PI*u)*.45,z);tToken.rotation.y=Math.atan2(b.x-a.x,b.z-a.z)}}
+function startTour(){if(TOUR_ON||PHONE)return;if(busy){toast('Let this turn finish, then start the tour.');return}
+  TOUR_ON=true;closeDrawer&&$('#drawer').classList.contains('open')&&closeDrawer();if(!modal.hidden)closeModal();setFollow(false);W3.userMoved=true;
+  document.body.classList.add('touring');$('#tour').hidden=false;$('#tour').classList.remove('nocap','noctl');$('#tr-cap').setAttribute('aria-pressed','true');W3.tourTick=tTick;
+  tKey=e=>{if(!TOUR_ON)return;const k=e.key;if(k===' '||k==='ArrowRight'||k==='PageDown'||k==='Enter'){e.preventDefault();tNext()}else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();tBeat(TI-1)}
+    else if(k==='Escape')endTour();else if(k==='c'||k==='C')tCap();else if(k==='h'||k==='H')$('#tour').classList.toggle('noctl');else if(k==='a'||k==='A')tAutoT();else if(k==='v'||k==='V')tVoiceT()};
+  addEventListener('keydown',tKey,true);tBeat(0)}
+function tNext(){const n=tourBeats().length;if(TI<n-1)tBeat(TI+1);else endTour()}
+function tCap(){const t=$('#tour');t.classList.toggle('nocap');$('#tr-cap').setAttribute('aria-pressed',String(!t.classList.contains('nocap')))}
+function tVoiceT(){tVoice=!tVoice;$('#tr-voice').setAttribute('aria-pressed',String(tVoice));if(tVoice&&tAuto){tAuto=false;$('#tr-auto').setAttribute('aria-pressed','false')}tBeat(TI)}
+function tAutoT(){if(tVoice){tVoice=false;$('#tr-voice').setAttribute('aria-pressed','false')}tAuto=!tAuto;$('#tr-auto').setAttribute('aria-pressed',String(tAuto));tBeat(TI)}
+function endTour(){if(!TOUR_ON)return;TOUR_ON=false;clearTimeout(tTimer);tHush();tVoice=false;$('#tr-voice').setAttribute('aria-pressed','false');tAuto=false;$('#tr-auto').setAttribute('aria-pressed','false');removeEventListener('keydown',tKey,true);
+  $('#tour').hidden=true;document.body.classList.remove('touring');W3.tourTick=null;W3.drift=0;if(W3.ok){tClear();overview()}}
+$('#tr-ctl').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;const t=b.dataset.t;
+  if(t==='next')tNext();else if(t==='prev')tBeat(TI-1);else if(t==='exit')endTour();else if(t==='auto')tAutoT();else if(t==='voice')tVoiceT();else if(t==='cap')tCap()});
+$('#tr-card').addEventListener('click',()=>tNext());
+$('#drawer').addEventListener('click',e=>{if(e.target.closest('#how-tour'))startTour()});
+setInterval(()=>{if(TOUR_ON&&busy)endTour()},500);
+if(/tour/i.test(location.hash)&&!PHONE)setTimeout(()=>{if(W3.ok){startTour();if(/voice/i.test(location.hash))tVoiceT()}},2500);
+try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
 $('#dock-qr').onclick=openQR;$('#qr-close').onclick=()=>{$('#qr-modal').hidden=true};$('#qr-modal').addEventListener('click',e=>{if(e.target.id==='qr-modal')$('#qr-modal').hidden=true});
 window.addEventListener('resize',renderQRCorner);$('#v-phone').onclick=()=>setPhone(true);
 if(PHONE)setPhone(true);renderQRCorner();setInterval(renderQRCorner,60000);startRoom();
