@@ -373,6 +373,13 @@ body.phone-mode .hud-top,body.phone-mode .dock{visibility:hidden}
 .ph-act{margin:16px 0 8px;text-align:center}
 .ph-big{width:100%;font-family:var(--display);font-size:42px;padding:26px 10px;border:5px solid var(--ink);border-radius:999px;background:var(--red);color:#fff;box-shadow:6px 6px 0 var(--ink);-webkit-text-stroke:1.5px var(--ink)}
 .ph-big:active{transform:translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}.ph-big:disabled{opacity:.55}
+.ph-call{background:var(--sun);color:var(--ink);-webkit-text-stroke:0;display:flex;align-items:center;justify-content:center;gap:12px}.ph-call svg{width:40px;height:40px}
+#callout{position:fixed;left:50%;top:96px;z-index:55;pointer-events:none;opacity:0;transform:translate(-50%,-24px) scale(.96);transition:opacity .35s,transform .45s cubic-bezier(.2,1.4,.4,1)}
+#callout.show{opacity:1;transform:translate(-50%,0) scale(1)}
+.co-card{display:flex;align-items:center;gap:18px;background:var(--paper);border:5px solid var(--ink);border-radius:26px;box-shadow:0 9px 0 var(--ink);padding:14px 30px 14px 16px;max-width:calc(100vw - 32px)}
+.co-dot{flex:none;width:76px;height:76px;border-radius:50%;border:5px solid var(--ink);display:grid;place-items:center;font-family:var(--display);font-size:26px;color:#fff;-webkit-text-stroke:1px var(--ink)}
+.co-k{display:flex;align-items:center;gap:8px;font-weight:900;font-size:14px;letter-spacing:.2em;color:var(--red)}.co-k i{width:10px;height:10px;border-radius:50%;background:var(--red);animation:coblink .8s steps(2) infinite}@keyframes coblink{50%{opacity:0}}
+.co-n{font-family:var(--display);font-size:clamp(26px,4vw,44px);line-height:1.05;margin:2px 0}.co-s{font-weight:800;font-size:16px}
 .ph-stop{background:var(--green);animation:phglow 1s ease-in-out infinite}@keyframes phglow{50%{box-shadow:6px 6px 0 var(--ink),0 0 0 10px rgba(255,255,255,.6)}}
 .ph-msg{font-weight:800;margin:8px 0}.ph-msg.small{font-size:13px;opacity:.8}
 .ph-watch{font-family:var(--display);font-size:22px;background:var(--paper);border:4px solid var(--ink);border-radius:20px;padding:22px 14px;box-shadow:5px 5px 0 var(--ink)}
@@ -463,6 +470,7 @@ body.phone-mode .hud-top,body.phone-mode .dock{visibility:hidden}
 <div class="steps" id="steps" aria-hidden="true"></div>
 <div class="banner" id="banner" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status"></div>
+<div id="callout" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -2056,7 +2064,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&gwOpen)closeGiftWal
 
 /* ---------- phone play: a QR code on the big screen; phones pick a player and roll through the room ---------- */
 const PLAY_URL='https://karshisdesigns.github.io/studio2-aviation/#play';
-let ROOM=null,LEADER=false,curRemote=null,hostQ=[],lastSent='',lastSentAt=0,LAST=null,DIESTOP=null,phPick='';
+let phCalled=null,ROOM=null,LEADER=false,curRemote=null,hostQ=[],lastSent='',lastSentAt=0,LAST=null,DIESTOP=null,phPick='';
 const mySince=Date.now();
 const phoneLike=()=>{try{return matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<620}catch(e){return false}};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
@@ -2074,7 +2082,7 @@ const boardOnline=()=>!!(ROOM&&ROOM.peers().some(p=>p.presence&&p.presence.role=
 async function startRoom(){const cl=window.claude;if(!cl||!cl.use){renderPhone();return}let r=null;try{r=await cl.use('room')}catch(e){}if(!r){renderPhone();return}ROOM=r;
   r.presence({role:PHONE?'phone':(phoneLike()?'viewer':'board'),since:mySince,pid:PHONE?(myPid()||null):null}).catch(()=>{});
   r.onPeers(()=>{electLeader();renderQRCount();if(PHONE)renderPhone()});r.onConnection(()=>{if(PHONE)renderPhone()});
-  r.on('roll',m=>{if(LEADER)hostRoll(m.data||{})});r.on('stop',m=>{if(LEADER)hostStop(m.data||{})});r.on('act',m=>{if(LEADER)hostAct(m.data||{})});r.on('got',m=>{if(LEADER)hostGot(m.data||{})});
+  r.on('roll',m=>{if(LEADER)hostRoll(m.data||{})});r.on('stop',m=>{if(LEADER)hostStop(m.data||{})});r.on('act',m=>{if(!LEADER)return;const d=m.data||{};if(d.id==='call')hostCall(d);else hostAct(d)});r.on('got',m=>{if(LEADER)hostGot(m.data||{})});
   r.on('st',m=>{if(m.sameTab)return;LAST=m.data||null;if(PHONE)renderPhone()});
   setInterval(hostTick,300)}
 const emit=(t,d)=>{if(ROOM)ROOM.emit(t,d).catch(()=>{})};
@@ -2085,6 +2093,20 @@ function hostRoll(d){const p=S.players.find(x=>x.id===d.pid);if(!p)return;
   if(busy||!modal.hidden||curRemote){hostQ.push(p.id);lastSent='';return}
   hostStart(p.id)}
 function hostStart(pid){const p=S.players.find(x=>x.id===pid);if(!p)return;curRemote=pid;S.current=pid;renderHud();if(drawerOpen)closeDrawer&&closeDrawer();if(gwOpen)closeGiftWall();lastSent='';doRoll()}
+// boarding call: a phone asks the big screen to show off its player before they roll
+let coT=null,lastCall=0;
+function chime(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=chime.ac||(chime.ac=new A());if(ac.state==='suspended')ac.resume();
+  [[659.25,0],[523.25,.42],[783.99,.84]].forEach(([f,t])=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(ac.destination);const t0=ac.currentTime+t;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.22,t0+.03);g.gain.exponentialRampToValueAtTime(.001,t0+1.1);o.start(t0);o.stop(t0+1.2)})}catch(e){}}
+function boardingCall(p){const where=p.started?`Square ${p.pos}`:'Gate A';const el=$('#callout');
+  el.innerHTML=`<div class="co-card"><span class="co-dot" style="background:${p.color}">${esc(initials(p.name))}</span><div><div class="co-k"><i></i>NOW BOARDING</div><div class="co-n">${esc(p.name)}</div><div class="co-s">${esc(where)} · Grab your phone and roll!</div></div></div>`;
+  el.classList.add('show');clearTimeout(coT);coT=setTimeout(()=>el.classList.remove('show'),6500);chime();
+  if(W3.ok){setFollow(false);focusPiece(p.id,4.6);const pc=W3.pieces.get(p.id);if(pc&&!pc.hop){let k=0;const iv=setInterval(()=>{puff(pc.cur);if(++k>=3)clearInterval(iv)},350)}}}
+function hostCall(d){const p=S.players.find(x=>x.id===d.pid);if(!p)return;
+  if(curRemote||busy||!modal.hidden){if(curRemote!==p.id)toast(`${p.name.split(/\s+/)[0]} is waiting at the gate. Next up after this turn!`);return}
+  if(Date.now()-lastCall<1500)return;lastCall=Date.now();
+  if(drawerOpen)closeDrawer&&closeDrawer();if(gwOpen)closeGiftWall();
+  S.current=p.id;renderHud();boardingCall(p);
+  emit('st',{...hostState(),note:{pid:p.id,text:`You're on the big screen! Tap Roll when you're ready.`}});lastSent=''}
 function hostStop(d){if(d.pid===curRemote&&DIESTOP)DIESTOP()}
 function hostAct(d){if(modal.hidden||d.pid!==curRemote)return;const ok=['m-perk','m-close','m-again','m-ans','m-swap','reveal'];if(!ok.includes(d.id))return;
   if(d.id==='m-swap'&&d.val&&$('#swap-sel'))$('#swap-sel').value=d.val;const el=$('#'+d.id);if(el&&!el.disabled)el.click();lastSent=''}
@@ -2122,21 +2144,24 @@ function renderPhone(){if(!PHONE)return;const el=$('#ph-body');if(!el)return;con
   else if(inQ>=0)act=`<div class="ph-watch">You're in line: ${inQ+1}${inQ===0?' (next up!)':''}</div>`;
   else if(flew)act=`<div class="ph-watch">You flew today. See you next Thursday!</div>`;
   else if(me.hold)act=`<p class="ph-msg">Ground stop: rolling uses your turn to sit this Thursday out.</p><button class="ph-big" data-ph="roll"${board&&conn?'':' disabled'}>Roll</button>`;
-  else act=`${L.pid&&!mine?`<p class="ph-msg">Someone is rolling now. Tap Roll to get in line.</p>`:''}<button class="ph-big" data-ph="roll"${board&&conn?'':' disabled'}>Roll</button>${board?'':'<p class="ph-msg">Open the game on the studio screen first.</p>'}`;
+  else if(L.pid&&!mine)act=`<p class="ph-msg">Someone is rolling now. Tap Roll to get in line.</p><button class="ph-big" data-ph="roll"${board&&conn?'':' disabled'}>Roll</button>`;
+  else if(phCalled!==me.id)act=`<button class="ph-big ph-call" data-ph="call"${board&&conn?'':' disabled'}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></svg>Boarding call</button><p class="ph-msg">${board?'Puts you on the big screen. Then you roll.':'Open the game on the studio screen first.'}</p>`;
+  else act=`<p class="ph-msg">You're on the big screen. Your turn!</p><button class="ph-big" data-ph="roll"${board&&conn?'':' disabled'}>Roll</button><button class="ph-link" data-ph="call">Boarding call again</button>`;
   const note=L.note&&L.note.pid===me.id?`<p class="ph-msg">${esc(L.note.text)}</p>`:'';
   const items=[...(me.cards||[]).map((x,i)=>({x,i,kind:'cards'})),...(me.perks||[]).map((x,i)=>({x,i,kind:'perks'}))].sort((a,b)=>String(b.x.d).localeCompare(String(a.x.d)));
   const cq=curQ(),qt=(me.qt||{})[cq.key]||0;
   const H=`<div class="ph-me"><span class="ph-dot big" style="background:${me.color}">${esc(initials(me.name))}</span><div><h2>${esc(me.name)}</h2><p>${me.started?`Square ${me.pos} · ${me.laps||0} lap${me.laps===1?'':'s'}`:'Waiting at Gate A'} · ${me.tickets||0} upgrade ticket${me.tickets===1?'':'s'}</p></div></div>
     ${note}<div class="ph-act">${act}</div>
     <h3 class="ph-sub">Your prizes</h3>${items.length?`<ul class="ph-prizes">${items.map(({x,i,kind})=>`<li class="${x.got?'got':''}"><b>${esc(x.c)}</b><span>${esc(fmtDate(x.d))}${x.sq!=null?` · square #${x.sq}`:''}</span><p>${x.got?'Collected. Enjoy!':esc(howTo(x.c))}</p>${x.got?'':`<button class="ph-got" data-got="${kind}:${i}">Host: mark collected</button>`}</li>`).join('')}</ul>`:'<p class="ph-msg">No prizes yet. Land on a gold square, a Terminal, or finish a Sketch or Coffee chat to win one.</p>'}
-    <p class="ph-msg small">Upgrade tickets: ${qt} in this quarter's ${esc(cq.q.name)}, ${me.tickets||0} in the Final Boarding Call.</p>
+    <p class="ph-msg small">Upgrade tickets: ${qt} in the ${esc(((S.quarters||QUARTERS)[cq.q-1]||QUARTERS[cq.q-1]).name)}, ${me.tickets||0} in the Final Boarding Call.</p>
     <button class="ph-link" data-ph="switch">Not ${esc(fn)}? Switch player</button>`;
   if(el._h!==H){el.innerHTML=H;el._h=H}
   const sel=$('#ph-sel');if(sel)sel.onchange=()=>{sel.dataset.v=sel.value}}
 $('#phone').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const me=myPid();
   if(t.dataset.pick){lsSet('hp-me',t.dataset.pick);if(ROOM)ROOM.presence({pid:t.dataset.pick}).catch(()=>{});renderPhone();return}
-  const ph=t.dataset.ph;if(ph==='switch'){lsSet('hp-me',null);phPick='';renderPhone();return}
+  const ph=t.dataset.ph;if(ph==='switch'){lsSet('hp-me',null);phPick='';phCalled=null;renderPhone();return}
   if(ph==='board'){setPhone(false);return}
+  if(ph==='call'){emit('act',{pid:me,id:'call'});phCalled=me;$('#ph-body')._h='';renderPhone();return}
   if(ph==='roll'){emit('roll',{pid:me});t.disabled=true;t.textContent='Sending…';return}
   if(ph==='stop'){emit('stop',{pid:me});t.disabled=true;t.textContent='Stopping…';return}
   if(t.dataset.act){const sel=$('#ph-sel');emit('act',{pid:me,id:t.dataset.act,val:sel?sel.value:null});t.disabled=true;return}
