@@ -614,9 +614,11 @@ function computeLayout(key){
 let G,PATH,POS,N,CROSS;
 // bridges: every over-pass rises in a gentle hump (heights in world units) so it's clear which road goes over
 const BR_H=.26,BR_RAMP=72;let DECK=null;
+// bridges are drawn flat on the board (easier to read and play); set true to bring back the raised 3D bridges
+const BRIDGES_3D=false;
 function bridgeSpans(){return CROSS.enc.filter(e=>e.over).map(e=>{const sn=Math.sin(Math.max(e.ang,.5)),core=(ROAD/2+16)/sn+4;return{e,core,W:core+BR_RAMP,art:(ROAD/2+26)/sn+14,open:(ROAD/2+2)/sn+(ROAD/2+17)*Math.abs(Math.cos(e.ang))/sn}})}
 function deckProfile(d,sp){d=Math.abs(d);if(d<=sp.core)return BR_H;if(d>=sp.W)return 0;const u=(d-sp.core)/BR_RAMP;return BR_H*(1-u*u*(3-2*u))}
-function buildDeck(){DECK=[];bridgeSpans().forEach(sp=>{for(let d=-sp.W;d<=sp.W;d+=6){const p=G.pointAt(sp.e.s+d);DECK.push({x:p.x,y:p.y,h:deckProfile(d,sp)})}})}
+function buildDeck(){DECK=[];if(!BRIDGES_3D)return;bridgeSpans().forEach(sp=>{for(let d=-sp.W;d<=sp.W;d+=6){const p=G.pointAt(sp.e.s+d);DECK.push({x:p.x,y:p.y,h:deckProfile(d,sp)})}})}
 // squares that ride up on a bridge deck (drawn on the deck, not on the board under it)
 function onDeck(){const out=new Set(),T=G.P.total;bridgeSpans().forEach(sp=>POS.forEach((q,i)=>{let d=Math.abs(q.s-sp.e.s)%T;d=Math.min(d,T-d);if(d<sp.W-TILE*1.1)out.add(i)}));return out}
 function useLayout(key){G=computeLayout(key);PATH=G.P;POS=G.pos;N=G.N;CROSS={enc:G.enc,count:G.count};buildDeck();G.title=titleSpot();G.marks=landmarkPlan();
@@ -1554,7 +1556,7 @@ function boardImageSVG(W,base){const H=Math.round(W*BH/BW);
 function refreshBoard(){
   if(S)G.marks=landmarkPlan();
   if(!W3.ok){renderFlat(true);return}
-  buildGlows();buildProps();buildBridges();
+  buildGlows();buildProps();if(BRIDGES_3D)buildBridges();else if(W3.bridges){W3.scene.remove(W3.bridges);W3.bridges=null}
   // the board itself shows the under-roads; the raised bridge decks carry the over-pass art
   const W=W3.texW,H=Math.round(W*BH/BW);
   const paint=(base,mat,done)=>{const img=new Image();
@@ -1563,7 +1565,7 @@ function refreshBoard(){
       if(mat.map)mat.map.dispose();mat.map=tex;mat.needsUpdate=true;if(done)done()};
     img.onerror=()=>{$('#loading').textContent='The board could not be drawn on this device.'};
     img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(boardImageSVG(W,base))};
-  paint(true,W3.topMat,()=>{$('#loading').hidden=true;paint(false,W3.deckMat)})}
+  if(BRIDGES_3D)paint(true,W3.topMat,()=>{$('#loading').hidden=true;paint(false,W3.deckMat)});else paint(false,W3.topMat,()=>{$('#loading').hidden=true})}
 function buildBridges(){
   if(W3.bridges){W3.scene.remove(W3.bridges);W3.bridges.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
   const g=new THREE.Group();W3.bridges=g;W3.scene.add(g);
