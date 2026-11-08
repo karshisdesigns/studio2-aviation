@@ -613,7 +613,7 @@ function computeLayout(key){
 }
 let G,PATH,POS,N,CROSS;
 // bridges: every over-pass rises in a gentle hump (heights in world units) so it's clear which road goes over
-const BR_H=.15,BR_RAMP=48;let DECK=null;
+const BR_H=.26,BR_RAMP=72;let DECK=null;
 function bridgeSpans(){return CROSS.enc.filter(e=>e.over).map(e=>{const sn=Math.sin(Math.max(e.ang,.5)),core=(ROAD/2+16)/sn+4;return{e,core,W:core+BR_RAMP,art:(ROAD/2+26)/sn+14,open:(ROAD/2+2)/sn+(ROAD/2+17)*Math.abs(Math.cos(e.ang))/sn}})}
 function deckProfile(d,sp){d=Math.abs(d);if(d<=sp.core)return BR_H;if(d>=sp.W)return 0;const u=(d-sp.core)/BR_RAMP;return BR_H*(1-u*u*(3-2*u))}
 function buildDeck(){DECK=[];bridgeSpans().forEach(sp=>{for(let d=-sp.W;d<=sp.W;d+=6){const p=G.pointAt(sp.e.s+d);DECK.push({x:p.x,y:p.y,h:deckProfile(d,sp)})}})}
@@ -1570,15 +1570,46 @@ function buildBridges(){
   W3.deckMat=W3.deckMat||new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide});
   const skirtM=W3.skirtM||(W3.skirtM=new THREE.MeshBasicMaterial({color:C.ink,side:THREE.DoubleSide})),railM=W3.railM||(W3.railM=new THREE.MeshLambertMaterial({color:C.paper,side:THREE.DoubleSide}));
   const mk=(pos,idx,uv)=>{const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));if(uv)geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();return geo};
-  bridgeSpans().forEach(sp=>{const top=[],uv=[],ti=[],sk=[],si=[],rl=[],ri=[];let n=0;
+  bridgeSpans().forEach((sp,k)=>{const top=[],uv=[],ti=[],sk=[],si=[],rl=[],ri=[];let n=0;
     for(let d=-sp.W;d<=sp.W+.01;d+=5){const s=sp.e.s+d,p=G.pointAt(s),a=G.pointAt(s-3),b=G.pointAt(s+3);let tx=b.x-a.x,ty=b.y-a.y;const l=Math.hypot(tx,ty)||1;tx/=l;ty/=l;
-      const nx=-ty,ny=tx,hh=deckProfile(d,sp),h=hh+.008,inArt=Math.abs(d)<=sp.art,hw=inArt?ROAD/2+17:ROAD/2+1,rh=inArt?h+.04*Math.min(1,hh/.06):h,lo=Math.abs(d)<sp.open?Math.max(0,h-.04):0,L=[p.x+nx*hw,p.y+ny*hw],R=[p.x-nx*hw,p.y-ny*hw];
+      const nx=-ty,ny=tx,hh=deckProfile(d,sp),h=hh+.008,inArt=Math.abs(d)<=sp.art,hw=inArt?ROAD/2+17:ROAD/2+1,rh=inArt&&Math.abs(d)>sp.core-4?h+.04*Math.min(1,hh/.06):h,lo=Math.abs(d)<sp.open?Math.max(0,h-.04):0,L=[p.x+nx*hw,p.y+ny*hw],R=[p.x-nx*hw,p.y-ny*hw];
       [L,R].forEach(q=>{top.push(wx(q[0]),h,wz(q[1]));uv.push(q[0]/BW,1-q[1]/BH)});
       [L,R].forEach(q=>{sk.push(wx(q[0]),h,wz(q[1]),wx(q[0]),lo,wz(q[1]));rl.push(wx(q[0]),h,wz(q[1]),wx(q[0]),rh,wz(q[1]))});
       if(n>0){const a0=(n-1)*2,a1=n*2;ti.push(a0,a0+1,a1,a1,a0+1,a1+1);const b0=(n-1)*4,b1=n*4;[0,2].forEach(o=>{si.push(b0+o,b0+o+1,b1+o,b1+o,b0+o+1,b1+o+1);ri.push(b0+o,b0+o+1,b1+o,b1+o,b0+o+1,b1+o+1)})}
       n++}
     const deck=new THREE.Mesh(mk(top,ti,uv),W3.deckMat);deck.castShadow=true;g.add(deck);
-    const skirt=new THREE.Mesh(mk(sk,si),skirtM);skirt.castShadow=true;g.add(skirt);g.add(new THREE.Mesh(mk(rl,ri),railM))})}
+    const skirt=new THREE.Mesh(mk(sk,si),skirtM);skirt.castShadow=true;g.add(skirt);g.add(new THREE.Mesh(mk(rl,ri),railM));chicagoBridge(g,sp,k)})}
+// Chicago river bridges, Monopoly chunky: camelback steel trusses in Monopoly property colors, stone bridge-tender towers with a green house on top
+const MONO=['#ED1B24','#0072BB','#1FB25A','#F7941D','#D93A96','#955436','#3FB6E8','#FEC20E'];
+function chicagoBridge(g,sp,k){
+  const bag={},put=(col,geo,out)=>{(bag[col]=bag[col]||{m:[],o:[]}).m.push(geo);if(out)(bag[col].o).push(out)};
+  const frame=d=>{const s=sp.e.s+d,p=G.pointAt(s),a=G.pointAt(s-3),b=G.pointAt(s+3);let tx=b.x-a.x,ty=b.y-a.y;const l=Math.hypot(tx,ty)||1;return{p,tx:tx/l,ty:ty/l,nx:-ty/l,ny:tx/l}};
+  const at3=(d,lat,y)=>{const f=frame(d);return new THREE.Vector3(wx(f.p.x+f.nx*lat),y,wz(f.p.y+f.ny*lat))};
+  const Z=new THREE.Vector3(0,0,1),tmp=new THREE.Matrix4(),q=new THREE.Quaternion();
+  const beam=(a,b,t,col)=>{const L=a.distanceTo(b),dir=b.clone().sub(a).normalize(),mid=a.clone().add(b).multiplyScalar(.5);q.setFromUnitVectors(Z,dir);tmp.compose(mid,q,new THREE.Vector3(1,1,1));
+    put(col,new THREE.BoxGeometry(t,t,L).applyMatrix4(tmp),new THREE.BoxGeometry(t+.024,t+.024,L+.024).applyMatrix4(tmp))};
+  const block=(c,w,h,dp,yaw,col,o=.012)=>{tmp.makeRotationY(yaw).setPosition(c.x,c.y,c.z);put(col,new THREE.BoxGeometry(w,h,dp).applyMatrix4(tmp),new THREE.BoxGeometry(w+2*o,h+2*o,dp+2*o).applyMatrix4(tmp))};
+  const prism=(c,w,h,dp,yaw,col)=>{const mkp=e=>{const sh=new THREE.Shape();sh.moveTo(-w/2-e,0);sh.lineTo(w/2+e,0);sh.lineTo(0,h+e);sh.lineTo(-w/2-e,0);const geo=new THREE.ExtrudeGeometry(sh,{depth:dp+2*e,bevelEnabled:false});geo.translate(0,-e*.5,-(dp+2*e)/2);return geo};
+    tmp.makeRotationY(yaw).setPosition(c.x,c.y,c.z);put(col,mkp(0).applyMatrix4(tmp),mkp(.014).applyMatrix4(tmp))};
+  const col=MONO[k%MONO.length],H=BR_H+.008,lat=ROAD/2+11,c0=Math.min(sp.core,62),np=Math.max(6,Math.round(2*c0/12));
+  // camelback truss on both sides of the deck
+  // solid camelback girders, chunky like a game piece, with a dark cap and bolt plates
+  [-1,1].forEach(sd=>{let prev=null;
+    for(let j=0;j<=np;j++){const d=-c0+2*c0*j/np,ph=.07+.08*Math.sin(Math.PI*j/np),B=at3(d,sd*lat,H),T=at3(d,sd*lat,H+ph);
+      if(prev){const f=frame((d+prev.d)/2),yaw=Math.atan2(f.tx,f.ty),mid=B.clone().add(prev.B).multiplyScalar(.5),hh=(ph+prev.ph)/2,len=B.distanceTo(prev.B)+.004;
+        block(new THREE.Vector3(mid.x,H+hh/2,mid.z),.03,hh,len,yaw,col,0);beam(prev.T,T,.036,col)}
+      if(j===0||j===np)beam(B,T,.04,col);prev={d,B,T,ph}}});
+  // portal beams over the road at each end, like the overhead bracing on Chicago truss bridges
+  [-c0,c0].forEach(d=>beam(at3(d,-lat,H+.075),at3(d,lat,H+.075),.034,col));
+  // bridge-tender towers at the four corners: stone base up to the deck, a Monopoly house on top
+  [[-1,1],[1,-1]].forEach(([se,sd])=>{{const d=se*(c0+12),f=frame(d),yaw=Math.atan2(f.tx,f.ty),c=at3(d,sd*(ROAD/2+30),0);
+    block(new THREE.Vector3(c.x,H/2,c.z),.17,H,.17,yaw,'#EFE3C8');block(new THREE.Vector3(c.x,H+.012,c.z),.2,.024,.2,yaw,'#C9B48A');
+    block(new THREE.Vector3(c.x,H+.024+.055,c.z),.12,.11,.13,yaw,'#1FB25A');prism(new THREE.Vector3(c.x,H+.024+.11,c.z),.15,.07,.15,yaw,'#1FB25A');
+    block(new THREE.Vector3(c.x,H+.024+.06,c.z),.124,.03,.134,yaw,'#FFF4C2',0)}});
+  const merge=list=>{let n=0;list.forEach(x=>{n+=(x.index?x.index.count:x.attributes.position.count)});const pos=new Float32Array(n*3),nor=new Float32Array(n*3);let o=0;
+    list.forEach(x=>{const y=x.index?x.toNonIndexed():x;y.computeVertexNormals();pos.set(y.attributes.position.array,o);nor.set(y.attributes.normal.array,o);o+=y.attributes.position.array.length;x.dispose();if(y!==x)y.dispose()});
+    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('normal',new THREE.BufferAttribute(nor,3));return geo};
+  Object.entries(bag).forEach(([c,b])=>{const m=new THREE.Mesh(merge(b.m),toonM(c));m.castShadow=true;g.add(m);if(b.o.length)g.add(new THREE.Mesh(merge(b.o),OUTM()))})}
 // flat fallback when 3D is unavailable
 let flatBuilt=false;
 function renderFlat(rebuild){
