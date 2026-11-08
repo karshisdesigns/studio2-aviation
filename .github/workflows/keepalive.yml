@@ -1,0 +1,24 @@
+name: Keep the game save awake
+# Supabase free projects pause after about a week with no activity. This pings the save once a day,
+# and on the 1st of each month records a heartbeat so GitHub keeps this daily schedule switched on.
+on:
+  schedule:
+    - cron: '23 14 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          curl -fsS "https://iviatyqsvkdtxkzdikpk.supabase.co/rest/v1/game_docs?select=id,updated_at&limit=1" \
+            -H "apikey: sb_publishable_hbkMBEvWz26GFWv3VBZyCA_aFev4M6-"
+      - name: Monthly heartbeat
+        run: |
+          if [ "$(date -u +%d)" != "01" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then exit 0; fi
+          git clone --depth 1 "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" repo
+          cd repo && date -u +%FT%TZ > heartbeat.txt
+          git config user.name "keepalive-bot" && git config user.email "keepalive@users.noreply.github.com"
+          git add heartbeat.txt && git commit -m "Heartbeat" && git push
