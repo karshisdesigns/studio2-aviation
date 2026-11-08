@@ -2302,8 +2302,8 @@ $('#guide-pop').addEventListener('click',e=>{const b=e.target.closest('[data-g]'
 let TOUR_ON=false,TI=0,tAuto=false,tTimer=null,tKey=null,tVoice=false,tAudio=null,tSay=0;
 function tHush(){tSay++;try{speechSynthesis.cancel()}catch(e){}if(tAudio){tAudio.onended=tAudio.onerror=null;tAudio.pause();tAudio=null}}
 function tSpeak(text,done){try{const ss=speechSynthesis,u=new SpeechSynthesisUtterance(text),vs=ss.getVoices();let v=null;
-    for(const r of[/Google US English/i,/Samantha/i,/Aaron/i,/Alex/i,/Microsoft (Guy|Aria|Jenny)/i]){v=vs.find(x=>r.test(x.name)&&/en/i.test(x.lang));if(v)break}
-    if(!v)v=vs.find(x=>/en-US/i.test(x.lang));if(v)u.voice=v;u.rate=.9;u.pitch=1;const t0=Date.now(),need=(text.split(/\s+/).length/2.6+1)*1000,end=()=>{const left=need*.6-(Date.now()-t0);left>0?setTimeout(done,left):done()};u.onend=end;u.onerror=end;ss.speak(u)}catch(e){setTimeout(done,(text.split(/\s+/).length/2.6+1)*1000)}}
+    for(const r of[/Grandpa/i,/Reed/i,/Microsoft (Guy|Davis|Christopher|Andrew|Brian|Eric|Roger|Tony|Jason)/i,/Aaron/i,/Eddy/i,/Microsoft (David|Mark)/i,/\bAlex\b/i,/Fred/i,/Ralph/i,/male/i]){v=vs.find(x=>r.test(x.name)&&/en[-_]US/i.test(x.lang));if(v)break}
+    if(!v)v=vs.find(x=>/en-US/i.test(x.lang));if(v)u.voice=v;u.rate=.86;u.pitch=.88;const t0=Date.now(),need=(text.split(/\s+/).length/2.6+1)*1000,end=()=>{const left=need*.6-(Date.now()-t0);left>0?setTimeout(done,left):done()};u.onend=end;u.onerror=end;ss.speak(u)}catch(e){setTimeout(done,(text.split(/\s+/).length/2.6+1)*1000)}}
 function tPlay(k,text,done){tHush();const my=tSay,fin=()=>{if(my===tSay)done()};const a=new Audio(`voice/${String(k+1).padStart(2,'0')}.mp3`);tAudio=a;let fell=false;
   const fb=()=>{if(fell||my!==tSay)return;fell=true;tAudio=null;tSpeak(text,fin)};a.onended=fin;a.onerror=fb;a.play().catch(fb)}
 const tTiles=type=>S.tiles.map((t,i)=>t.type===type?i:-1).filter(i=>i>0);
