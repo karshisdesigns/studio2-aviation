@@ -57,6 +57,38 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .view-btns{display:flex;justify-content:center;gap:8px}
 .vbtn{font-weight:800;font-size:12px;padding:4px 12px;border:3px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
 .vbtn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.pp{position:fixed;inset:0;z-index:80;background:rgba(20,20,20,.72);display:flex;flex-direction:column;align-items:center;padding:28px 16px 16px;overflow:auto}
+.pp-printer{position:relative;width:min(330px,92vw);height:74px;background:var(--ink);border-radius:18px 18px 10px 10px;box-shadow:0 6px 0 #000;display:flex;align-items:center;justify-content:space-between;padding:0 18px 14px;color:#fff;font-weight:900;font-size:12px;letter-spacing:.12em;z-index:2}
+.pp-printer i{width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:ppblink .5s steps(2) 6}
+.pp-printer:after{content:"";position:absolute;left:14px;right:14px;bottom:8px;height:8px;border-radius:4px;background:#000;box-shadow:inset 0 2px 3px #444}
+@keyframes ppblink{50%{opacity:.25}}
+.pp-clip{width:min(306px,86vw);overflow:hidden;margin-top:-12px;padding:0 4px 14px}
+.pp-tix{background:var(--paper);border:3px solid var(--ink);border-top:none;border-radius:0 0 18px 18px;transform:translateY(-102%);animation:ppprint 2.8s steps(14,end) .35s forwards;position:relative;box-shadow:5px 6px 0 rgba(0,0,0,.35)}
+@keyframes ppprint{to{transform:translateY(0)}}
+.pp-rb{height:12px;background:linear-gradient(90deg,#E8262E 0 14%,#FF8A1E 14% 28%,#FFD21F 28% 42%,#14A04A 42% 56%,#3CC4F0 56% 70%,#1E5AD6 70% 84%,#8E4DE0 84%)}
+.pp-in{padding:12px 16px 6px}
+.pp-h{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:11px;letter-spacing:.14em}
+.pp-h b{font-size:15px;letter-spacing:.02em}
+.pp-k{font-size:10px;font-weight:900;letter-spacing:.14em;opacity:.55;text-transform:uppercase}
+.pp-v{font-weight:900;font-size:15px;line-height:1.15}
+.pp-name{font-size:21px;margin:2px 0 10px;text-transform:uppercase;letter-spacing:.02em;overflow-wrap:anywhere}
+.pp-route{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;margin-bottom:10px}
+.pp-route .pp-big{font-size:30px;font-weight:900;line-height:1}
+.pp-route svg{width:30px;height:30px}
+.pp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 6px;margin-bottom:10px}
+.pp-dest{border:3px solid var(--ink);border-radius:12px;padding:6px 10px;margin-bottom:10px;font-weight:900;font-size:14px}
+.pp-cut{border-top:3px dashed var(--ink);margin:0 -16px;position:relative}
+.pp-cut:before,.pp-cut:after{content:"";position:absolute;top:-10px;width:18px;height:18px;border-radius:50%;background:#2a2a2a}
+.pp-cut:before{left:-12px}.pp-cut:after{right:-12px}
+.pp-stub{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0 4px}
+.pp-seat{font-weight:900;font-size:40px;line-height:1}
+.pp-bars{height:46px;flex:1;display:block}
+.pp-stamp{position:absolute;right:12px;bottom:76px;border:4px solid var(--red);color:var(--red);font-weight:900;font-size:22px;letter-spacing:.08em;padding:4px 10px;border-radius:10px;transform:rotate(-14deg) scale(2.4);opacity:0;animation:ppstamp .32s cubic-bezier(.2,1.6,.4,1) 3.5s forwards;background:rgba(255,255,255,.75)}
+@keyframes ppstamp{to{opacity:1;transform:rotate(-14deg) scale(1)}}
+.pp-go{margin-top:6px;opacity:0;animation:ppfade .4s ease 3.9s forwards;font:inherit;font-weight:900;font-size:18px;padding:14px 24px;border:3px solid var(--ink);border-radius:999px;background:var(--sun);box-shadow:4px 4px 0 var(--ink);cursor:pointer}
+.pp-note{color:#fff;font-weight:800;text-align:center;margin:10px 0 0;opacity:0;animation:ppfade .4s ease 4.1s forwards}
+@keyframes ppfade{to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.pp-tix{animation:none;transform:none}.pp-stamp,.pp-go,.pp-note{animation:none;opacity:1;transform:rotate(-14deg)}}
 .tour{position:fixed;inset:0;z-index:58;pointer-events:none}
 .tr-card{position:absolute;left:50%;bottom:calc(74px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(980px,calc(100vw - 32px));background:var(--paper);border:4px solid var(--ink);border-radius:26px;box-shadow:8px 8px 0 var(--pink);padding:18px 26px 22px;pointer-events:auto;transition:opacity .35s,transform .35s}
 .tr-card.out{opacity:0;transform:translate(-50%,12px)}
@@ -493,6 +525,7 @@ body.phone-mode .hud-top,body.phone-mode .dock{visibility:hidden}
 <div class="steps" id="steps" aria-hidden="true"></div>
 <div class="banner" id="banner" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status"></div>
+<div class="pp" id="pp" hidden aria-live="polite"></div>
 <div class="tour" id="tour" hidden><div class="tr-card" id="tr-card"><div class="tr-top"><span class="tr-chip" id="tr-chip"></span><span class="tr-n" id="tr-n"></span></div><div class="tr-body"><p class="tr-text" id="tr-text"></p><div class="tr-side" id="tr-side"></div></div></div>
   <div class="tr-ctl" id="tr-ctl"><button type="button" data-t="prev" aria-label="Back">&#9664;</button><button type="button" data-t="voice" id="tr-voice" aria-pressed="false">&#128264; Voice</button><button type="button" data-t="auto" id="tr-auto">Auto</button><button type="button" data-t="next" class="tr-next">Next &#9654;</button><button type="button" data-t="cap" id="tr-cap">Captions</button><button type="button" data-t="exit" aria-label="End the tour">&#10005;</button><span class="tr-keys">Space: next &middot; &larr;: back &middot; V: voice &middot; C: captions &middot; H: hide buttons &middot; Esc: end</span></div></div>
 <div class="guide-pop" id="guide-pop" hidden role="dialog" aria-label="Wanda the marshaller"><div class="gp-card"><div class="gp-face" aria-hidden="true">&#128075;</div><h3>Howdy, I'm Wanda!</h3><p>I'm the gate marshaller. I don't roll, I cheer. Lost or new? I've got you.</p>
@@ -1798,7 +1831,7 @@ async function doRoll(opt){
   setMsg(`${fn} rolled a ${n}!`);
   const effects=[];
   // zoom in on whoever is rolling, then watch them hop square by square
-  if(first){const seat=boardingSeat();p.started=true;p.pos=seat;logIt(`${p.name} boarded at seat ${seat}.`);
+  if(first){const seat=boardingSeat();p.started=true;p.pos=seat;if(curRemote===p.id){PASS={pid:p.id,seat,at:Date.now()};lastSent=''}logIt(`${p.name} boarded at seat ${seat}.`);
     setMsg(`First flight! ${fn} gets a boarding pass to a random seat.`);await zoomToPiece(p.id,6.5);await banner(`Boarding pass: seat ${seat}`,1500,'pass');
     if(W3.ok)setFollow(true);await hopPiece(p.id,[seat],{dur:1.3,hgt:3.2});burstAt(seat);await sleep(300)}
   setMsg(`${fn} moves ${n} square${n===1?'':'s'}…`);await zoomToPiece(p.id,4.6);await banner(`${fn} moves ${n}`,1300);await sleep(250);
@@ -2135,7 +2168,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&gwOpen)closeGiftWal
 
 /* ---------- phone play: a QR code on the big screen; phones pick a player and roll through the room ---------- */
 const PLAY_URL='https://karshisdesigns.github.io/studio2-aviation/#play';
-let phCalled=null,ROOM=null,LEADER=false,curRemote=null,hostQ=[],lastSent='',lastSentAt=0,LAST=null,DIESTOP=null,phPick='';
+let PASS=null,passSeen='',passT=null,phCalled=null,ROOM=null,LEADER=false,curRemote=null,hostQ=[],lastSent='',lastSentAt=0,LAST=null,DIESTOP=null,phPick='';
 const mySince=Date.now();
 const phoneLike=()=>{try{return matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<620}catch(e){return false}};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
@@ -2160,7 +2193,7 @@ async function startRoom(){const cl=window.claude;if(!cl||!cl.use){renderPhone()
   r.presence({role:PHONE?'phone':(phoneLike()?'viewer':'board'),since:mySince,pid:PHONE?(myPid()||null):null}).catch(()=>{});
   r.onPeers(()=>{electLeader();renderQRCount();if(PHONE)renderPhone()});r.onConnection(()=>{if(PHONE)renderPhone()});
   r.on('roll',m=>{if(LEADER)hostRoll(m.data||{})});r.on('stop',m=>{if(LEADER)hostStop(m.data||{})});r.on('act',m=>{if(!LEADER)return;const d=m.data||{};if(d.id==='call')hostCall(d);else hostAct(d)});r.on('got',m=>{if(LEADER)hostGot(m.data||{})});
-  r.on('st',m=>{if(m.sameTab)return;LAST=m.data||null;if(PHONE)renderPhone()});
+  r.on('st',m=>{if(m.sameTab)return;LAST=m.data||null;if(PHONE){renderPhone();phonePass(LAST)}});
   setInterval(hostTick,300)}
 const emit=(t,d)=>{if(ROOM)ROOM.emit(t,d).catch(()=>{})};
 // ---- host side (the big screen)
@@ -2197,9 +2230,9 @@ function cardInfo(){const b=$('#m-body').cloneNode(true),f=b.querySelector('#fli
   return{kind:($('#m-kind')||{}).textContent||'',title:($('#m-title')||{}).textContent||'',text:[...b.children].map(e=>e.textContent.replace(/\s+/g,' ').trim()).filter(Boolean).join('\n').slice(0,1200),btns,sel,sealed}}
 function hostState(){const ov=$('#bigdie');let phase='idle',card=null;
   if(curRemote){if(!ov.hidden&&ov.classList.contains('spinning'))phase='spin';else if(!modal.hidden){phase='card';card=cardInfo()}else if(busy||!ov.hidden)phase='move';else phase='done'}
-  return{pid:curRemote,phase,card,msg:($('#roll-msg')||{}).textContent||'',q:hostQ.slice(0,30)}}
+  return{pid:curRemote,phase,card,msg:($('#roll-msg')||{}).textContent||'',q:hostQ.slice(0,30),pass:PASS&&PASS.pid===curRemote?PASS:null}}
 function hostTick(){if(!LEADER)return;let st=hostState();
-  if(st.phase==='done'){curRemote=null;emit('st',st);lastSent='';if(hostQ.length){const nx=hostQ.shift();setTimeout(()=>hostStart(nx),900)}return}
+  if(st.phase==='done'){curRemote=null;PASS=null;st.pass=null;emit('st',st);lastSent='';if(hostQ.length){const nx=hostQ.shift();setTimeout(()=>hostStart(nx),900)}return}
   const js=JSON.stringify(st);if(js!==lastSent||Date.now()-lastSentAt>3000){lastSent=js;lastSentAt=Date.now();emit('st',st)}}
 // ---- phone side
 const HOW=[[/gift card|meal|dinner|coffee/i,'The game host sends the gift card to your SCB email.'],[/tour|cruise/i,'The game host books a date with you. Tours run most days.'],[/massage/i,'The game host books it with our building\'s front desk for you.'],[/sketchbook/i,'Grab an SCB sketchbook from the game host.'],[/notepad/i,'Grab a studio notepad from the game host.'],[/movie/i,'The game host sends you the Music Box gift card.'],[/./,'The game host orders it and hands it to you at your desk.']];
@@ -2338,6 +2371,32 @@ $('#drawer').addEventListener('click',e=>{if(e.target.closest('#how-tour'))start
 setInterval(()=>{if(TOUR_ON&&busy)endTour()},500);
 if(/tour/i.test(location.hash)&&!PHONE)setTimeout(()=>{if(W3.ok){startTour();if(/voice/i.test(location.hash))tVoiceT()}},2500);
 try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
+
+/* ---------- the phone prints a boarding pass on a player's first roll ---------- */
+function passBars(seed){let h=2166136261;for(const ch of seed){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0}let x=0,out='';
+  for(let i=0;i<46&&x<190;i++){h=Math.imul(h^(h>>>13),1274126177)>>>0;const w=1+h%3,gap=1+(h>>>5)%2;out+=`<rect x="${x}" y="0" width="${w}" height="46"/>`;x+=w+gap}
+  return `<svg class="pp-bars" viewBox="0 0 ${x} 46" preserveAspectRatio="none" fill="#141414">${out}</svg>`}
+function printSound(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=chime.ac||(chime.ac=new A());if(ac.state==='suspended')ac.resume();
+  const len=Math.floor(ac.sampleRate*.05),buf=ac.createBuffer(1,len,ac.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
+  for(let k=0;k<14;k++){const s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=1800;s.buffer=buf;s.connect(f);f.connect(g);g.connect(ac.destination);g.gain.value=.16;s.start(ac.currentTime+.35+k*.2)}
+  const t=ac.currentTime+3.5,o=ac.createOscillator(),g2=ac.createGain();o.type='square';o.frequency.setValueAtTime(140,t);g2.gain.setValueAtTime(.14,t);g2.gain.exponentialRampToValueAtTime(.001,t+.18);o.connect(g2);g2.connect(ac.destination);o.start(t);o.stop(t+.2)}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate([25,175,25,175,25,175,25,175,25,175,25,175,25,600,90])}catch(e){}}
+function showPass(ps){const me=S.players.find(p=>p.id===ps.pid);if(!me)return;const t=S.tiles[ps.seat]||{},ty=TYPES[t.type]||TYPES.blank,pz=hasPrize(t)?prizeOf(t):null;
+  const d=new Date(ps.at||Date.now()),fl=`S2 ${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`,grp='ABCDE'[(ps.seat*7)%5];
+  const tm=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),what=pz?pz.short:(t.title||ty.name);
+  const plane='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>';
+  const el=$('#pp');el.innerHTML=`<div class="pp-printer"><span>SCB GATE A</span><i></i><span>PRINTING</span></div>
+   <div class="pp-clip"><div class="pp-tix"><div class="pp-rb"></div><div class="pp-in">
+    <div class="pp-h"><b>STUDIO 2 AVIATION</b><span>BOARDING PASS</span></div>
+    <div class="pp-k" style="margin-top:8px">Passenger</div><div class="pp-v pp-name">${esc(me.name)}</div>
+    <div class="pp-route"><div><div class="pp-k">From</div><div class="pp-big">GTA</div><div class="pp-k">Gate A</div></div>${plane}<div style="text-align:right"><div class="pp-k">To</div><div class="pp-big">SQ ${ps.seat}</div><div class="pp-k">${esc(ty.name)}</div></div></div>
+    <div class="pp-grid"><div><div class="pp-k">Flight</div><div class="pp-v">${fl}</div></div><div><div class="pp-k">Group</div><div class="pp-v">${grp}</div></div><div><div class="pp-k">Boards</div><div class="pp-v">${esc(tm)}</div></div></div>
+    <div class="pp-dest"><span class="pp-k">Your seat</span><br>Square ${ps.seat}: ${esc(what)}</div>
+    <div class="pp-cut"></div><div class="pp-stub"><div><div class="pp-k">Seat</div><div class="pp-seat">${ps.seat}</div></div>${passBars(me.name+ps.seat)}</div>
+   </div><div class="pp-stamp">BOARDED</div></div></div>
+   <button class="pp-go" type="button" id="pp-go">Find my seat &#9992;</button><p class="pp-note">Your seat was picked at random. Watch the big screen!</p>`;
+  el.hidden=false;printSound();$('#pp-go').onclick=()=>{el.hidden=true};clearTimeout(passT);passT=setTimeout(()=>{el.hidden=true},14000)}
+function phonePass(L){if(L&&L.phase==='card'&&!$('#pp').hidden&&!phonePass.c){phonePass.c=1;clearTimeout(passT);passT=setTimeout(()=>{$('#pp').hidden=true;phonePass.c=0},2500)}if(!L||!L.pass||L.pass.pid!==myPid())return;const key=L.pass.pid+':'+L.pass.seat+':'+L.pass.at;if(key===passSeen)return;passSeen=key;showPass(L.pass)}
 $('#dock-qr').onclick=openQR;$('#qr-close').onclick=()=>{$('#qr-modal').hidden=true};$('#qr-modal').addEventListener('click',e=>{if(e.target.id==='qr-modal')$('#qr-modal').hidden=true});
 window.addEventListener('resize',renderQRCorner);$('#v-phone').onclick=()=>setPhone(true);
 if(PHONE)setPhone(true);renderQRCorner();setInterval(renderQRCorner,60000);startRoom();
