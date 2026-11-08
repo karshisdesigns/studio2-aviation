@@ -490,7 +490,7 @@ const RB=[C.red,C.orange,C.sun,C.green,C.sky,C.blue,C.purple,C.pink];
 
 const TYPES={
   start:{name:'Check-In',fill:C.ink,fg:'#fff',icon:'flag',blurb:'Start line. Every pass earns a passport stamp.'},
-  create:{name:'Sketch',fill:C.red,fg:'#fff',icon:'pencil',blurb:'A drawing or making prompt.'},
+  create:{name:'Sketch',fill:C.red,fg:'#fff',icon:'pencil',blurb:'A sketching, making or show-and-tell prompt.'},
   customs:{name:'Trivia',fill:C.green,fg:'#fff',icon:'passport',blurb:'Aviation and architecture trivia.'},
   prize:{name:'Prize',fill:C.sun,fg:C.ink,icon:'star',blurb:'Win the experience printed on the square.'},
   bonus:{name:'Roll again',fill:C.lime,fg:C.ink,icon:'dice',blurb:'Roll again right away.'},
@@ -659,6 +659,12 @@ const POOLS={
     T('create','Bag claim','Redesign a baggage claim carousel in five minutes.'),
     T('create','Box plane','Draw an airplane made only of rectangles.'),
     T('create','The chair','Sketch the chair you are sitting in. Five minutes.'),
+    T('create','Window seat','Sketch the view out an airplane window from memory: wing, clouds, the city below. 10 minutes.'),
+    T('create','Show & tell','Bring in something that inspired you (a book, photo, model, film or object) and show it off to the studio next Thursday.'),
+    T('create','Concourse','Draw a one-point perspective down a concourse. Five minutes.'),
+    T('create','Spotted','Keep an eye out for something aviation this week: a plane overhead, a tail, a hangar, a tower. Sketch it and pin it up next Thursday.'),
+    T('create','Thumbnails','Six thumbnail sketches of a terminal roof in six minutes. The studio picks the best one.'),
+    T('create','Avgeek find','Find one piece of aviation inspiration this week (a photo, article, video or airport detail) and share it with the studio next Thursday.'),
   ],
   social:[
     T('social','Coffee run','Grab a coffee with someone outside your discipline. Ask what they are drawing this week.'),
@@ -962,7 +968,7 @@ function openTile(i,land){
   let b='';
   if(land)b+=`<p class="landed">${esc(land.name)} rolled a ${land.roll}.</p>`;
   if(!(land&&(land.prize||land.raffle)))b+=`<p class="prompt">${t.type==='raffle'?`Land here to earn an upgrade ticket for the Final Boarding Call, our year-end drawing. This year's First Class prize: ${esc(S.mega.name)}.`:pz?`${t.type==='terminal'?'Special prize. ':''}Land here to win: ${esc(pz.name)}.${pz.est?` Estimated value $${pz.est}.`:''}`:esc(t.text||ty.blurb)}</p>`;
-  if(t.type==='create')b+=`<div class="effect">Grab prompt card #${i}, write <b>#${i}</b> on your sketch and keep the card in your sketchbook. At the end of the year the whole studio votes on the best one.</div>`;
+  if(t.type==='create')b+=SHOW_TELL.includes(t.title)?`<div class="effect"><span>Grab prompt card #${i} and bring your find to next Thursday's happy hour. The studio wants to see it.</span></div>`:`<div class="effect"><span>Grab prompt card #${i}, write <b>#${i}</b> on your sketch and keep the card in your sketchbook. At the end of the year the whole studio votes on the best one.</span></div>`;
   if(!land&&(t.type==='tailwind'||t.type==='goaround')&&Number.isInteger(t.to))b+=`<div class="effect">${t.type==='tailwind'?'Jumps ahead':'Goes back'} to square ${t.to}</div>`;
   if(!land&&t.type==='tower'&&S.champion)b+=`<div class="effect">Held by ${esc(S.champion.name)}</div>`;
   const sealed=land&&(land.prize||land.raffle);
@@ -1042,6 +1048,13 @@ function placeTape(){if(!S.catalog.some(c=>c.id==='tape'))S.catalog.push({...PRI
   if(S.tiles.some(t=>t.prize==='tape'))return false;const pz=S.tiles.map((t,i)=>hasPrize(t)?i:-1).filter(i=>i>=0);let best=-1,bd=-1;
   S.tiles.forEach((t,i)=>{if(t.type!=='customs'||i<9)return;const dd=Math.min(...pz.map(j=>Math.min(Math.abs(j-i),N-Math.abs(j-i))));if(dd>bd){bd=dd;best=i}});
   if(best<0)return false;S.tiles[best]={type:'prize',title:'Tape measure',text:'',prize:'tape'};return true}
+// Nov 2026 board update: three more mini tape measures and six new sketch and show-and-tell squares, all on old trivia squares
+const SHOW_TELL=['Show & tell','Avgeek find'];
+const BOARD_V2={tape:[17,42,95],tasks:{13:'Window seat',27:'Show & tell',39:'Concourse',55:'Spotted',73:'Thumbnails',89:'Avgeek find'}};
+function boardV2(){if(!S.budget||S.budget.boardV>=2)return false;S.budget.boardV=2;let n=0;
+  BOARD_V2.tape.forEach(i=>{if(S.tiles[i]&&S.tiles[i].type==='customs'){S.tiles[i]={type:'prize',title:'Tape measure',text:'',prize:'tape'};n++}});
+  Object.entries(BOARD_V2.tasks).forEach(([i,title])=>{i=+i;const q=POOLS.create.find(t=>t.title===title);if(q&&S.tiles[i]&&S.tiles[i].type==='customs'){S.tiles[i]={...q};n++}});
+  if(n)assignPerks(S.tiles,false);return n>0}
 function normalize(){
   if(!S||!Array.isArray(S.players)||!S.players.length){S=null;S=sample()}
   S.players.forEach(p=>{p.won=p.won||0;p.cards=Array.isArray(p.cards)?p.cards:[];if(!(p.pos>=0&&p.pos<N))p.pos=0;p.laps=p.laps||0});
@@ -1065,6 +1078,7 @@ function normalize(){
   if(noTurnBacks(S.tiles))assignPerks(S.tiles,false);
   coffeeChats(S.tiles);
   placeTape();
+  boardV2();
   if(!S.players.find(p=>p.id===S.current))S.current=S.players[0].id;}
 normalize();G.marks=landmarkPlan();
 const curPlayer=()=>S.players.find(p=>p.id===S.current)||S.players[0];
