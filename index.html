@@ -448,6 +448,55 @@ body.phone-mode .hud-top,body.phone-mode .dock{visibility:hidden}
 .ph-got{margin-top:8px;font:inherit;font-size:12px;font-weight:900;padding:6px 10px;border:2.5px solid var(--ink);border-radius:999px;background:var(--wash)}
 .ph-link{display:block;margin:18px auto 0;font:inherit;font-weight:900;background:none;border:0;text-decoration:underline}
 .ph-codebox{display:flex;gap:6px;margin-top:8px}.ph-code{width:110px;font:inherit;font-size:16px;padding:6px 10px;border:2.5px solid var(--ink);border-radius:10px}.ph-ok{font-size:13px;color:var(--green)}
+.ph-dot.has-face,.co-dot.has-face{padding:0;overflow:hidden;background:#fff}
+.ph-dot.has-face img,.co-dot.has-face img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-dot.sm{width:30px;height:30px;font-size:11px;border-width:2.5px}
+.ph-av{position:relative;flex:none;border:0;background:none;padding:0;font:inherit;cursor:pointer;align-self:flex-start}
+.ph-av .ph-dot.big{width:76px;height:76px;font-size:24px}
+.ph-cam{position:absolute;right:-5px;bottom:-5px;width:32px;height:32px;border-radius:50%;background:var(--paper);border:3px solid var(--ink);display:grid;place-items:center;box-shadow:2px 2px 0 var(--ink)}
+.ph-cam svg{width:17px;height:17px}
+.ph-me>div{min-width:0;flex:1}
+.ph-tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.ph-chipbtn{font:inherit;font-size:13px;font-weight:900;padding:6px 11px;border:2.5px solid var(--ink);border-radius:999px;background:var(--wash);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+.ph-chipbtn.ghost{background:var(--paper);box-shadow:none}
+.ph-face-msg{font-size:13px;font-weight:900;margin-top:6px}
+.ph-pass{display:flex;align-items:stretch;width:100%;margin-top:12px;padding:0;font:inherit;color:inherit;text-align:left;background:var(--paper);border:3px solid var(--ink);border-radius:16px;box-shadow:4px 4px 0 var(--ink);overflow:hidden;cursor:pointer}
+.ph-pass:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.pps-rb{width:12px;flex:none;background:linear-gradient(180deg,#E8262E 0 14%,#FF8A1E 14% 28%,#FFD21F 28% 42%,#14A04A 42% 56%,#3CC4F0 56% 70%,#1E5AD6 70% 84%,#8E4DE0 84%)}
+.pps-m{flex:1;padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:1px}
+.pps-m b{font-size:20px;font-weight:900;line-height:1.1}
+.pps-t{font-size:13px;font-weight:800;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pps-k{font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+.pps-r{flex:none;border-left:3px dashed var(--ink);padding:8px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--wash)}
+.pps-r b{font-size:30px;font-weight:900;line-height:1}
+.pps-open{margin-top:5px;font-size:11px;font-weight:900;background:var(--ink);color:#fff;border-radius:999px;padding:3px 10px}
+.pm-card{background:var(--paper);border:4px solid var(--ink);border-radius:20px;padding:10px;box-shadow:5px 5px 0 var(--ink)}
+.pm-view{position:relative;aspect-ratio:4/3;border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:#BFE9F7;touch-action:none;cursor:grab}
+.pm-svg{width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none}
+.pm-svg .tile{cursor:pointer}
+.pm-zoom{position:absolute;right:8px;top:8px;display:grid;gap:6px}
+.pm-zoom button{width:38px;height:38px;border-radius:50%;border:3px solid var(--ink);background:var(--paper);font:inherit;font-weight:900;font-size:22px;line-height:1;box-shadow:2px 2px 0 var(--ink);padding:0;cursor:pointer}
+.pm-bar{display:flex;gap:8px;margin:10px 0 0}
+.pm-bar button{flex:1;font:inherit;font-weight:900;font-size:14px;padding:9px 6px;border:3px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+.pm-bar button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.pm-bar .pm-z{flex:none;width:42px;padding:0;font-size:22px;line-height:1}
+.pm-info{margin-top:10px;border:3px solid var(--ink);border-radius:14px;padding:10px 12px;background:var(--wash)}
+.pm-chip{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border:2.5px solid var(--ink);border-radius:999px}
+.pm-info h4{font-family:var(--display);font-weight:400;font-size:21px;margin:6px 0 4px;line-height:1.1}
+.pm-info p{margin:0;font-weight:700;font-size:14px;line-height:1.35}
+.pm-here{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center;font-size:13px;font-weight:900}
+.pm-here span.pm-n{display:flex;align-items:center;gap:5px;background:var(--paper);border:2px solid var(--ink);border-radius:999px;padding:2px 9px 2px 2px}
+.pm-hint{font-size:12px;font-weight:800;opacity:.7;margin:8px 2px 0;text-align:center}
+.pm-pulse{animation:pmpulse 1.7s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pmpulse{0%{transform:scale(.55);opacity:.85}100%{transform:scale(1.9);opacity:0}}
+.pm-bob{animation:pmbob 1.5s ease-in-out infinite}
+@keyframes pmbob{50%{transform:translateY(-12px)}}
+.pm-sel{animation:pmspin 6s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pmspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.pm-pulse,.pm-bob,.pm-sel{animation:none}}
+.pp-pax{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0 10px}
+.pp-pax .pp-name{margin:2px 0 0}
+.pp-face{flex:none;width:60px;height:60px;border-radius:12px;border:3px solid var(--ink);object-fit:cover;display:grid;place-items:center;font-weight:900;font-size:21px;box-sizing:border-box}
 .ph-board{font:inherit;font-weight:900;font-size:12px;padding:6px 10px;border:2.5px solid var(--ink);border-radius:999px;background:var(--wash)}
 </style>
 
@@ -1278,11 +1327,23 @@ function zoomToPiece(id,dist){const pc=W3.ok&&W3.pieces.get(id);if(!pc)return Pr
 function setFollow(on){W3.follow=on;$('#v-follow').setAttribute('aria-pressed',on)}
 const PAWN=()=>{const pts=[[0,0],[.17,0],[.175,.04],[.14,.075],[.085,.19],[.065,.3],[.11,.335],[.1,.36],[0,.37]].map(([x,y])=>new THREE.Vector2(x,y));return new THREE.LatheGeometry(pts,30)};
 let PG=null,HG=null;
-function labelTex(text,color){const fs=56,f=`900 ${fs}px Gabarito, "Arial Black", sans-serif`;const m=document.createElement('canvas').getContext('2d');m.font=f;
-  const w=Math.ceil(m.measureText(text).width)+60,h=96,cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d');
-  g.beginPath();const r=42;g.moveTo(r+5,5);g.arcTo(w-5,5,w-5,h-5,r);g.arcTo(w-5,h-5,5,h-5,r);g.arcTo(5,h-5,5,5,r);g.arcTo(5,5,w-5,5,r);g.closePath();
-  g.fillStyle=color;g.fill();g.lineWidth=9;g.strokeStyle=C.ink;g.stroke();g.font=f;g.fillStyle=onDark(color);g.textAlign='center';g.textBaseline='middle';g.fillText(text,w/2,h/2+3);
+function labelTex(text,color,img){const fs=56,f=`900 ${fs}px Gabarito, "Arial Black", sans-serif`;const m=document.createElement('canvas').getContext('2d');m.font=f;
+  const fw=img?86:0,w=Math.ceil(m.measureText(text).width)+60+fw,h=96,cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d'),L=img?50:5;
+  g.beginPath();const r=42;g.moveTo(L+r,5);g.arcTo(w-5,5,w-5,h-5,r);g.arcTo(w-5,h-5,L,h-5,r);g.arcTo(L,h-5,L,5,r);g.arcTo(L,5,w-5,5,r);g.closePath();
+  g.fillStyle=color;g.fill();g.lineWidth=9;g.strokeStyle=C.ink;g.stroke();g.font=f;g.fillStyle=onDark(color);g.textAlign='center';g.textBaseline='middle';g.fillText(text,img?(91+w-5)/2:w/2,h/2+3);
+  if(img){const cx=48,cy=48,cr=42;try{g.save();g.beginPath();g.arc(cx,cy,cr,0,Math.PI*2);g.fillStyle='#fff';g.fill();g.clip();const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,s=Math.min(iw,ih);
+    g.drawImage(img,(iw-s)/2,(ih-s)*.4,s,s,cx-cr,cy-cr,cr*2,cr*2);g.restore()}catch(e){g.restore()}g.beginPath();g.arc(cx,cy,cr,0,Math.PI*2);g.lineWidth=9;g.strokeStyle=C.ink;g.stroke()}
   const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;return{t,ar:w/h}}
+/* ---------- faces: a player's own photo rides on their pawn, their boarding pass and the phone map ---------- */
+const FACES={};
+const faceOk=u=>typeof u==='string'&&u.length<600&&/^(https:\/\/|\/(?!\/))/.test(u);
+let PHF={pid:null,url:undefined,t:0,msg:'',busy:false};
+function faceOf(p){if(!p)return null;if(PHF.pid===p.id&&PHF.url!==undefined&&(p.face||null)!==PHF.url&&Date.now()-PHF.t<120000)return faceOk(PHF.url)?PHF.url:null;return faceOk(p.face)?p.face:null}
+function faceImg(url){if(!faceOk(url))return null;let f=FACES[url];
+  if(!f){f=FACES[url]={img:new Image(),ok:false};f.img.crossOrigin='anonymous';f.img.onload=()=>{f.ok=true;if(W3.ok&&!PHONE){W3.pieces.forEach(pc=>pc.key='');syncPieces()}};f.img.src=url}
+  return f.ok?f.img:null}
+function dotHTML(p,cls){const f=faceOf(p);return f?`<span class="${cls} has-face" style="background:${p.color}"><img src="${esc(f)}" alt="" loading="lazy"></span>`:`<span class="${cls}" style="background:${p.color}">${esc(initials(p.name))}</span>`}
+const CAM_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.6"/></svg>';
 // players are little travellers with a rolling suitcase or a backpack (p.gear can be set later to customise)
 function turnTo(pc,yaw,k){let d=yaw-pc.g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));pc.g.rotation.y+=d*Math.min(1,k)}
 const GEARS=['suitcase','backpack'];
@@ -1305,10 +1366,10 @@ function gearModel(kind,col){const g=new THREE.Group(),acc=[C.sun,C.lime,C.orang
   else{g.add(at(box(.15,.17,.08,acc,.016),0,.3,-.115));g.add(at(box(.15,.06,.085,C.ink,.0),0,.36,-.117).translateY(0));g.add(at(box(.11,.07,.03,acc,.012),0,.25,-.17));
     [-.045,.045].forEach(x=>g.add(at(box(.022,.17,.012,C.ink,0),x,.32,.086)))}
   return g}
-function labelFor(pc,p,lb){const act=p.id===S.current,text=act?p.name.trim().split(/\s+/)[0]:lb[p.id],key=text+p.color+act+(document.fonts&&document.fonts.status);
+function labelFor(pc,p,lb){const act=p.id===S.current,text=act?p.name.trim().split(/\s+/)[0]:lb[p.id],fi=faceImg(p.face),key=text+p.color+act+(document.fonts&&document.fonts.status)+(fi?p.face:'');
   const gk=gearFor(p)+p.color;if(pc.gkey!==gk){pc.gkey=gk;if(pc.acc)pc.fig.remove(pc.acc);pc.acc=gearModel(gearFor(p),p.color);pc.fig.add(pc.acc)}
-  if(pc.key!==key){pc.key=key;pc.mat.color.set(p.color);const {t,ar}=labelTex(text,p.color);if(pc.label.material.map)pc.label.material.map.dispose();
-    pc.label.material.map=t;pc.label.material.needsUpdate=true;const h=act?.3:.19;pc.label.scale.set(h*ar,h,1);pc.label.position.y=act?1.0:.8}}
+  if(pc.key!==key){pc.key=key;pc.mat.color.set(p.color);const {t,ar}=labelTex(text,p.color,fi);if(pc.label.material.map)pc.label.material.map.dispose();
+    pc.label.material.map=t;pc.label.material.needsUpdate=true;const h=fi?(act?.36:.24):(act?.3:.19);pc.label.scale.set(h*ar,h,1);pc.label.position.y=act?1.0:.8}}
 function syncPieces(){
   if(!W3.ok){renderFlat();return}
   const lb=LBLS(),groups={},seen=new Set(),waiting=[];S.players.forEach(p=>{if(p.started)(groups[p.pos]??=[]).push(p);else waiting.push(p)});
@@ -2194,7 +2255,7 @@ const boardOnline=()=>!!(ROOM&&ROOM.peers().some(p=>p.presence&&p.presence.role=
 async function startRoom(){const cl=window.claude;if(!cl||!cl.use){renderPhone();return}let r=null;try{r=await cl.use('room')}catch(e){}if(!r){renderPhone();return}ROOM=r;
   r.presence({role:PHONE?'phone':(phoneLike()?'viewer':'board'),since:mySince,pid:PHONE?(myPid()||null):null}).catch(()=>{});
   r.onPeers(()=>{electLeader();renderQRCount();if(PHONE)renderPhone()});r.onConnection(()=>{if(PHONE)renderPhone()});
-  r.on('roll',m=>{if(LEADER)hostRoll(m.data||{})});r.on('stop',m=>{if(LEADER)hostStop(m.data||{})});r.on('act',m=>{if(!LEADER)return;const d=m.data||{};if(d.id==='call')hostCall(d);else hostAct(d)});r.on('got',m=>{if(LEADER)hostGot(m.data||{})});
+  r.on('roll',m=>{if(LEADER)hostRoll(m.data||{})});r.on('stop',m=>{if(LEADER)hostStop(m.data||{})});r.on('act',m=>{if(!LEADER)return;const d=m.data||{};if(d.id==='call')hostCall(d);else hostAct(d)});r.on('got',m=>{if(LEADER)hostGot(m.data||{})});r.on('face',m=>{if(LEADER)hostFace(m.data||{})});
   r.on('st',m=>{if(m.sameTab)return;LAST=m.data||null;if(PHONE){renderPhone();phonePass(LAST)}});
   setInterval(hostTick,300)}
 const emit=(t,d)=>{if(ROOM)ROOM.emit(t,d).catch(()=>{})};
@@ -2210,7 +2271,7 @@ let coT=null,lastCall=0;
 function chime(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=chime.ac||(chime.ac=new A());if(ac.state==='suspended')ac.resume();
   [[659.25,0],[523.25,.42],[783.99,.84]].forEach(([f,t])=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(ac.destination);const t0=ac.currentTime+t;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.22,t0+.03);g.gain.exponentialRampToValueAtTime(.001,t0+1.1);o.start(t0);o.stop(t0+1.2)})}catch(e){}}
 function boardingCall(p){const where=p.started?`Square ${p.pos}`:'Gate A';const el=$('#callout');
-  el.innerHTML=`<div class="co-card"><span class="co-dot" style="background:${p.color}">${esc(initials(p.name))}</span><div><div class="co-k"><i></i>NOW BOARDING</div><div class="co-n">${esc(p.name)}</div><div class="co-s">${esc(where)} · Grab your phone and roll!</div></div></div>`;
+  el.innerHTML=`<div class="co-card">${dotHTML(p,'co-dot')}<div><div class="co-k"><i></i>NOW BOARDING</div><div class="co-n">${esc(p.name)}</div><div class="co-s">${esc(where)} · Grab your phone and roll!</div></div></div>`;
   el.classList.add('show');clearTimeout(coT);coT=setTimeout(()=>el.classList.remove('show'),6500);chime();
   if(W3.ok){setFollow(false);focusPiece(p.id,4.6);const pc=W3.pieces.get(p.id);if(pc&&!pc.hop){let k=0;const iv=setInterval(()=>{puff(pc.cur);if(++k>=3)clearInterval(iv)},350)}}}
 function hostCall(d){const p=S.players.find(x=>x.id===d.pid);if(!p)return;
@@ -2223,6 +2284,7 @@ function hostStop(d){if(d.pid===curRemote&&DIESTOP)DIESTOP()}
 function hostAct(d){if(modal.hidden||d.pid!==curRemote)return;const ok=['m-perk','m-close','m-again','m-ans','m-swap','reveal'];if(!ok.includes(d.id))return;
   if(d.id==='m-swap'&&d.val&&$('#swap-sel'))$('#swap-sel').value=d.val;const el=$('#'+d.id);if(el&&!el.disabled)el.click();lastSent=''}
 function hostGot(d){const p=S.players.find(x=>x.id===d.pid);if(!p||!['cards','perks'].includes(d.kind))return;const it=(p[d.kind]||[])[d.i];if(!it)return;it.got=d.got!==false;logIt(`${p.name} collected: ${it.c}.`);save();lastSent=''}
+function hostFace(d){const p=S.players.find(x=>x.id===d.pid);if(!p)return;if(d.url==null)delete p.face;else if(faceOk(d.url))p.face=d.url;else return;save();if(W3.ok)W3.pieces.forEach(pc=>pc.key='');syncPieces();lastSent=''}
 function cardInfo(){const b=$('#m-body').cloneNode(true),f=b.querySelector('#flip');if(f&&!$('#flip').classList.contains('flipped'))f.querySelectorAll('.back').forEach(e=>e.remove());
   const rv=$('#reveal'),sealed=rv&&!rv.classList.contains('open');if(sealed)b.querySelectorAll('.gcard,.reveal').forEach(e=>e.remove());
   b.querySelectorAll('select,.fk').forEach(e=>e.remove());
@@ -2245,7 +2307,7 @@ function renderPhone(){if(!PHONE)return;const el=$('#ph-body');if(!el)return;con
   const conn=ROOM&&ROOM.connected(),board=boardOnline();
   $('#ph-status').innerHTML=!ROOM?'<i class="off"></i>Connecting…':!conn?'<i class="off"></i>Connecting…':board?'<i class="on"></i>Big screen connected':'<i class="off"></i>Big screen not open yet';
   if(!me){el._h='';const q=phPick.trim().toLowerCase();el.innerHTML=`<h2 class="ph-h">Who's playing?</h2><input class="ph-search" id="ph-search" placeholder="Find your name" value="${esc(phPick)}" autocomplete="off">
-    <div class="ph-list">${S.players.filter(p=>!q||p.name.toLowerCase().includes(q)).map(p=>`<button class="ph-who" data-pick="${esc(p.id)}"><span class="ph-dot" style="background:${p.color}">${esc(initials(p.name))}</span>${esc(p.name)}</button>`).join('')}</div>`;
+    <div class="ph-list">${S.players.filter(p=>!q||p.name.toLowerCase().includes(q)).map(p=>`<button class="ph-who" data-pick="${esc(p.id)}">${dotHTML(p,'ph-dot')}${esc(p.name)}</button>`).join('')}</div>`;
     const s=$('#ph-search');s.oninput=()=>{phPick=s.value;renderPhone();const s2=$('#ph-search');s2.focus();s2.setSelectionRange(s2.value.length,s2.value.length)};return}
   const fn=me.name.split(/\s+/)[0],L=LAST||{},mine=L.pid===me.id,inQ=(L.q||[]).indexOf(me.id),flew=me.lastRoll===today()&&!mine;let act='';
   if(mine&&L.phase==='spin')act=`<p class="ph-msg">The die is spinning on the big screen…</p><button class="ph-big ph-stop" data-ph="stop">STOP THE DIE</button>`;
@@ -2262,17 +2324,25 @@ function renderPhone(){if(!PHONE)return;const el=$('#ph-body');if(!el)return;con
   const note=L.note&&L.note.pid===me.id?`<p class="ph-msg">${esc(L.note.text)}</p>`:'';
   const items=[...(me.cards||[]).map((x,i)=>({x,i,kind:'cards'})),...(me.perks||[]).map((x,i)=>({x,i,kind:'perks'}))].sort((a,b)=>String(b.x.d).localeCompare(String(a.x.d)));
   const cq=curQ(),qt=(me.qt||{})[cq.key]||0;
-  const H=`<div class="ph-me"><span class="ph-dot big" style="background:${me.color}">${esc(initials(me.name))}</span><div><h2>${esc(me.name)}</h2><p>${me.started?`Square ${me.pos} · ${me.laps||0} lap${me.laps===1?'':'s'}`:'Waiting at Gate A'} · ${me.tickets||0} upgrade ticket${me.tickets===1?'':'s'}</p></div></div>
+  const pf=faceOf(me),sq=me.started?S.tiles[me.pos]||{}:null,sty=sq?TYPES[sq.type]||TYPES.blank:null,fm=PHF.pid===me.id&&PHF.msg?PHF.msg:'';
+  const H=`<div class="ph-me"><button class="ph-av" type="button" data-ph="face" aria-label="${pf?'Change your photo':'Add your face'}">${dotHTML(me,'ph-dot big')}<span class="ph-cam">${CAM_ICON}</span></button><div><h2>${esc(me.name)}</h2><p>${me.started?`Square ${me.pos} · ${me.laps||0} lap${me.laps===1?'':'s'}`:'Waiting at Gate A'} · ${me.tickets||0} upgrade ticket${me.tickets===1?'':'s'}</p>
+      <div class="ph-tools"><button class="ph-chipbtn" type="button" data-ph="face"${PHF.busy?' disabled':''}>${pf?'Change photo':'Add your face'}</button>${pf?'<button class="ph-chipbtn ghost" type="button" data-ph="noface">Remove</button>':''}</div>${fm?`<div class="ph-face-msg">${esc(fm)}</div>`:pf?'':'<div class="ph-face-msg">Add a selfie and it rides on your traveler on the big screen.</div>'}</div></div>
+    ${me.started?`<button class="ph-pass" type="button" data-ph="pass" aria-label="Open my boarding pass"><span class="pps-rb"></span><span class="pps-m"><span class="pps-k">My boarding pass</span><b>Square ${me.pos}</b><span class="pps-t">${esc(sty.name)}${sq.title&&sq.title!==sty.name?' · '+esc(sq.title):''}</span></span><span class="pps-r"><span class="pps-k">Seat</span><b>${me.pos}</b><span class="pps-open">Open</span></span></button>`:''}
     ${note}<div class="ph-act">${act}</div>
+    <h3 class="ph-sub">${me.started?'Where you landed':'The board'}</h3><div class="pm-card" id="pm-slot"></div>
     <h3 class="ph-sub">Your prizes</h3>${items.length?`<ul class="ph-prizes">${items.map(({x,i,kind})=>`<li class="${x.got?'got':''}"><b>${esc(x.c)}</b><span>${esc(fmtDate(x.d))}${x.sq!=null?` · square #${x.sq}`:''}</span><p>${x.got?'Collected. Enjoy!':esc(howTo(x.c))}</p>${x.got?'':`<button class="ph-got" data-got="${kind}:${i}">Host: mark collected</button>`}</li>`).join('')}</ul>`:'<p class="ph-msg">No prizes yet. Land on a gold square, a Terminal, or finish a Sketch or Coffee chat to win one.</p>'}
     <p class="ph-msg small">Upgrade tickets: ${qt} in the ${esc(((S.quarters||QUARTERS)[cq.q-1]||QUARTERS[cq.q-1]).name)}, ${me.tickets||0} in the Final Boarding Call.</p>
     <button class="ph-link" data-ph="switch">Not ${esc(fn)}? Switch player</button>`;
   if(el._h!==H){el.innerHTML=H;el._h=H}
+  const slot=$('#pm-slot');if(slot){const m=phMap();if(m.el.parentNode!==slot)slot.appendChild(m.el);pmUpdate(me)}
   const sel=$('#ph-sel');if(sel)sel.onchange=()=>{sel.dataset.v=sel.value}}
 $('#phone').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const me=myPid();
   if(t.dataset.pick){lsSet('hp-me',t.dataset.pick);if(ROOM)ROOM.presence({pid:t.dataset.pick}).catch(()=>{});renderPhone();return}
   const ph=t.dataset.ph;if(ph==='switch'){lsSet('hp-me',null);phPick='';phCalled=null;renderPhone();return}
   if(ph==='board'){setPhone(false);return}
+  if(ph==='face'){if(!PHF.busy)$('#ph-face-in').click();return}
+  if(ph==='noface'){setFace(me,null);PHF.msg='Photo removed.';phRefresh();return}
+  if(ph==='pass'){const p=S.players.find(x=>x.id===me);if(p&&p.started)showPass({pid:me,seat:p.pos,at:Date.now()},{wallet:true});return}
   if(ph==='call'){emit('act',{pid:me,id:'call'});phCalled=me;$('#ph-body')._h='';renderPhone();return}
   if(ph==='roll'){emit('roll',{pid:me});t.disabled=true;t.textContent='Sending…';return}
   if(ph==='stop'){emit('stop',{pid:me});t.disabled=true;t.textContent='Stopping…';return}
@@ -2375,7 +2445,91 @@ setInterval(()=>{if(TOUR_ON&&busy)endTour()},500);
 if(/tour/i.test(location.hash)&&!PHONE)setTimeout(()=>{if(W3.ok){startTour();if(/voice/i.test(location.hash))tVoiceT()}},2500);
 try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
 
-/* ---------- the phone prints a boarding pass on a player's first roll ---------- */
+/* ---------- phone: add your face ---------- */
+function phRefresh(){const b=$('#ph-body');if(b)b._h='';renderPhone()}
+function cropFace(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),img=new Image();
+  img.onload=()=>{const iw=img.naturalWidth,ih=img.naturalHeight,s=Math.min(iw,ih),c=document.createElement('canvas');c.width=c.height=360;
+    c.getContext('2d').drawImage(img,(iw-s)/2,(ih-s)*.35,s,s,0,0,360,360);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('crop')),'image/jpeg',.86)};
+  img.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('image'))};img.src=u})}
+function setFace(pid,url){PHF={...PHF,pid,url,t:Date.now()};emit('face',{pid,url});
+  if(!boardOnline()){const p=S.players.find(x=>x.id===pid);if(p){if(url)p.face=url;else delete p.face;save()}}phRefresh()}
+async function phFace(file){const pid=myPid();if(!pid||PHF.busy)return;PHF={...PHF,pid,busy:true,msg:'Uploading your photo…'};phRefresh();
+  try{const blob=await cropFace(file);let a=null;try{a=window.claude&&window.claude.use?await window.claude.use('assets'):null}catch(e){}
+    if(!a)throw new Error('no assets');const res=await a.upload(new File([blob],'face.jpg',{type:'image/jpeg'}));if(!res||!faceOk(res.url))throw new Error('no url');
+    setFace(pid,res.url);PHF.msg='Looking good! Your face is on your traveler now.'}
+  catch(e){PHF.msg='That photo did not upload. Try again in a moment.'}
+  PHF.busy=false;phRefresh();clearTimeout(phFace.t);phFace.t=setTimeout(()=>{if(!PHF.busy){PHF.msg='';phRefresh()}},6000)}
+{const fi=document.createElement('input');fi.type='file';fi.accept='image/*';fi.id='ph-face-in';fi.hidden=true;$('#phone').appendChild(fi);
+  fi.addEventListener('change',()=>{const f=fi.files&&fi.files[0];fi.value='';if(f)phFace(f)})}
+
+/* ---------- phone: a live mini map with your face on the square you last landed on ---------- */
+let PMAP=null;const PM_ME=.75,PM_ALL=(BH+220)/(BW+80);
+function phMap(){if(PMAP)return PMAP;const el=document.createElement('div');
+  el.innerHTML=`<div class="pm-view"><svg class="pm-svg" viewBox="0 0 ${BW} ${BH}" preserveAspectRatio="xMidYMid meet">${boardSVG()}<g class="pm-pcs"></g></svg></div>
+    <div class="pm-bar"><button type="button" class="pm-z" data-pm="out" aria-label="Zoom out">&minus;</button><button type="button" data-pm="me" aria-pressed="false">Find me</button><button type="button" data-pm="all" aria-pressed="false">Whole board</button><button type="button" class="pm-z" data-pm="in" aria-label="Zoom in">+</button></div>
+    <div class="pm-info" aria-live="polite"></div><p class="pm-hint">Drag to look around. Pinch or +/− to zoom. Tap any square to see what's there.</p>`;
+  PMAP={el,svg:el.querySelector('svg'),vb:null,mode:null,sel:null,lastPos:undefined,sig:'',tk:null,raf:0,ar:PM_ME};pmWire();return PMAP}
+function pmClamp(v){const w=Math.max(380,Math.min(BW+80,v.w)),h=w*PMAP.ar;let x=v.x+(v.w-w)/2,y=v.y+(v.h-h)/2;
+  x=w<BW+40?Math.max(-40,Math.min(BW+40-w,x)):BW/2-w/2;y=h<BH+220?Math.max(-180,Math.min(BH+40-h,y)):(BH-140)/2-h/2;return{x,y,w,h}}
+function pmAR(ar){PMAP.ar=ar;PMAP.el.querySelector('.pm-view').style.aspectRatio=String(1/ar)}
+function pmFrame(mode,me){const P=me&&me.started?POS[me.pos]:null;
+  if(mode==='me'&&P){pmAR(PM_ME);const w=760,h=w*PM_ME;return pmClamp({x:P.x-w/2,y:P.y-60-h/2,w,h})}
+  pmAR(PM_ALL);const w=BW+80,h=w*PM_ALL;return pmClamp({x:-40,y:-180,w,h})}
+function pmSet(v){PMAP.vb=v;PMAP.svg.setAttribute('viewBox',`${f1(v.x)} ${f1(v.y)} ${f1(v.w)} ${f1(v.h)}`);const g=PMAP.svg.querySelector('.pm-scale');if(g){const k=Math.max(1,Math.min(1.7,v.w/1100));g.setAttribute('transform',`scale(${f1(k*100)/100})`);const y=g.querySelector('.pm-you');if(y)y.style.display=k>1.25?'none':''}}
+function pmGo(v,now){v=pmClamp(v);cancelAnimationFrame(PMAP.raf);let rm=false;try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+  if(now||!PMAP.vb||rm){pmSet(v);return}const a={...PMAP.vb},t0=performance.now(),d=700;
+  const step=t=>{const k=Math.min(1,(t-t0)/d),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;pmSet({x:a.x+(v.x-a.x)*e,y:a.y+(v.y-a.y)*e,w:a.w+(v.w-a.w)*e,h:a.h+(v.h-a.h)*e});if(k<1)PMAP.raf=requestAnimationFrame(step)};
+  PMAP.raf=requestAnimationFrame(step)}
+function pmBar(){PMAP.el.querySelectorAll('.pm-bar [data-pm]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pm===PMAP.mode)))}
+function pmSelect(i){if(!(i>=0&&i<N))return;PMAP.sel=i;pmDraw()}
+function pmWire(){const view=PMAP.el.querySelector('.pm-view'),pts=new Map();let d=null,pin=null;
+  const pd=()=>{const a=[...pts.values()];return a.length<2?1:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)};
+  view.addEventListener('pointerdown',e=>{try{view.setPointerCapture(e.pointerId)}catch(_){}pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1)d={x:e.clientX,y:e.clientY,vb:{...PMAP.vb},moved:0,tgt:e.target};else{d=null;pin={dist:pd(),vb:{...PMAP.vb}}}});
+  view.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const r=view.getBoundingClientRect();
+    if(pts.size>=2&&pin){const v=pin.vb,w=v.w*pin.dist/Math.max(20,pd());cancelAnimationFrame(PMAP.raf);pmSet(pmClamp({x:v.x+(v.w-w)/2,y:v.y+(v.h-w*PMAP.ar)/2,w,h:w*PMAP.ar}));if(PMAP.mode){PMAP.mode=null;pmBar()}return}
+    if(!d)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;d.moved=Math.max(d.moved,Math.abs(dx)+Math.abs(dy));if(d.moved<7)return;cancelAnimationFrame(PMAP.raf);
+    const sc=d.vb.w/r.width;pmSet(pmClamp({x:d.vb.x-dx*sc,y:d.vb.y-dy*sc,w:d.vb.w,h:d.vb.h}));if(PMAP.mode){PMAP.mode=null;pmBar()}});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pin=null;
+    if(d&&e.type==='pointerup'&&d.moved<7&&d.tgt&&d.tgt.closest){const g=d.tgt.closest('[data-sq],.tile');if(g)pmSelect(+(g.dataset.sq!=null?g.dataset.sq:g.dataset.idx))}
+    d=null};
+  view.addEventListener('pointerup',up);view.addEventListener('pointercancel',up);
+  PMAP.el.addEventListener('click',e=>{const b=e.target.closest('[data-pm]');if(!b)return;const k=b.dataset.pm,me=S.players.find(p=>p.id===myPid());
+    if(k==='me'||k==='all'){PMAP.mode=k;pmGo(pmFrame(k,me));if(k==='me'&&me&&me.started)pmSelect(me.pos)}
+    else{const v=PMAP.vb,w=v.w*(k==='in'?.68:1.45);PMAP.mode=null;pmGo({x:v.x+(v.w-w)/2,y:v.y+(v.h-w*PMAP.ar)/2,w,h:w*PMAP.ar})}
+    pmBar()})}
+function pmUpdate(me){const M=phMap();
+  if(M.lastPos!==(me.started?me.pos:-1)){const first=M.lastPos===undefined;M.lastPos=me.started?me.pos:-1;
+    if(me.started){M.sel=me.pos;M.mode='me';pmGo(pmFrame('me',me),first)}else{M.sel=null;M.mode='all';pmGo(pmFrame('all',me),true)}pmBar()}
+  pmDraw()}
+function pmDraw(){const me=S.players.find(p=>p.id===myPid());if(!PMAP||!me)return;
+  const tk=(S.tileV||'')+':'+S.tiles.map(t=>t.type+(t.title||'')).join('|');
+  if(PMAP.tk!==tk){if(PMAP.tk!==null){PMAP.svg.innerHTML=boardSVG()+'<g class="pm-pcs"></g>'}PMAP.tk=tk;PMAP.sig=''}
+  const sig=JSON.stringify([PMAP.sel,me.id,faceOf(me),S.champion&&S.champion.name,S.players.map(p=>[p.id,p.started?p.pos:-1,faceOf(p),p.color])]);if(sig===PMAP.sig)return;PMAP.sig=sig;
+  let h=`<defs><clipPath id="pmc-s"><circle r="17"/></clipPath><clipPath id="pmc-b"><circle cy="-84" r="41"/></clipPath></defs>`;
+  if(PMAP.sel!=null&&POS[PMAP.sel]){const P=POS[PMAP.sel];h+=`<circle class="pm-sel" cx="${f1(P.x)}" cy="${f1(P.y)}" r="46" fill="none" stroke="${C.ink}" stroke-width="7" stroke-dasharray="14 10"/>`}
+  const groups={};S.players.forEach(p=>{if(p.started&&p.id!==me.id)(groups[p.pos]??=[]).push(p)});
+  Object.entries(groups).forEach(([pos,l])=>{const P=POS[+pos];l.slice(0,7).forEach((p,k)=>{const r=k?26*Math.sqrt(k):0,a=k*2.4+.5,x=P.x+Math.cos(a)*r,y=P.y+Math.sin(a)*r,f=faceOf(p);
+    h+=`<g data-sq="${pos}" transform="translate(${f1(x)} ${f1(y)})"><circle r="20" fill="${p.color}" stroke="${C.ink}" stroke-width="5"/>${f?`<image href="${esc(f)}" x="-17" y="-17" width="34" height="34" clip-path="url(#pmc-s)" preserveAspectRatio="xMidYMid slice"/>`:`<text y="5" text-anchor="middle" class="svg-body" font-size="13" fill="${onDark(p.color)}">${esc(initials(p.name))}</text>`}</g>`})});
+  if(me.started&&POS[me.pos]){const P=POS[me.pos],f=faceOf(me);
+    h+=`<g data-sq="${me.pos}" transform="translate(${f1(P.x)} ${f1(P.y)})"><g class="pm-scale"><circle class="pm-pulse" r="36" fill="${me.color}"/><ellipse rx="22" ry="8" cy="2" fill="${C.ink}" opacity=".35"/><g class="pm-bob">
+      <path d="M-24 -52 L0 -6 L24 -52Z" fill="${C.ink}"/><circle cy="-84" r="50" fill="${me.color}" stroke="${C.ink}" stroke-width="8"/>
+      ${f?`<image href="${esc(f)}" x="-41" y="-125" width="82" height="82" clip-path="url(#pmc-b)" preserveAspectRatio="xMidYMid slice"/>`:`<text y="-72" text-anchor="middle" class="svg-display" font-size="34" fill="${onDark(me.color)}">${esc(initials(me.name))}</text>`}
+      <g class="pm-you" transform="translate(0 -156)"><rect x="-40" y="-21" width="80" height="36" rx="18" fill="${C.ink}"/><text y="5" text-anchor="middle" class="svg-body" font-size="20" fill="#fff">YOU</text></g></g></g></g>`}
+  PMAP.svg.querySelector('.pm-pcs').innerHTML=h;if(PMAP.vb)pmSet(PMAP.vb);
+  const i=PMAP.sel;let info='';
+  if(i==null)info=`<h4>Waiting at Gate A</h4><p>Your first roll prints a boarding pass and drops you on a random square. Tap any square to see what's there.</p>`;
+  else{const t=S.tiles[i]||{},ty=TYPES[t.type]||TYPES.blank,pz=hasPrize(t)?prizeOf(t):null,bg=ty.fill===C.paper?C.purple:ty.fill;
+    let txt=t.type==='raffle'?'Land here to earn an upgrade ticket for the Final Boarding Call.':pz?`Land here to win: ${pz.name}.`:(t.text||ty.blurb||'');
+    if((t.type==='tailwind'||t.type==='goaround')&&Number.isInteger(t.to))txt+=` ${t.type==='tailwind'?'Jumps ahead':'Goes back'} to square ${t.to}.`;
+    if(t.type==='tower'&&S.champion)txt+=` Held by ${S.champion.name}.`;
+    const here=S.players.filter(p=>p.started&&p.pos===i),mine=me.started&&me.pos===i,others=here.filter(p=>p.id!==me.id);
+    const who=others.slice(0,6).map(p=>`<span class="pm-n">${dotHTML(p,'ph-dot sm')}${esc(p.name.split(/\s+/)[0])}</span>`).join('')+(others.length>6?`<span>+${others.length-6} more</span>`:'');
+    info=`<span class="pm-chip" style="background:${bg};color:${onDark(bg)}">${i===0?'Start':'SQ '+i} · ${esc(ty.name)}</span><h4>${mine?'You are here: ':''}${esc(i===0?'Check-In':pz&&t.type!=='terminal'?pz.name:(t.title||ty.name))}</h4><p>${esc(txt)}</p>
+      ${who?`<div class="pm-here">${mine?'Also here:':'Here now:'} ${who}</div>`:mine?'<div class="pm-here">Just you on this square.</div>':''}`}
+  PMAP.el.querySelector('.pm-info').innerHTML=info}
+
+/* ---------- the phone prints a boarding pass on a player's first roll, and keeps it in the wallet ---------- */
 function passBars(seed){let h=2166136261;for(const ch of seed){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0}let x=0,out='';
   for(let i=0;i<46&&x<190;i++){h=Math.imul(h^(h>>>13),1274126177)>>>0;const w=1+h%3,gap=1+(h>>>5)%2;out+=`<rect x="${x}" y="0" width="${w}" height="46"/>`;x+=w+gap}
   return `<svg class="pp-bars" viewBox="0 0 ${x} 46" preserveAspectRatio="none" fill="#141414">${out}</svg>`}
@@ -2384,21 +2538,24 @@ function printSound(){try{const A=window.AudioContext||window.webkitAudioContext
   for(let k=0;k<14;k++){const s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=1800;s.buffer=buf;s.connect(f);f.connect(g);g.connect(ac.destination);g.gain.value=.16;s.start(ac.currentTime+.35+k*.2)}
   const t=ac.currentTime+3.5,o=ac.createOscillator(),g2=ac.createGain();o.type='square';o.frequency.setValueAtTime(140,t);g2.gain.setValueAtTime(.14,t);g2.gain.exponentialRampToValueAtTime(.001,t+.18);o.connect(g2);g2.connect(ac.destination);o.start(t);o.stop(t+.2)}catch(e){}
   try{navigator.vibrate&&navigator.vibrate([25,175,25,175,25,175,25,175,25,175,25,175,25,600,90])}catch(e){}}
-function showPass(ps){const me=S.players.find(p=>p.id===ps.pid);if(!me)return;const t=S.tiles[ps.seat]||{},ty=TYPES[t.type]||TYPES.blank,pz=hasPrize(t)?prizeOf(t):null;
-  const d=new Date(ps.at||Date.now()),fl=`S2 ${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`,grp='ABCDE'[(ps.seat*7)%5];
+function showPass(ps,opt={}){const me=S.players.find(p=>p.id===ps.pid);if(!me)return;const t=S.tiles[ps.seat]||{},ty=TYPES[t.type]||TYPES.blank,pz=hasPrize(t)?prizeOf(t):null,W=!!opt.wallet,pf=faceOf(me);
+  const d=W&&me.lastRoll?new Date(me.lastRoll+'T12:00:00'):new Date(ps.at||Date.now()),fl=`S2 ${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`,grp='ABCDE'[(ps.seat*7)%5];
   const tm=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),what=pz?pz.short:(t.title||ty.name);
   const plane='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>';
-  const el=$('#pp');el.innerHTML=`<div class="pp-printer"><span>SCB GATE A</span><i></i><span>PRINTING</span></div>
+  const el=$('#pp');el.innerHTML=`<div class="pp-printer"><span>SCB GATE A</span><i></i><span>${W?'REPRINT':'PRINTING'}</span></div>
    <div class="pp-clip"><div class="pp-tix"><div class="pp-rb"></div><div class="pp-in">
     <div class="pp-h"><b>STUDIO 2 AVIATION</b><span>BOARDING PASS</span></div>
-    <div class="pp-k" style="margin-top:8px">Passenger</div><div class="pp-v pp-name">${esc(me.name)}</div>
+    <div class="pp-pax"><div><div class="pp-k">Passenger</div><div class="pp-v pp-name">${esc(me.name)}</div></div>${pf?`<img class="pp-face" src="${esc(pf)}" alt="">`:`<span class="pp-face" style="background:${me.color};color:${onDark(me.color)}">${esc(initials(me.name))}</span>`}</div>
     <div class="pp-route"><div><div class="pp-k">From</div><div class="pp-big">GTA</div><div class="pp-k">Gate A</div></div>${plane}<div style="text-align:right"><div class="pp-k">To</div><div class="pp-big">SQ ${ps.seat}</div><div class="pp-k">${esc(ty.name)}</div></div></div>
-    <div class="pp-grid"><div><div class="pp-k">Flight</div><div class="pp-v">${fl}</div></div><div><div class="pp-k">Group</div><div class="pp-v">${grp}</div></div><div><div class="pp-k">Boards</div><div class="pp-v">${esc(tm)}</div></div></div>
-    <div class="pp-dest"><span class="pp-k">Your seat</span><br>Square ${ps.seat}: ${esc(what)}</div>
+    <div class="pp-grid"><div><div class="pp-k">Flight</div><div class="pp-v">${fl}</div></div><div><div class="pp-k">Group</div><div class="pp-v">${grp}</div></div>${W?`<div><div class="pp-k">Laps</div><div class="pp-v">${me.laps||0}</div></div>`:`<div><div class="pp-k">Boards</div><div class="pp-v">${esc(tm)}</div></div>`}</div>
+    <div class="pp-dest"><span class="pp-k">${W?'Last landed':'Your seat'}</span><br>Square ${ps.seat}: ${esc(what)}</div>
     <div class="pp-cut"></div><div class="pp-stub"><div><div class="pp-k">Seat</div><div class="pp-seat">${ps.seat}</div></div>${passBars(me.name+ps.seat)}</div>
    </div><div class="pp-stamp">BOARDED</div></div></div>
-   <button class="pp-go" type="button" id="pp-go">Find my seat &#9992;</button><p class="pp-note">Your seat was picked at random. Watch the big screen!</p>`;
-  el.hidden=false;printSound();$('#pp-go').onclick=()=>{el.hidden=true};clearTimeout(passT);passT=setTimeout(()=>{el.hidden=true},14000)}
+   <button class="pp-go" type="button" id="pp-go">${W?'Show me on the map':'Find my seat'} &#9992;</button><p class="pp-note">${W?'Tap outside the pass to put it away.':'Your seat was picked at random. Watch the big screen!'}</p>`;
+  el.hidden=false;printSound();
+  $('#pp-go').onclick=()=>{el.hidden=true;clearTimeout(passT);const m=$('#pm-slot');if(m){m.scrollIntoView({behavior:'smooth',block:'center'});if(PMAP){PMAP.mode='me';pmGo(pmFrame('me',me));pmBar();pmSelect(ps.seat)}}};
+  el.onclick=e=>{if(e.target===el){el.hidden=true;clearTimeout(passT)}};
+  clearTimeout(passT);if(!W)passT=setTimeout(()=>{el.hidden=true},14000)}
 function phonePass(L){if(L&&L.phase==='card'&&!$('#pp').hidden&&!phonePass.c){phonePass.c=1;clearTimeout(passT);passT=setTimeout(()=>{$('#pp').hidden=true;phonePass.c=0},2500)}if(!L||!L.pass||L.pass.pid!==myPid())return;const key=L.pass.pid+':'+L.pass.seat+':'+L.pass.at;if(key===passSeen)return;passSeen=key;showPass(L.pass)}
 $('#dock-qr').onclick=openQR;$('#qr-close').onclick=()=>{$('#qr-modal').hidden=true};$('#qr-modal').addEventListener('click',e=>{if(e.target.id==='qr-modal')$('#qr-modal').hidden=true});
 window.addEventListener('resize',renderQRCorner);$('#v-phone').onclick=()=>setPhone(true);
