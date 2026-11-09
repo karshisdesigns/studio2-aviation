@@ -613,7 +613,7 @@ const TYPES={
   raffle:{name:'Upgrade ticket',fill:C.paper,fg:C.ink,icon:'ticket',blurb:'Earn an upgrade ticket for the Final Boarding Call, our year-end drawing.',css:'linear-gradient(135deg,#E8262E 0 20%,#FF8A1E 20% 40%,#FFD21F 40% 60%,#14A04A 60% 80%,#1E5AD6 80%)',head:C.wash},
   blank:{name:'Cruising',fill:C.paper,fg:C.ink,icon:'cloud',blurb:'Blank square. Enjoy the view.'},
 };
-const LEGEND_ORDER=['raffle','prize','create','customs','bonus','terminal','tower','social','swap','tailwind','goaround','hold','blank','start'];
+const LEGEND_ORDER=['raffle','prize','create','customs','bonus','terminal','tower','social','swap','tailwind','goaround','blank','start'];
 const ICONS={
   flag:'<path d="M6 21V3.5M6 4h12l-3 4 3 4H6"/>',
   cloud:'<path d="M7 18h10a4 4 0 0 0 .4-8 5.5 5.5 0 0 0-10.6 1A3.5 3.5 0 0 0 7 18z"/>',
@@ -833,7 +833,7 @@ const IDEAS=[
   T('goaround','Go-around','Forgot your badge. Head back.'),
   T('bonus','Bonus leg','Bonus leg. Roll again.'),
   T('swap','Codeshare','Codeshare. Trade places with any player on the board.'),
-  T('hold','Ground stop','Gate hold. Skip your next Thursday roll.'),
+  T('raffle','Upgrade',''),
 ];
 const PRIZES=[
   {id:'book',name:'Architecture book',short:'Arch book',icon:'book',est:43,tier:'prize'},
@@ -855,13 +855,13 @@ function assignPrizes(tiles,cat){const reg=cat.filter(c=>c.tier!=='special'),sp=
     if(t.type==='terminal'&&sp.length){const c=sp[j%sp.length];t.prize=c.id;t.title=`Terminal ${++j}`;t.text=''}})}
 function buildTiles(){
   const marks=G.marks||[],fixed={};marks.forEach(m=>fixed[m.i]=m.type);
-  const W={create:22,customs:24,prize:7,raffle:5,bonus:11,social:12,swap:4,tailwind:5,hold:2};
+  const W={create:22,customs:24,prize:7,raffle:7,bonus:11,social:12,swap:4,tailwind:5};
   const slots=N-1-marks.length,tot=Object.values(W).reduce((a,b)=>a+b,0),target={};let sum=0;
   Object.entries(W).forEach(([k,w])=>{target[k]=Math.round(w*slots/tot);sum+=target[k]});target.create+=slots-sum;
   const placed={};Object.keys(W).forEach(k=>placed[k]=0);let last='';
   const out=[{type:'start',title:'Check-In',text:'Every lap through Check-In earns a passport stamp. Frequent flyers get bragging rights.'}],ctr={};let k=0;
   for(let i=1;i<N;i++){let type=fixed[i];
-    if(!type){let best=null,bv=-1e9;for(const t of Object.keys(W)){if(placed[t]>=target[t])continue;if(i<=8&&['prize','swap','hold','goaround'].includes(t))continue;let v=target[t]*(k+1)/slots-placed[t];if(t===last)v-=.6;if(v>bv){bv=v;best=t}}
+    if(!type){let best=null,bv=-1e9;for(const t of Object.keys(W)){if(placed[t]>=target[t])continue;if(i<=8&&['prize','swap'].includes(t))continue;let v=target[t]*(k+1)/slots-placed[t];if(t===last)v-=.6;if(v>bv){bv=v;best=t}}
       type=best||'create';placed[type]++;k++;last=type}
     const pool=POOLS[type];ctr[type]=(ctr[type]||0);out.push({...pool[ctr[type]++%pool.length]});}
   const isFree=i=>i>0&&['create','customs','social','blank'].includes(out[i].type);
@@ -888,6 +888,7 @@ const PERKS=[{id:'sketchbook',name:'SCB sketchbook (supplied by SCB)',icon:'book
 function assignPerks(tiles,force){const has=id=>S&&S.perks?S.perks.some(x=>x.id===id):true;tiles.forEach(t=>{if(!force&&t.perk!==undefined&&(t.perk===''||has(t.perk)))return;
   if(t.type==='create')t.perk='sketchbook';else if(t.type==='social')t.perk='coffee';else if(t.type==='customs')t.perk='notepad';else delete t.perk})}
 const perkOf=t=>t&&t.perk&&S.perks?S.perks.find(x=>x.id===t.perk):null;
+const SKETCH_SEASON_LINE='Sketch of the Season (studio vote on that quarter\'s sketches at the end of each quarter): $25 art supply gift card';
 const SKETCH_LINE='Best Sketch of the Year (studio vote on every sketch at year end): pro sketch kit and the winning sketch framed in the studio';
 const QUARTERS=[{q:1,name:'Winter De-icing Draw',prize:'$50 restaurant gift card',est:50},{q:2,name:'Spring Takeoff Draw',prize:'Architecture walking tour for two',est:60},{q:3,name:'Summer Layover Draw',prize:'$75 rooftop dinner gift card',est:75},{q:4,name:'Holiday Hangar Draw',prize:'$50 gift card',est:50}];
 const curQ=()=>{const d=new Date();return{q:Math.floor(d.getMonth()/3)+1,key:`${d.getFullYear()}-Q${Math.floor(d.getMonth()/3)+1}`}};
@@ -1108,7 +1109,7 @@ function b2note(){const n=document.createElement('p');n.className='small';n.styl
 function editTile(i){
   const t=S.tiles[i],ty=TYPES[t.type]||TYPES.blank;setHead(t.type,'Edit square',i===0?'START':'SQ '+i);
   const all=[...Object.values(POOLS).flat().filter(d=>d.type!=='blank'&&d.type!=='tower'&&d.type!=='prize'),...IDEAS];
-  const typeOpts=Object.entries(TYPES).filter(([k])=>i===0?k==='start':k!=='start'&&k!=='blank'&&k!=='goaround').map(([k,v])=>`<option value="${k}"${k===t.type?' selected':''}>${v.name}</option>`).join('');
+  const typeOpts=Object.entries(TYPES).filter(([k])=>i===0?k==='start':k!=='start'&&k!=='blank'&&k!=='goaround'&&k!=='hold').map(([k,v])=>`<option value="${k}"${k===t.type?' selected':''}>${v.name}</option>`).join('');
   const ideaOpts=all.map((d,j)=>`<option value="${j}">${esc(TYPES[d.type].name)}: ${esc(d.text.slice(0,58))}${d.text.length>58?'…':''}</option>`).join('');
   $('#m-body').innerHTML=`
     ${i===0?'':`<div class="field"><label for="tile-idea">Start from an idea</label><select id="tile-idea"><option value="">Pick from the idea bank</option>${ideaOpts}</select></div>`}
@@ -1166,6 +1167,13 @@ function boardV2(){if(!S.budget||S.budget.boardV>=2)return false;S.budget.boardV
   BOARD_V2.tape.forEach(i=>{if(S.tiles[i]&&S.tiles[i].type==='customs'){S.tiles[i]={type:'prize',title:'Tape measure',text:'',prize:'tape'};n++}});
   Object.entries(BOARD_V2.tasks).forEach(([i,title])=>{i=+i;const q=POOLS.create.find(t=>t.title===title);if(q&&S.tiles[i]&&S.tiles[i].type==='customs'){S.tiles[i]={...q};n++}});
   if(n)assignPerks(S.tiles,false);return n>0}
+// Nov 2026: nobody loses a turn. Ground-stop squares turn into upgrade-ticket squares, and the sketch award gets a seasonal round
+function happyOnly(st){let n=0;
+  (st.tiles||[]).forEach((t,i)=>{if(t&&t.type==='hold'){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
+  (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
+  if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
+    if(!st.budget.lines.some(l=>/of the season/i.test(l.name))){const at=st.budget.lines.findIndex(l=>/sketch/i.test(l.name));st.budget.lines.splice(at<0?st.budget.lines.length:at,0,{id:uid(),cat:'grand',name:SKETCH_SEASON_LINE,amount:25,per:'quarter',note:''})}n++}
+  return n}
 function normalize(){
   if(!S||!Array.isArray(S.players)||!S.players.length){S=null;S=sample()}
   S.players.forEach((p,i)=>{if(!p.color||BANNED_COL.includes(String(p.color).toLowerCase()))p.color=PCOLORS[i%PCOLORS.length];p.won=p.won||0;p.cards=Array.isArray(p.cards)?p.cards:[];if(!(p.pos>=0&&p.pos<N))p.pos=0;p.laps=p.laps||0});
@@ -1190,6 +1198,7 @@ function normalize(){
   coffeeChats(S.tiles);
   placeTape();
   boardV2();
+  happyOnly(S);
   if(!S.players.find(p=>p.id===S.current))S.current=S.players[0].id;}
 normalize();G.marks=landmarkPlan();
 const curPlayer=()=>S.players.find(p=>p.id===S.current)||S.players[0];
@@ -1211,7 +1220,8 @@ function save(){
     if(!warned){warned=true;toast("That move was saved on this device only. You may have view-only access.")}});}
 function setSync(s){syncState=s;renderHud();if(drawerOpen&&tab==='settings')renderTab()}
 function applyRemote(d){
-  if(!d||!Array.isArray(d.players)||!d.players.length)return;
+  if(!d||!Array.isArray(d.players)||!d.players.length)return;const fixed=happyOnly(d);
+  if(fixed)setTimeout(()=>{try{if(LEADER&&!PHONE)save()}catch(e){}},1500);
   const before=JSON.stringify(S.tiles)+JSON.stringify(S.catalog);
   S={...S,players:d.players,current:d.current,champion:d.champion||null,log:Array.isArray(d.log)?d.log:[],
     catalog:Array.isArray(d.catalog)&&d.catalog.length?d.catalog:S.catalog,tiles:Array.isArray(d.tiles)&&d.tiles.length===N?(noTurnBacks(d.tiles)&&assignPerks(d.tiles,false),d.tiles):S.tiles,tileV:d.tileV,mega:d.mega||S.mega,budget:d.budget&&Array.isArray(d.budget.lines)?d.budget:S.budget,perks:Array.isArray(d.perks)?d.perks:S.perks,perks:S.perks,raffleWinner:d.raffleWinner||null,quarters:Array.isArray(d.quarters)?d.quarters:S.quarters};
@@ -1960,7 +1970,7 @@ const SECTIONS=[
   {id:'giftwall',name:'Gift Wall',icon:'frame',fill:C.pink,fg:C.ink,desc:'Photos, links and exact items on the prize cards'},
   {id:'squares',name:'Squares',icon:'flag',fill:C.green,fg:'#fff',desc:'Tap any square on the board to change it'},
   {id:'budget',name:'Budget',icon:'card',fill:C.ink,fg:C.sun,desc:'Yearly prize budget'},
-  {id:'sketches',name:'Sketch book',icon:'pencil',fill:C.red,fg:'#fff',desc:'Every sketch by square number, for the year-end vote'},
+  {id:'sketches',name:'Sketch book',icon:'pencil',fill:C.red,fg:'#fff',desc:'Every sketch by square number, for the seasonal and year-end votes'},
   {id:'log',name:'Flight log',icon:'plane',fill:C.orange,fg:C.ink,desc:'Every roll and prize, newest first'},
   {id:'settings',name:'Settings',icon:'tower',fill:C.purple,fg:'#fff',desc:'New season, full screen, roll for everyone left'}];
 function goSection(id){if(id==='giftwall'){EDIT_OUT=true;closeDrawer();openGiftWall();toast('Edit the link, item or photo on any card. Tap Editing when you are done.');return}
@@ -2012,9 +2022,10 @@ function renderTab(){
   }
   if(tab==='sketches'){const rows=[];S.players.forEach(p=>(p.perks||[]).forEach(x=>{if(x.k==='create'||(x.k==null&&/sketch/i.test(x.c)))rows.push({p,x})}));
     rows.sort((a,b)=>(a.x.sq??999)-(b.x.sq??999)||String(a.x.d).localeCompare(b.x.d));const ppl=new Set(rows.map(r=>r.p.id)).size;
-    h+=`<div class="stat-row"><div class="stat"><b>${rows.length}</b><span>Sketches</span></div><div class="stat"><b>${ppl}</b><span>Artists</span></div><div class="stat"><b>${S.tiles.filter(t=>t.type==='create').length}</b><span>Sketch squares</span></div></div>
-      <p class="small">Every Sketch square has a numbered prompt card. Players write the square number on their drawing and keep the card in their sketchbook. On the last Thursday of the year, line the sketches up by number and vote for Best Sketch of the Year.</p>
-      <ol class="log">${rows.map(r=>`<li><time>${esc(fmtDate(r.x.d))}</time><b>#${r.x.sq??'?'}</b> ${esc(r.x.t||'Sketch')} · <span class="dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${r.p.color};border:2px solid #141414;vertical-align:middle"></span> ${esc(r.p.name)}</li>`).join('')||'<li>No sketches yet. They show up here when someone taps Done! Collect on a Sketch square.</li>'}</ol>`}
+    const qKey=d=>{const t=new Date(String(d)+'T12:00:00');return isNaN(t)?'':`${t.getFullYear()}-Q${Math.floor(t.getMonth()/3)+1}`},cqk=curQ().key,inQ=rows.filter(r=>qKey(r.x.d)===cqk).length;
+    h+=`<div class="stat-row"><div class="stat"><b>${rows.length}</b><span>This year</span></div><div class="stat"><b>${inQ}</b><span>This season</span></div><div class="stat"><b>${ppl}</b><span>Artists</span></div></div>
+      <p class="small">Every Sketch square has a numbered prompt card. Players write the square number on their drawing and keep the card in their sketchbook. Two votes: at the end of each quarter, pick the <b>Sketch of the Season</b> from that quarter's sketches. On the last Thursday of the year, line every sketch up by number and vote for <b>Best Sketch of the Year</b>.</p>
+      <ol class="log">${rows.map(r=>`<li><time>${esc(fmtDate(r.x.d))}</time><b>#${r.x.sq??'?'}</b> ${esc(r.x.t||'Sketch')}${qKey(r.x.d)?` <span class="tagp${qKey(r.x.d)===cqk?' done':''}">${qKey(r.x.d).slice(5)}</span>`:''} · <span class="dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${r.p.color};border:2px solid #141414;vertical-align:middle"></span> ${esc(r.p.name)}</li>`).join('')||'<li>No sketches yet. They show up here when someone taps Done! Collect on a Sketch square.</li>'}</ol>`}
   if(tab==='log')h+=`<ol class="log">${S.log.slice(0,60).map(l=>`<li><time>${esc(fmtDate(l.d))}</time>${esc(l.m)}</li>`).join('')||'<li>No flights yet. Roll to start the log.</li>'}</ol>`;
   if(tab==='prizes'){
     const pt=S.tiles.filter(hasPrize),per=S.players.length/N,sum=pt.reduce((a,t)=>a+(+prizeOf(t).est||0),0);
@@ -2058,7 +2069,7 @@ function renderTab(){
     <div class="dsec rules">
       <div class="rule r1"><div class="big">THU</div><h4>One roll every Thursday</h4><p>Everyone waits at Gate A until their first roll, then drops onto the board. One roll each Thursday after that.</p></div>
       <div class="rule" style="background:${TYPES.raffle.css}"><div class="big">TIX</div><h4 style="text-shadow:0 0 6px #141414">Upgrade tickets</h4><p style="text-shadow:0 0 6px #141414">${S.tiles.filter(t=>t.type==='raffle').length} upgrade squares earn tickets, no limit. Each one enters this quarter's seasonal draw and the year-end Final Boarding Call (${esc(S.mega.name)}).</p></div>
-      <div class="rule" style="background:${C.lime}"><div class="big">ART</div><h4>Best Sketch of the Year</h4><p>Keep every sketch from a Sketch square. On the last Thursday of the year the whole studio votes on the best one, and the winner takes a grand prize.</p></div>
+      <div class="rule" style="background:${C.lime}"><div class="big">ART</div><h4>Two sketch awards</h4><p><b>Sketch of the Season:</b> at the end of each quarter the studio votes on that season's sketches. <b>Best Sketch of the Year:</b> on the last Thursday of the year every sketch competes for the grand prize.</p></div>
       <div class="rule r2"><div class="big">${G.count}×</div><h4>No finish line</h4><p>${N} squares on a looping taxiway with a bridge at every crossing. Pass Check-In and keep going.</p></div>
       <div class="rule r5"><div class="big">T1–T3</div><h4>Terminals pay out big</h4><p>Three Terminal squares hold the special prizes.</p></div>
       <div class="rule r3"><div class="big">TWR</div><h4>Take the tower</h4><p>Land on a Control Tower and you are Studio Champion until someone else lands there.</p></div>
@@ -2187,15 +2198,16 @@ function gwItems(){const ICON2KIND={tape:'tape',book:'book',pin:'pin',spa:'spa',
   const BG=[C.sky,C.pink,C.lime,C.orange,C.lav,C.sun,C.green,C.red,C.blue,C.purple],secs=[];let bi=0;const bg=()=>BG[bi++%BG.length];GW_REFS=[];
   const R=(ref,key,o)=>{const m=media(ref,key);GW_REFS.push(ref);return{...o,...m,ri:GW_REFS.length-1}};
   const tix=S.players.reduce((a,p)=>a+(p.tickets||0),0),lapLead=[...S.players].sort((a,b)=>(b.laps||0)-(a.laps||0))[0];
-  const grand=[R(S.mega,'mega',{tag:'Grand prize',kind:'mega',title:'Final Boarding Call',sub:S.mega.name,blurb:'The year-end raffle for the biggest prize on the wall.',how:'Collect upgrade tickets. No limit.',meta:S.raffleWinner?`Won by ${S.raffleWinner.name}`:`${tix} ticket${tix===1?'':'s'} in so far`,bg:C.sun,acc:C.red,gold:true})];
+  const seasonSk=[];const grand=[R(S.mega,'mega',{tag:'Grand prize',kind:'mega',title:'Final Boarding Call',sub:S.mega.name,blurb:'The year-end raffle for the biggest prize on the wall.',how:'Collect upgrade tickets. No limit.',meta:S.raffleWinner?`Won by ${S.raffleWinner.name}`:`${tix} ticket${tix===1?'':'s'} in so far`,bg:C.sun,acc:C.red,gold:true})];
   ((S.budget&&S.budget.lines)||[]).filter(l=>l.cat==='grand').forEach(l=>{const [head,...rest]=String(l.name).split(':'),paren=(head.match(/\(([^)]+)\)/)||[])[1],ttl=head.replace(/\s*\(.*\)/,'').replace(/ award$/i,'').trim(),prize=(rest.join(':')||'').trim();
     const champ=/champion/i.test(ttl),ff=/frequent/i.test(ttl),sk=/sketch/i.test(ttl);
+    if(sk&&(l.per==='quarter'||/season/i.test(ttl))){seasonSk.push(R(l,'',{tag:'Seasonal sketch award',kind:'sketch',title:ttl,sub:prize?prize[0].toUpperCase()+prize.slice(1):'',blurb:'At the end of every quarter the studio votes on that season\'s sketches. Four chances a year to win.',how:'Studio vote each quarter',meta:'Every Sketch square this season counts',bg:C.pink,acc:C.sun}));return}
     grand.push(R(l,ff?'ff':'',{tag:'Grand prize',kind:champ?'trophy':ff?'passport':sk?'sketch':'gift',title:ttl,sub:prize?prize[0].toUpperCase()+prize.slice(1):'',
-      blurb:champ?'Hold a Control Tower when the year ends and you are the Studio Champion.':ff?'Fly the most laps around the board this year.':sk?'Every Sketch square counts. At the end of the year the whole studio votes on the best drawing.':'A year-end grand prize.',
+      blurb:champ?'Hold a Control Tower when the year ends and you are the Studio Champion.':ff?'Fly the most laps around the board this year.':sk?'The big one. On the last Thursday of the year every sketch goes up on the wall and the whole studio votes on the best drawing.':'A year-end grand prize.',
       how:sk?'Studio vote at year end':paren?paren[0].toUpperCase()+paren.slice(1):'Year-end award',
-      meta:champ?(S.champion?`Holding it now: ${S.champion.name}`:'Up for grabs'):ff&&lapLead&&lapLead.laps?`Leading: ${lapLead.name} (${lapLead.laps} lap${lapLead.laps===1?'':'s'})`:sk?'Draw the best you can':'Up for grabs',bg:champ?C.purple:sk?C.green:C.sky,acc:C.sun,gold:true}))});
+      meta:champ?(S.champion?`Holding it now: ${S.champion.name}`:'Up for grabs'):ff&&lapLead&&lapLead.laps?`Leading: ${lapLead.name} (${lapLead.laps} lap${lapLead.laps===1?'':'s'})`:sk?'Every sketch of the year is in the running':'Up for grabs',bg:champ?C.purple:sk?C.green:C.sky,acc:C.sun,gold:true}))});
   secs.push({id:'grand',name:'Grand prizes',note:'Awarded at the end of the year.',items:grand});
-  const cq=curQ();secs.push({id:'seasonal',name:'Seasonal draws',note:'Every upgrade ticket also enters that quarter\'s draw.',items:S.quarters.map(x=>R(x,'q'+x.q,{tag:`Q${x.q} draw`,kind:'q'+x.q,title:x.prize,sub:x.name,blurb:`Drawn at the end of Q${x.q} from that season's upgrade tickets.`,how:'Land on an upgrade square',meta:x.winner?`Won by ${x.winner.name}`:x.q===cq.q?'Drawing this quarter':x.q<cq.q?'Season closed':'Coming up',bg:[C.sky,C.lime,C.orange,C.red][x.q-1],acc:C.sun,live:x.q===cq.q}))});
+  const cq=curQ();secs.push({id:'seasonal',name:'Seasonal prizes',note:'Every quarter: a sketch vote, plus a draw from that season\'s upgrade tickets.',items:seasonSk.concat(S.quarters.map(x=>R(x,'q'+x.q,{tag:`Q${x.q} draw`,kind:'q'+x.q,title:x.prize,sub:x.name,blurb:`Drawn at the end of Q${x.q} from that season's upgrade tickets.`,how:'Land on an upgrade square',meta:x.winner?`Won by ${x.winner.name}`:x.q===cq.q?'Drawing this quarter':x.q<cq.q?'Season closed':'Coming up',bg:[C.sky,C.lime,C.orange,C.red][x.q-1],acc:C.sun,live:x.q===cq.q})))});
   const where=id=>S.tiles.map((t,i)=>hasPrize(t)&&t.prize===id?i:-1).filter(i=>i>=0);
   secs.push({id:'terminal',name:'Terminal specials',note:'Land on a Terminal square.',items:S.catalog.filter(c=>c.tier==='special').map(c=>{const w=where(c.id);return R(c,c.id,{tag:'Terminal special',kind:ICON2KIND[c.icon]||'gift',title:c.name,blurb:c.blurb||GW_BLURB[c.id]||'A special prize from the Studio 2 game.',how:'Land on a Terminal',meta:w.length?w.map(i=>S.tiles[i].title).join(', '):'Not on the board yet',bg:bg(),acc:C.red})})});
   secs.push({id:'prize',name:'Prize squares',note:'Land on a gold prize square.',items:S.catalog.filter(c=>c.tier!=='special').map(c=>{const w=where(c.id);return R(c,c.id,{tag:'Prize square',kind:ICON2KIND[c.icon]||'gift',title:c.name,blurb:c.blurb||GW_BLURB[c.id]||'A prize from the Studio 2 game.',how:'Land on a prize square',meta:w.length?`On ${w.length} square${w.length===1?'':'s'}`:'Not on the board yet',bg:bg(),acc:[C.blue,C.red,C.green,C.purple][bi%4]})})});
@@ -2390,7 +2402,7 @@ function tourBeats(){const tape=S.tiles.findIndex((t,i)=>i>0&&t.prize==='tape'),
   {chip:['Meet Wanda',C.orange],shot:'guide',text:`This is Wanda, our gate marshaller. She doesn't play, she cheers. If you're new, stuck or just curious, tap Wanda and she'll walk you through it.`},
   {chip:['Scan to play',C.sun],shot:'gate2',side:`${qrSvg(url,3)}Scan to play`,text:`To play, scan the QR code on the big screen with your phone. No app, no sign-in. Pick your name and tap Boarding call. The big screen finds you and tells the whole studio you're up.`},
   {chip:['Roll',C.red],shot:{tile:3,dist:5.2},hop:[0,1,2,3,4,5],text:`Then roll. Tap the die to stop it, and your traveler hops one square for every pip. Your first roll prints a boarding pass and drops you onto the board.`},
-  {chip:['Sketch',C.red],shot:{tile:sk},ring:'create',text:`Red squares are Sketch squares. Draw something, make something, or bring in something that inspired you. Write the square number on it and keep it. At year end, the studio votes on the best sketch.`},
+  {chip:['Sketch',C.red],shot:{tile:sk},ring:'create',text:`Red squares are Sketch squares. Draw something, make something, or bring in something that inspired you. Write the square number on it and keep it. Every quarter the studio picks a Sketch of the Season, and at year end, the Best Sketch of the Year.`},
   {chip:['Coffee chat',C.blue],shot:{tile:so},ring:'social',text:`Blue squares are Coffee chats. Grab a coffee with someone you don't usually sit with, and the card covers two. This is how a studio becomes a team.`},
   {chip:['Trivia',C.green],shot:{tile:cu},ring:'customs',text:`Green squares are Trivia: airports, architects and Chicago. Answer out loud. The studio is your judge.`},
   {chip:['Prizes',C.sun],shot:{tile:pr},ring:'prize',text:`Gold squares hold prizes, from a mini tape measure to an architecture walking tour. The three Terminals pay out the big ones.`},
