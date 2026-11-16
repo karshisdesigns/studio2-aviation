@@ -616,7 +616,7 @@ const TYPES={
   raffle:{name:'Upgrade ticket',fill:C.paper,fg:C.ink,icon:'ticket',blurb:'Earn an upgrade ticket for the Final Boarding Call, our year-end drawing.',css:'linear-gradient(135deg,#E8262E 0 20%,#FF8A1E 20% 40%,#FFD21F 40% 60%,#14A04A 60% 80%,#1E5AD6 80%)',head:C.wash},
   blank:{name:'Cruising',fill:C.paper,fg:C.ink,icon:'cloud',blurb:'Blank square. Enjoy the view.'},
 };
-const LEGEND_ORDER=['raffle','prize','create','customs','bonus','terminal','tower','social','swap','tailwind','goaround','blank','start'];
+const LEGEND_ORDER=['raffle','prize','create','customs','bonus','terminal','tower','social','tailwind','goaround','blank','start'];
 const ICONS={
   flag:'<path d="M6 21V3.5M6 4h12l-3 4 3 4H6"/>',
   cloud:'<path d="M7 18h10a4 4 0 0 0 .4-8 5.5 5.5 0 0 0-10.6 1A3.5 3.5 0 0 0 7 18z"/>',
@@ -818,7 +818,7 @@ const POOLS={
   tailwind:[T('tailwind','Tailwind','Strong tailwind behind you. Ride the jet bridge ahead.'),T('tailwind','Jet stream','You caught the jet stream. Jump ahead.'),T('tailwind','Upgrade','Upgraded to first class. Jump ahead.'),T('tailwind','Priority','Priority boarding. Skip ahead.'),T('tailwind','Short final','Cleared to land early. Hop ahead.')],
   goaround:[T('goaround','Overshoot','Missed approach. Circle back and try again.'),T('goaround','Lost bags','Your bag went to the wrong carousel. Head back.'),T('goaround','Go-around','Runway is occupied. Go around.'),T('goaround','Turbulence','Bumpy air. Drop back a few rows.'),T('goaround','Wrong gate','You went to the wrong gate. Head back.')],
   bonus:[T('bonus','Red-eye','Red-eye flight. Roll again right now.'),T('bonus','Standby','Cleared from standby. Roll again.'),T('bonus','Nonstop','Nonstop flight. Roll again.'),T('bonus','Connection','Tight connection. Roll again and run.'),T('bonus','Fast lane','You breezed through security. Roll again.'),T('bonus','Now boarding','Your group is called. Roll again.')],
-  swap:[T('swap','Seat swap','Seat swap. Trade places with any player on the board.'),T('swap','Bump','Overbooked flight. Trade places with any player on the board.')],
+  swap:[T('raffle','Upgrade','')],
   terminal:[T('terminal','Terminal','')],
   raffle:[T('raffle','Upgrade','')],
   hold:[T('hold','Weather hold','Thunderstorms over the field. Skip your next Thursday roll.'),T('hold','De-icing','Waiting on de-icing. Skip your next Thursday roll.')],
@@ -835,7 +835,7 @@ const IDEAS=[
   T('tailwind','Tailwind','A friendly ATC gives you a shortcut. Jump ahead.'),
   T('goaround','Go-around','Forgot your badge. Head back.'),
   T('bonus','Bonus leg','Bonus leg. Roll again.'),
-  T('swap','Codeshare','Codeshare. Trade places with any player on the board.'),
+  T('raffle','Upgrade',''),
   T('raffle','Upgrade',''),
 ];
 const PRIZES=[
@@ -858,7 +858,7 @@ function assignPrizes(tiles,cat){const reg=cat.filter(c=>c.tier!=='special'),sp=
     if(t.type==='terminal'&&sp.length){const c=sp[j%sp.length];t.prize=c.id;t.title=`Terminal ${++j}`;t.text=''}})}
 function buildTiles(){
   const marks=G.marks||[],fixed={};marks.forEach(m=>fixed[m.i]=m.type);
-  const W={create:22,customs:24,prize:7,raffle:7,bonus:11,social:12,swap:4,tailwind:5};
+  const W={create:22,customs:24,prize:7,raffle:11,bonus:11,social:12,tailwind:5};
   const slots=N-1-marks.length,tot=Object.values(W).reduce((a,b)=>a+b,0),target={};let sum=0;
   Object.entries(W).forEach(([k,w])=>{target[k]=Math.round(w*slots/tot);sum+=target[k]});target.create+=slots-sum;
   const placed={};Object.keys(W).forEach(k=>placed[k]=0);let last='';
@@ -1112,7 +1112,7 @@ function b2note(){const n=document.createElement('p');n.className='small';n.styl
 function editTile(i){
   const t=S.tiles[i],ty=TYPES[t.type]||TYPES.blank;setHead(t.type,'Edit square',i===0?'START':'SQ '+i);
   const all=[...Object.values(POOLS).flat().filter(d=>d.type!=='blank'&&d.type!=='tower'&&d.type!=='prize'),...IDEAS];
-  const typeOpts=Object.entries(TYPES).filter(([k])=>i===0?k==='start':k!=='start'&&k!=='blank'&&k!=='goaround'&&k!=='hold').map(([k,v])=>`<option value="${k}"${k===t.type?' selected':''}>${v.name}</option>`).join('');
+  const typeOpts=Object.entries(TYPES).filter(([k])=>i===0?k==='start':k!=='start'&&k!=='blank'&&k!=='goaround'&&k!=='hold'&&k!=='swap').map(([k,v])=>`<option value="${k}"${k===t.type?' selected':''}>${v.name}</option>`).join('');
   const ideaOpts=all.map((d,j)=>`<option value="${j}">${esc(TYPES[d.type].name)}: ${esc(d.text.slice(0,58))}${d.text.length>58?'…':''}</option>`).join('');
   $('#m-body').innerHTML=`
     ${i===0?'':`<div class="field"><label for="tile-idea">Start from an idea</label><select id="tile-idea"><option value="">Pick from the idea bank</option>${ideaOpts}</select></div>`}
@@ -1172,7 +1172,7 @@ function boardV2(){if(!S.budget||S.budget.boardV>=2)return false;S.budget.boardV
   if(n)assignPerks(S.tiles,false);return n>0}
 // Nov 2026: nobody loses a turn. Ground-stop squares turn into upgrade-ticket squares, and the sketch award gets a seasonal round
 function happyOnly(st){let n=0;
-  (st.tiles||[]).forEach((t,i)=>{if(t&&t.type==='hold'){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
+  (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
     if(!st.budget.lines.some(l=>/of the season/i.test(l.name))){const at=st.budget.lines.findIndex(l=>/sketch/i.test(l.name));st.budget.lines.splice(at<0?st.budget.lines.length:at,0,{id:uid(),cat:'grand',name:SKETCH_SEASON_LINE,amount:25,per:'quarter',note:''})}n++}
@@ -1224,7 +1224,7 @@ function save(){
 function setSync(s){syncState=s;renderHud();if(drawerOpen&&tab==='settings')renderTab()}
 function applyRemote(d){
   if(!d||!Array.isArray(d.players)||!d.players.length)return;const fixed=happyOnly(d);
-  if(fixed)setTimeout(()=>{try{if(LEADER&&!PHONE)save()}catch(e){}},1500);
+  if(fixed)window.__fixPend=true;
   const before=JSON.stringify(S.tiles)+JSON.stringify(S.catalog);
   S={...S,players:d.players,current:d.current,champion:d.champion||null,log:Array.isArray(d.log)?d.log:[],
     catalog:Array.isArray(d.catalog)&&d.catalog.length?d.catalog:S.catalog,tiles:Array.isArray(d.tiles)&&d.tiles.length===N?(noTurnBacks(d.tiles)&&assignPerks(d.tiles,false),d.tiles):S.tiles,tileV:d.tileV,mega:d.mega||S.mega,budget:d.budget&&Array.isArray(d.budget.lines)?d.budget:S.budget,perks:Array.isArray(d.perks)?d.perks:S.perks,perks:S.perks,raffleWinner:d.raffleWinner||null,quarters:Array.isArray(d.quarters)?d.quarters:S.quarters};
@@ -2339,7 +2339,7 @@ function cardWatch(st){if(st.phase!=='card'||!curRemote){WD={pid:null,since:0};r
   const idle=Date.now()-Math.max(WD.since,lastActAt),lim=phoneOnline(curRemote)?150000:25000;if(idle<lim)return;
   const ids=((st.card&&st.card.btns)||[]).filter(b=>!b.dis).map(b=>b.id),id=['reveal','m-perk','m-close'].find(x=>ids.includes(x));
   if(id){lastActAt=Date.now();hostAct({pid:curRemote,id})}}
-function hostTick(){if(!LEADER)return;let st=hostState();cardWatch(st);
+function hostTick(){if(!LEADER)return;if(window.__fixPend&&!PHONE){window.__fixPend=false;save()}let st=hostState();cardWatch(st);
   if(st.phase==='done'){curRemote=null;PASS=null;st.pass=null;emit('st',st);lastSent='';if(hostQ.length){const nx=hostQ.shift();setTimeout(()=>hostStart(nx),900)}return}
   const js=JSON.stringify(st);if(js!==lastSent||Date.now()-lastSentAt>3000){lastSent=js;lastSentAt=Date.now();emit('st',st)}}
 // ---- phone side
@@ -2439,7 +2439,7 @@ function tourBeats(){const tape=S.tiles.findIndex((t,i)=>i>0&&t.prize==='tape'),
   {chip:['Prizes',C.sun],shot:{tile:pr},ring:'prize',text:`Gold squares hold prizes, from a mini tape measure to an architecture walking tour. The three Terminals pay out the big ones.`},
   {chip:['Upgrade tickets',C.purple],shot:{tile:rf},ring:'raffle',text:`Rainbow squares earn upgrade tickets. Every ticket goes into this season's draw and the Final Boarding Call at the end of the year.`},
   {chip:['Control Tower',C.purple],shot:{tile:tw,dist:6.5},ring:'tower',text:`The taxiway loops and crosses itself, over bridges and around the tower. Land on a Control Tower and you're Studio Champion, until someone takes it from you.`},
-  {chip:['Tailwinds and holds',C.orange],shot:{tile:tl},ring:['tailwind','bonus','hold','swap'],text:`Some squares push you ahead with a tailwind or let you roll again. A few hold you on the ground for a week. That's flying.`},
+  {chip:['Tailwinds',C.orange],shot:{tile:tl},ring:['tailwind','bonus'],text:`Some squares push you ahead with a tailwind or let you roll again.`},
   {chip:['Check-In',C.ink],shot:{tile:0,dist:5},ring:'start',text:`Pass Check-In and you just keep going. There's no last square, only the next Thursday.`},
   {chip:['See you at the gate',C.pink],shot:'term',drift:-.06,text:`So come by. Roll the die, draw something, meet someone new. The prizes are nice, but the ride is the point. See y'all at the gate.`}]}
 const T_DIR=new THREE.Vector3(.12,.78,.62);
