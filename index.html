@@ -31,6 +31,8 @@ h1,h2,h3{margin:0;text-wrap:balance}
 #stage canvas{display:block;width:100%;height:100%;touch-action:none}
 #stage svg.flat{width:100%;height:100%}
 
+.watch-badge{position:fixed;left:50%;top:102px;transform:translateX(-50%);z-index:40;white-space:nowrap;background:#fff;border:3px solid var(--ink,#111);border-radius:999px;padding:8px 16px;font-weight:800;font-size:14px;box-shadow:0 4px 0 var(--ink,#111);display:flex;gap:8px;align-items:center;pointer-events:none}
+.watch-badge i{width:10px;height:10px;border-radius:50%;background:#2F6BFF}
 .hud-top{position:fixed;top:0;left:0;right:0;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:12px;pointer-events:none;
   padding:max(14px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
 .hud-top>*{pointer-events:auto}
@@ -58,6 +60,7 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .vbtn{font-weight:800;font-size:12px;padding:4px 12px;border:3px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
 .vbtn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .pp{position:fixed;inset:0;z-index:80;background:rgba(20,20,20,.72);display:flex;flex-direction:column;align-items:center;padding:28px 16px 16px;overflow:auto}
+.pp>*{flex-shrink:0}@media (max-height:700px){.pp{padding-top:12px}.pp-name{font-size:18px;margin-bottom:6px}.pp-big{font-size:26px}}
 .pp-printer{position:relative;width:min(330px,92vw);height:74px;background:var(--ink);border-radius:18px 18px 10px 10px;box-shadow:0 6px 0 #000;display:flex;align-items:center;justify-content:space-between;padding:0 18px 14px;color:#fff;font-weight:900;font-size:12px;letter-spacing:.12em;z-index:2}
 .pp-printer i{width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:ppblink .5s steps(2) 6}
 .pp-printer:after{content:"";position:absolute;left:14px;right:14px;bottom:8px;height:8px;border-radius:4px;background:#000;box-shadow:inset 0 2px 3px #444}
@@ -1711,8 +1714,15 @@ function animSky(dt,T2){
   for(let k=(W3.puffs||[]).length-1;k>=0;k--){const u=W3.puffs[k];u.life+=dt;const v=u.life/u.max;u.m.scale.setScalar(.05+u.big*Math.sqrt(v));u.m.material.opacity=.85*(1-v);
     if(v>=1){W3.scene.remove(u.m);u.m.material.dispose();W3.puffs.splice(k,1)}}
   (W3.clouds||[]).forEach(c=>{c.g.position.x=c.x0+Math.sin(T2*c.sp*.4+c.x0)*1.4;c.g.position.y=c.y0+Math.sin(T2*.5+c.x0)*.15})}
+// keep the big screen smooth on any laptop: if frames drop, ease off pixel density and refresh shadows less often
+const GOV={lvl:0,t0:0,f:0,ok:0,ups:0,start:performance.now()};
+function govApply(){const r=W3.renderer,d=window.devicePixelRatio||1;r.setPixelRatio([Math.min(d,2),Math.min(d,1.25),1,.8][GOV.lvl]);r.setSize(innerWidth,innerHeight);W3.shadowEvery=[1,2,4,8][GOV.lvl]}
+function govern(){const now=performance.now();if(document.hidden||now-GOV.start<8000){GOV.t0=now;GOV.f=0;return}GOV.f++;const el=now-GOV.t0;if(el<2500)return;
+  const fps=GOV.f*1000/el;GOV.t0=now;GOV.f=0;W3.fps=Math.round(fps);
+  if(fps<38&&GOV.lvl<3){GOV.lvl++;GOV.ok=0;govApply()}
+  else if(fps>57&&GOV.lvl>0&&GOV.ups<2){if(++GOV.ok>=6){GOV.ok=0;GOV.ups++;GOV.lvl--;govApply()}}else GOV.ok=0}
 function loop(){
-  requestAnimationFrame(loop);if(phoneOpen()){W3.clock.getDelta();return}const dt=Math.min(W3.clock.getDelta(),.05),T=W3.clock.elapsedTime;animSky(dt,T);
+  requestAnimationFrame(loop);if(phoneOpen()){W3.clock.getDelta();return}govern();const dt=Math.min(W3.clock.getDelta(),.1),T=W3.clock.elapsedTime;animSky(dt,T);
   (W3.glows||[]).forEach(g=>{const w=(Math.sin(T*2.4+g.ph)+1)/2;g.m.scale.setScalar(1+w*.22);g.m.material.opacity=.35+w*.55});
   for(let k=BURSTS.length-1;k>=0;k--){const b=BURSTS[k];b.life+=dt;
     if(b.ring){const s=1+b.life*6;b.m.scale.set(s,s,s);b.m.material.opacity=Math.max(0,1-b.life/.8)}
@@ -1734,7 +1744,7 @@ function loop(){
   if(W3.tw){const w=W3.tw;w.t=Math.min(1,w.t+dt/(w.d||.9));const e=w.d?(w.t<.5?4*w.t**3:1-Math.pow(-2*w.t+2,3)/2):1-Math.pow(1-w.t,3);c.target.lerpVectors(w.fT,w.eT,e);cam.position.lerpVectors(w.fP,w.eP,e);if(w.t>=1)W3.tw=null}
   else if(W3.drift){const v=cam.position.clone().sub(c.target),a=W3.drift*dt;cam.position.copy(c.target).add(v.applyAxisAngle(new THREE.Vector3(0,1,0),a))}
   else if(W3.follow&&cp){const tgt=new THREE.Vector3(cp.g.position.x,0,cp.g.position.z),dl=tgt.sub(c.target).multiplyScalar(Math.min(1,dt*3.5));c.target.add(dl);cam.position.add(dl)}
-  c.update();W3.renderer.render(W3.scene,cam)}
+  c.update();const rr=W3.renderer;W3.frameN=(W3.frameN||0)+1;rr.shadowMap.autoUpdate=false;if(W3.frameN%(W3.shadowEvery||1)===0)rr.shadowMap.needsUpdate=true;rr.render(W3.scene,cam)}
 function boardImageSVG(W,base){const H=Math.round(W*BH/BW);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${BW} ${BH}" width="${W}" height="${H}"><style>.svg-display{font-family:"Arial Black","Arial Bold",Impact,sans-serif;font-weight:900}.svg-body{font-family:"Arial Black",Arial,Helvetica,sans-serif;font-weight:900}</style><defs>${$('#icon-defs').innerHTML}</defs>${boardSVG(true,base)}</svg>`}
 function refreshBoard(){
@@ -1857,6 +1867,9 @@ function initDie3D(){
     $('#bd-wrap').appendChild(cv);$('#bigdie').classList.add('gl');return true}
   catch(e){return false}}
 function die3dPose(q,y){D3.die.quaternion.copy(q);D3.die.position.y=y;const s=Math.max(.45,1-y*.35);D3.sh.scale.set(s*1.05,s*.8,1);D3.sh.material.opacity=.35*s;D3.R.render(D3.sc,D3.cam)}
+// a phone roller gets 20 s to tap STOP (8 s if their phone dropped off); at the TV the die waits a minute
+function dieAutoMs(){if(!curRemote)return 60000;return phoneOnline(curRemote)?20000:8000}
+function phoneOnline(pid){try{return !!(ROOM&&ROOM.peers().some(p=>p.presence&&p.presence.role==='phone'&&p.presence.pid===pid))}catch(e){return false}}
 function rollDie(n){
   const gl=initDie3D();
   const ov=$('#bigdie'),cube=$('#cube'),wrap=$('#bd-wrap'),num=$('#bd-num'),hint=$('#bd-hint');ov.hidden=false;num.classList.remove('show');hint.classList.add('show');ov.style.pointerEvents='auto';
@@ -1864,8 +1877,10 @@ function rollDie(n){
   const stop=()=>{if(phase==='spin')stopAt=0};DIESTOP=stop;ov.onclick=stop;const kd=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();stop()}};document.addEventListener('keydown',kd);ov.classList.add('spinning');
   // 3D state: tumble on a random axis, then ease onto the rolled face (tilted a little so it still reads as a cube)
   const q=new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.random()*6,Math.random()*6,Math.random()*6)),axis=new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize(),spd=11+Math.random()*3,tmp=new THREE.Quaternion();
+  const spin0=performance.now();
   return new Promise(res=>{
     const step=now=>{const dt=Math.min(.05,(now-last)/1000);last=now;
+      if(phase==='spin'&&stopAt===Infinity&&now-spin0>dieAutoMs())stop();
       if(phase==='spin'){const hop=Math.abs(Math.sin(now/190));
         if(gl){axis.applyAxisAngle(new THREE.Vector3(0,1,0),dt*.8).normalize();tmp.setFromAxisAngle(axis,spd*dt);q.premultiply(tmp);die3dPose(q,hop*.9)}
         else{rx+=vx*dt;ry+=vy*dt;cube.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;wrap.style.transform=`translateY(${-hop*70}px)`}
@@ -2082,6 +2097,7 @@ function renderTab(){
     h+=`<div class="set-list">
       <div class="set-item"><div><b>${sync[0]}</b><p>${sync[1]}</p></div><span class="pill"><span class="sd${syncState==='live'||syncState==='new'?'':' off'}"></span>${syncState==='live'||syncState==='new'?'Shared':'Local'}</span></div>
       <div class="set-item"><div><b>Roll for everyone left today</b><p>Handy at the end of the day for anyone who missed their turn.</p></div><button class="btn btn-sm" type="button" id="s-all">Roll</button></div>
+      <div class="set-item"><div><b>This is the studio screen</b><p>${isMain()?'This screen runs the game, even if the link is open somewhere else.':'Turn on for the TV. It stays in charge of the game, even if someone opens the link on a laptop.'}</p></div><button class="btn btn-sm" type="button" id="s-main">${isMain()?'On':'Turn on'}</button></div>
       <div class="set-item"><div><b>Full screen</b><p>Great for the studio TV.</p></div><button class="btn btn-sm" type="button" id="s-fs">Go</button></div>
       ${editMode?`<div class="set-item"><div><b>Roll again today</b><p>For test runs. Everyone who already rolled today gets another turn. Their squares and prizes stay.</p></div><button class="btn btn-sm" type="button" id="s-again">${armed==='again'?'Tap to confirm':'Reset'}</button></div>`:''}${editMode?`<div class="set-item"><div><b>New season</b><p>Everyone back to Gate A in the terminal. Clears the log, champion, prize tallies, and raffle tickets. Squares and prizes stay.</p></div><button class="btn btn-sm" type="button" id="s-season">${armed==='season'?'Tap to confirm':'Start'}</button></div>
       <div class="set-item"><div><b>Reset everything</b><p>Fresh board, default prizes, and the full Studio 2 roster.</p></div><button class="btn btn-sm btn-danger" type="button" id="s-reset">${armed==='reset'?'Tap to confirm':'Reset'}</button></div>`:''}
@@ -2107,6 +2123,7 @@ function renderTab(){
     $('#m-foot').innerHTML='<button class="btn btn-ink" type="button" id="m-close">Hooray</button>';$('#m-close').onclick=closeModal;showModal()});
   on('#s-fs',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch(e){toast('Full screen is not available here')}});
   on('#s-edit',()=>{if(editMode){setEdit(false);toast('Edit mode off')}else requireUnlock(()=>{setEdit(true);toast('Edit mode on. Tap any square to change it.')})});
+  on('#s-main',()=>{const v=!isMain();lsSet('hp-main',v?'1':null);if(ROOM)ROOM.presence({since:effSince()}).catch(()=>{});renderTab();toast(v?'This is now the studio screen':'Studio screen turned off')});
   on('#s-again',()=>{if(armed!=='again'){armed='again';renderTab();return}armed=null;const td=today();let n=0;S.players.forEach(p=>{if(p.lastRoll===td){p.lastRoll=null;n++}});save();renderHud();renderTab();lastSent='';toast(n?`${n} player${n===1?'':'s'} can roll again`:'Nobody has rolled today')});
   on('#s-season',()=>{if(armed!=='season'){armed='season';renderTab();return}armed=null;S.players.forEach(p=>{p.pos=0;p.laps=0;p.hold=false;p.lastRoll=null;p.won=0;p.cards=[];p.perks=[];p.started=false;p.tickets=0;p.qt={}});S.log=[];S.champion=null;S.raffleWinner=null;S.quarters.forEach(x=>x.winner=null);save();syncPieces();renderHud();renderTab();toast('New season started')});
   on('#s-reset',()=>{if(armed!=='reset'){armed='reset';renderTab();return}armed=null;S=null;S=sample();normalize();save();renderAll();toast('Everything reset')});}
@@ -2137,7 +2154,8 @@ function setEdit(on){editMode=on;document.body.classList.toggle('editing',on);if
 
 /* ---------- boot ---------- */
 dieFace(6);
-init3D();
+const BOOT_PHONE=(()=>{try{const m=localStorage.getItem('hp-mode');return /play/i.test(location.hash)||m==='phone'||(m==null&&matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<620)}catch(e){return /play/i.test(location.hash)}})();
+if(BOOT_PHONE){W3.ok=false;W3.skipped=true}else init3D();
 if(W3.ok){refreshBoard();syncPieces();
   // the viewer can size the page after load: keep the whole-board view framed until someone moves the camera
   const refit=()=>{const r=W3.renderer,w=innerWidth,h=innerHeight;if(!w||!h)return;r.setSize(w,h);W3.camera.aspect=w/h;W3.camera.updateProjectionMatrix();if(!W3.userMoved&&!busy)overview(true)};
@@ -2263,10 +2281,17 @@ function openQR(){const m=$('#qr-modal');
 function renderQRCount(){const n=ROOM?ROOM.peers().filter(p=>p.presence&&p.presence.role==='phone').length:0;$$('.qr-count').forEach(e=>e.textContent=ROOM?`${n} phone${n===1?'':'s'} connected`:'Connecting…')}
 function renderQRCorner(){const c=$('#dock-qr');if(!c)return;const show=!PHONE&&!phoneLike();c.hidden=!show;document.querySelector('.dock').classList.toggle('has-qr',show);if(show&&!c.dataset.done){$('#dock-qr-code').innerHTML=IN_CLAUDE?SCREEN_ICON:qrSvg(PLAY_URL,4);if(IN_CLAUDE)c.querySelector('b').textContent='Studio screen';c.dataset.done='1'}renderQRCount()}
 // ---- room: who is the big screen (the earliest board open), commands in, state out
-function electLeader(){if(!ROOM||PHONE){LEADER=false;return}const boards=ROOM.peers().filter(p=>p.presence&&p.presence.role==='board').sort((a,b)=>(a.presence.since-b.presence.since)||(a.peer<b.peer?-1:1));LEADER=!!(boards[0]&&boards[0].sameTab)}
+const isMain=()=>lsGet('hp-main')==='1';
+const effSince=()=>isMain()?mySince-1e12:document.hidden?mySince+1e12:mySince;
+function electLeader(){if(!ROOM||PHONE){LEADER=false;watchBadge();return}
+  const boards=ROOM.peers().filter(p=>p.presence&&p.presence.role==='board').sort((a,b)=>(a.presence.since-b.presence.since)||(a.peer<b.peer?-1:1));
+  const was=LEADER;LEADER=!!(boards[0]&&boards[0].sameTab);if(was&&!LEADER){curRemote=null;hostQ=[]}watchBadge()}
+function watchBadge(){let b=document.getElementById('watch-badge');const show=!!(ROOM&&!PHONE&&!LEADER&&ROOM.peers().some(p=>p.presence&&p.presence.role==='board'&&!p.sameTab));
+  if(!show){if(b)b.hidden=true;return}if(!b){b=document.createElement('div');b.id='watch-badge';b.className='watch-badge';b.innerHTML='<i></i>Watching. The studio screen is running the game.';document.body.appendChild(b)}b.hidden=false}
+document.addEventListener('visibilitychange',()=>{if(ROOM&&!PHONE)ROOM.presence({since:effSince()}).catch(()=>{})});
 const boardOnline=()=>!!(ROOM&&ROOM.peers().some(p=>p.presence&&p.presence.role==='board'));
 async function startRoom(){const cl=window.claude;if(!cl||!cl.use){renderPhone();return}let r=null;try{r=await cl.use('room')}catch(e){}if(!r){renderPhone();return}ROOM=r;
-  r.presence({role:PHONE?'phone':(phoneLike()?'viewer':'board'),since:mySince,pid:PHONE?(myPid()||null):null}).catch(()=>{});
+  r.presence({role:PHONE?'phone':(phoneLike()?'viewer':'board'),since:effSince(),pid:PHONE?(myPid()||null):null}).catch(()=>{});
   r.onPeers(()=>{electLeader();renderQRCount();if(PHONE)renderPhone()});r.onConnection(()=>{if(PHONE)renderPhone()});
   r.on('roll',m=>{if(LEADER)hostRoll(m.data||{})});r.on('stop',m=>{if(LEADER)hostStop(m.data||{})});r.on('act',m=>{if(!LEADER)return;const d=m.data||{};if(d.id==='call')hostCall(d);else hostAct(d)});r.on('got',m=>{if(LEADER)hostGot(m.data||{})});r.on('face',m=>{if(LEADER)hostFace(m.data||{})});
   r.on('st',m=>{if(m.sameTab)return;LAST=m.data||null;if(PHONE){renderPhone();phonePass(LAST)}});
@@ -2294,7 +2319,7 @@ function hostCall(d){const p=S.players.find(x=>x.id===d.pid);if(!p)return;
   S.current=p.id;renderHud();boardingCall(p);
   emit('st',{...hostState(),note:{pid:p.id,text:`You're on the big screen! Tap Roll when you're ready.`}});lastSent=''}
 function hostStop(d){if(d.pid===curRemote&&DIESTOP)DIESTOP()}
-function hostAct(d){if(modal.hidden||d.pid!==curRemote)return;const ok=['m-perk','m-close','m-again','m-ans','m-swap','reveal'];if(!ok.includes(d.id))return;
+function hostAct(d){if(modal.hidden||d.pid!==curRemote)return;lastActAt=Date.now();const ok=['m-perk','m-close','m-again','m-ans','m-swap','reveal'];if(!ok.includes(d.id))return;
   if(d.id==='m-swap'&&d.val&&$('#swap-sel'))$('#swap-sel').value=d.val;const el=$('#'+d.id);if(el&&!el.disabled)el.click();lastSent=''}
 function hostGot(d){const p=S.players.find(x=>x.id===d.pid);if(!p||!['cards','perks'].includes(d.kind))return;const it=(p[d.kind]||[])[d.i];if(!it)return;it.got=d.got!==false;logIt(`${p.name} collected: ${it.c}.`);save();lastSent=''}
 function hostFace(d){const p=S.players.find(x=>x.id===d.pid);if(!p)return;if(d.url==null)delete p.face;else if(faceOk(d.url))p.face=d.url;else return;save();if(W3.ok)W3.pieces.forEach(pc=>pc.key='');syncPieces();lastSent=''}
@@ -2308,7 +2333,13 @@ function cardInfo(){const b=$('#m-body').cloneNode(true),f=b.querySelector('#fli
 function hostState(){const ov=$('#bigdie');let phase='idle',card=null;
   if(curRemote){if(!ov.hidden&&ov.classList.contains('spinning'))phase='spin';else if(!modal.hidden){phase='card';card=cardInfo()}else if(busy||!ov.hidden)phase='move';else phase='done'}
   return{pid:curRemote,phase,card,msg:($('#roll-msg')||{}).textContent||'',q:hostQ.slice(0,30),pass:PASS&&PASS.pid===curRemote?PASS:null}}
-function hostTick(){if(!LEADER)return;let st=hostState();
+let WD={pid:null,since:0},lastActAt=0;
+function cardWatch(st){if(st.phase!=='card'||!curRemote){WD={pid:null,since:0};return}
+  if(WD.pid!==curRemote){WD={pid:curRemote,since:Date.now()}}
+  const idle=Date.now()-Math.max(WD.since,lastActAt),lim=phoneOnline(curRemote)?150000:25000;if(idle<lim)return;
+  const ids=((st.card&&st.card.btns)||[]).filter(b=>!b.dis).map(b=>b.id),id=['reveal','m-perk','m-close'].find(x=>ids.includes(x));
+  if(id){lastActAt=Date.now();hostAct({pid:curRemote,id})}}
+function hostTick(){if(!LEADER)return;let st=hostState();cardWatch(st);
   if(st.phase==='done'){curRemote=null;PASS=null;st.pass=null;emit('st',st);lastSent='';if(hostQ.length){const nx=hostQ.shift();setTimeout(()=>hostStart(nx),900)}return}
   const js=JSON.stringify(st);if(js!==lastSent||Date.now()-lastSentAt>3000){lastSent=js;lastSentAt=Date.now();emit('st',st)}}
 // ---- phone side
@@ -2352,7 +2383,7 @@ function renderPhone(){if(!PHONE)return;const el=$('#ph-body');if(!el)return;con
 $('#phone').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const me=myPid();
   if(t.dataset.pick){lsSet('hp-me',t.dataset.pick);if(ROOM)ROOM.presence({pid:t.dataset.pick}).catch(()=>{});renderPhone();return}
   const ph=t.dataset.ph;if(ph==='switch'){lsSet('hp-me',null);phPick='';phCalled=null;renderPhone();return}
-  if(ph==='board'){setPhone(false);return}
+  if(ph==='board'){if(W3.skipped){lsSet('hp-mode','board');location.hash='';location.reload();return}setPhone(false);return}
   if(ph==='face'){if(!PHF.busy)$('#ph-face-in').click();return}
   if(ph==='noface'){setFace(me,null);PHF.msg='Photo removed.';phRefresh();return}
   if(ph==='pass'){const p=S.players.find(x=>x.id===me);if(p&&p.started)showPass({pid:me,seat:p.pos,at:Date.now()},{wallet:true});return}
