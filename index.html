@@ -1059,16 +1059,17 @@ function nextPlayer(){const td=today(),n=S.players.length;if(!n)return;const i=S
 function isJump(t,at){return(t.type==='tailwind'||t.type==='goaround')&&Number.isInteger(t.to)&&t.to>=0&&t.to<N&&t.to!==at}
 function stepForward(p,effects){p.pos=(p.pos+1)%N;if(p.pos===0){p.laps++;effects.push(`Passed Check-In. Passport stamp number ${p.laps}.`)}}
 function resolveLanding(p,n,effects){
-  const at=p.pos,t=S.tiles[at],ty=TYPES[t.type]||TYPES.blank;let summary=`${p.name} rolled ${n} and landed on ${t.type==='prize'?prizeOf(t).short:(t.title||ty.name)} (square ${at}).`,prize=null;
+  let outTix=false;const at=p.pos,t=S.tiles[at],ty=TYPES[t.type]||TYPES.blank;let summary=`${p.name} rolled ${n} and landed on ${t.type==='prize'?prizeOf(t).short:(t.title||ty.name)} (square ${at}).`,prize=null;
   if(isJump(t,at)){if(t.type==='tailwind'&&t.to<at){p.laps++;effects.push(`Passed Check-In. Passport stamp number ${p.laps}.`)}
     p.pos=t.to;const msg=`${t.type==='tailwind'?'Jumped ahead':'Went back'} to square ${t.to}.`;effects.push(msg);summary+=' '+msg;}
   else if(t.type==='tower'){S.champion={id:p.id,name:p.name,date:today()};effects.push(`${p.name} is the new Studio Champion.`);summary=`${p.name} landed on the Control Tower and took the title.`}
   else if(t.type==='swap'){effects.push('Pick a player to trade places with.')}
   else if(t.type==='raffle'){p.tickets=(p.tickets||0)+1;const cq=curQ();p.qt=p.qt||{};p.qt[cq.key]=(p.qt[cq.key]||0)+1;summary=`${p.name} earned an upgrade ticket for the ${qOf(cq.q).name} and the Final Boarding Call.`}
-  else if(hasPrize(t)){const pz=prizeOf(t);prize=pz;p.won=(p.won||0)+(+pz.est||0);(p.cards=p.cards||[]).push({d:today(),c:pz.name});summary=`${p.name} landed on ${t.type==='terminal'?t.title:'square '+at} and won: ${pz.name}.`}
+  else if(hasPrize(t)){const pz=prizeOf(t);if(takeStock(pz)){prize=pz;p.won=(p.won||0)+(+pz.est||0);(p.cards=p.cards||[]).push({d:today(),c:pz.name});summary=`${p.name} landed on ${t.type==='terminal'?t.title:'square '+at} and won: ${pz.name}.`}
+    else{giveTicket(p);outTix=true;effects.push(`All ${pz.short||pz.name} prizes are claimed, so you get an upgrade ticket instead.`);summary=`${p.name} landed on ${t.type==='terminal'?t.title:'square '+at} (all claimed) and earned an upgrade ticket instead.`}}
   else if(t.type==='hold'){p.hold=true;effects.push('Skip your next Thursday roll.')}
   else if(t.type==='bonus'){effects.push('Roll again right now.')}
-  p.lastRoll=today();logIt(summary);return{at,prize,bonus:t.type==='bonus',swap:t.type==='swap',special:t.type==='terminal',raffle:t.type==='raffle'}}
+  p.lastRoll=today();logIt(summary);return{at,prize,bonus:t.type==='bonus',swap:t.type==='swap',special:t.type==='terminal'&&!outTix,raffle:t.type==='raffle'||outTix}}
 const modal=$('#modal');let lastFocus=null;
 function showModal(){lastFocus=document.activeElement;modal.hidden=false;const f=modal.querySelector('input,select:not([disabled]),textarea,.sheet-foot button');f&&f.focus()}
 let afterClose=null;
@@ -1105,7 +1106,7 @@ function openTile(i,land){
   if(land&&land.swap){$('#m-foot').insertAdjacentHTML('afterbegin','<button class="btn btn-sm" type="button" id="m-swap" style="background:var(--lav)">Swap seats</button>');
     $('#m-swap').onclick=()=>{const me=S.players.find(o=>o.id===land.pid),o=S.players.find(x=>x.id===$('#swap-sel').value);if(me&&o){if(!o.started){o.pos=boardingSeat();o.started=true}[me.pos,o.pos]=[o.pos,me.pos];logIt(`${me.name} swapped seats with ${o.name}.`);save();renderAll();toast(`${me.name} and ${o.name} swapped seats`)}closeModal()}}
   if(land&&pk&&!land.bonus){$('#m-foot').insertAdjacentHTML('afterbegin','<button class="btn" type="button" id="m-perk" style="background:var(--sun)">Done! Collect</button>');
-    $('#m-perk').onclick=()=>{const pl=S.players.find(x=>x.id===land.pid);if(pl){(pl.perks=pl.perks||[]).push({d:today(),c:pk.name,sq:i,t:t.title||'',k:t.type});logIt(`${pl.name} finished #${i} "${t.title||TYPES[t.type].name}" and collected a ${pk.name}.`);save();toast(`${pk.name} for ${pl.name.split(/\s+/)[0]}`)}const bt=$('#m-perk');bt.disabled=true;bt.textContent='Collected';const cb=$('#m-close');if(cb)cb.textContent=S.players.some(x=>x.lastRoll!==today())?'Next roller':'Done'}}
+    $('#m-perk').onclick=()=>{const pl=S.players.find(x=>x.id===land.pid);if(pl){const got=takeStock(pk);(pl.perks=pl.perks||[]).push({d:today(),c:got?pk.name:'Upgrade ticket',sq:i,t:t.title||'',k:t.type});if(got){logIt(`${pl.name} finished #${i} "${t.title||TYPES[t.type].name}" and collected a ${pk.name}.`);toast(`${pk.name} for ${pl.name.split(/\s+/)[0]}`)}else{giveTicket(pl);logIt(`${pl.name} finished #${i} "${t.title||TYPES[t.type].name}". The ${pk.name} stack is empty, so they got an upgrade ticket.`);toast(`Out of ${pk.name}: upgrade ticket for ${pl.name.split(/\s+/)[0]}`)}save()}const bt=$('#m-perk');bt.disabled=true;bt.textContent='Collected';const cb=$('#m-close');if(cb)cb.textContent=S.players.some(x=>x.lastRoll!==today())?'Next roller':'Done'}}
   if($('#m-close'))$('#m-close').onclick=closeModal;if($('#m-edit'))$('#m-edit').onclick=()=>{afterClose=null;requireUnlock(()=>{setEdit(true);editTile(i)})};
   showModal();}
 function b2note(){const n=document.createElement('p');n.className='small';n.style.margin='0';n.textContent='Show this card to the game host to collect.';$('#m-body').appendChild(n)}
@@ -1171,7 +1172,30 @@ function boardV2(){if(!S.budget||S.budget.boardV>=2)return false;S.budget.boardV
   Object.entries(BOARD_V2.tasks).forEach(([i,title])=>{i=+i;const q=POOLS.create.find(t=>t.title===title);if(q&&S.tiles[i]&&S.tiles[i].type==='customs'){S.tiles[i]={...q};n++}});
   if(n)assignPerks(S.tiles,false);return n>0}
 // Nov 2026: nobody loses a turn. Ground-stop squares turn into upgrade-ticket squares, and the sketch award gets a seasonal round
-function happyOnly(st){let n=0;
+const P800={
+  catalog:[
+    {id:'tape',name:'Mini tape measure',short:'Tape measure',icon:'tape',est:1,tier:'prize',stock:12},
+    {id:'book101',name:'Book: 101 Things I Learned in Architecture School',short:'Arch book',icon:'book',est:15,tier:'prize',stock:3},
+    {id:'bookud',name:'Book: 101 Things I Learned in Urban Design School',short:'Design book',icon:'book',est:19,tier:'prize',stock:3},
+    {id:'pens',name:'Pro sketch pens (Sakura Micron 6-pack)',short:'Sketch pens',icon:'pencil',est:27,tier:'special',stock:1},
+    {id:'coffee25',name:'$25 Starbucks card',short:'$25 coffee',icon:'card',est:25,tier:'special',stock:1}],
+  perks:[{id:'sketchbook',name:'Sketchbook (5.5 x 8 in)',icon:'book',est:5,stock:24},{id:'coffee',name:'$10 Starbucks card (coffee for two)',icon:'card',est:10,stock:18}],
+  mega:{name:'LEGO Architecture New York City (21066)',est:140},
+  quarters:{1:['Announced in 2027',0],2:['Announced in 2027',0],3:['Announced in 2027',0],4:['$25 Starbucks card',25]},
+  lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): $100 inKind dinner card',amount:75,per:'once'},
+    {cat:'grand',name:'Sketch of the Season (studio vote on this quarter\'s sketches): $25 Blick art supply gift card',amount:25,per:'once'},
+    {cat:'grand',name:'Best Sketch of the Year (studio vote at the last game of 2026): winning sketch framed for the studio wall',amount:0,per:'once'}]};
+function plan800(st){if(!st.budget||st.budget.plan==='p800'||!Array.isArray(st.tiles)||!st.tiles.length)return 0;
+  st.catalog=P800.catalog.map(c=>({...c}));st.perks=P800.perks.map(x=>({...x}));st.mega={...P800.mega};
+  let k=0;st.tiles.forEach(t=>{if(!t)return;if(t.type==='prize'){if(t.prize!=='tape')t.prize=k++<4?'book101':'bookud';const c=st.catalog.find(c=>c.id===t.prize);t.title=c.short;t.text=''}
+    if(t.type==='customs'||t.type==='social')t.perk='coffee';if(t.type==='create')t.perk='sketchbook'});
+  const tt=st.tiles.map((t,i)=>t&&t.type==='terminal'?i:-1).filter(i=>i>=0);['pens','coffee25','bookud'].forEach((id,j)=>{if(tt[j]!=null)st.tiles[tt[j]].prize=id});
+  if(Array.isArray(st.quarters))st.quarters.forEach(q=>{const v=P800.quarters[q.q];if(v){q.prize=v[0];q.est=v[1]}});
+  st.budget.lines=P800.lines.map(l=>({id:uid(),note:'',...l}));st.budget.weeks=2;st.budget.attendance=100;st.budget.contingency=0;st.budget.plan='p800';return 1}
+// stock: a prize or reward with a count pays out until it runs out; after that the player gets an upgrade ticket instead
+function takeStock(o){if(!o||typeof o.stock!=='number')return true;if(o.stock<=0)return false;o.stock--;return true}
+function giveTicket(p){p.tickets=(p.tickets||0)+1;const cq=curQ();p.qt=p.qt||{};p.qt[cq.key]=(p.qt[cq.key]||0)+1}
+function happyOnly(st){let n=plan800(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
@@ -1227,7 +1251,7 @@ function applyRemote(d){
   if(fixed)window.__fixPend=true;
   const before=JSON.stringify(S.tiles)+JSON.stringify(S.catalog);
   S={...S,players:d.players,current:d.current,champion:d.champion||null,log:Array.isArray(d.log)?d.log:[],
-    catalog:Array.isArray(d.catalog)&&d.catalog.length?d.catalog:S.catalog,tiles:Array.isArray(d.tiles)&&d.tiles.length===N?(noTurnBacks(d.tiles)&&assignPerks(d.tiles,false),d.tiles):S.tiles,tileV:d.tileV,mega:d.mega||S.mega,budget:d.budget&&Array.isArray(d.budget.lines)?d.budget:S.budget,perks:Array.isArray(d.perks)?d.perks:S.perks,perks:S.perks,raffleWinner:d.raffleWinner||null,quarters:Array.isArray(d.quarters)?d.quarters:S.quarters};
+    catalog:Array.isArray(d.catalog)&&d.catalog.length?d.catalog:S.catalog,tiles:Array.isArray(d.tiles)&&d.tiles.length===N?(noTurnBacks(d.tiles)&&assignPerks(d.tiles,false),d.tiles):S.tiles,tileV:d.tileV,mega:d.mega||S.mega,budget:d.budget&&Array.isArray(d.budget.lines)?d.budget:S.budget,perks:Array.isArray(d.perks)&&d.perks.length?d.perks:S.perks,raffleWinner:d.raffleWinner||null,quarters:Array.isArray(d.quarters)?d.quarters:S.quarters};
   normalize();try{localStorage.setItem(LKEY,JSON.stringify(S))}catch(e){}
   if(JSON.stringify(S.tiles)+JSON.stringify(S.catalog)!==before)refreshBoard();
   syncPieces();renderHud();if(drawerOpen)renderTab();}
@@ -2015,17 +2039,17 @@ function renderTab(){
   }
   if(tab==='budget'){const B=S.budget,rolls=Math.round(S.players.length*B.attendance/100)*B.weeks,hit=rolls/N,mult={week:B.weeks,month:12,quarter:4,year:1,once:1},$$f=n=>'$'+Math.round(n).toLocaleString('en-US');
     const auto={};S.tiles.forEach(t=>{if(hasPrize(t)){const c=prizeOf(t);auto[c.id]=(auto[c.id]||0)+1}});
-    const sq=S.catalog.filter(c=>auto[c.id]).map(c=>({c,n:auto[c.id],wins:auto[c.id]*hit,cost:auto[c.id]*hit*(+c.est||0)}));
+    const cap=(o,w)=>typeof o.stock==='number'?Math.min(w,o.stock):w;const sq=S.catalog.filter(c=>auto[c.id]).map(c=>{const w=cap(c,auto[c.id]*hit);return{c,n:auto[c.id],wins:w,cost:w*(+c.est||0)}});
     const reg=sq.filter(x=>x.c.tier!=='special'),spc=sq.filter(x=>x.c.tier==='special'),sum=a=>a.reduce((t,x)=>t+x.cost,0);
     const grp=k=>B.lines.filter(l=>l.cat===k),lineCost=l=>(+l.amount||0)*(mult[l.per]||1);
     const fb={cost:+S.mega.est||0};
-    const pc={};S.tiles.forEach(t=>{const k=perkOf(t);if(k)pc[k.id]=(pc[k.id]||0)+1});const pr=(S.perks||[]).filter(x=>pc[x.id]).map(x=>({c:x,n:pc[x.id],wins:pc[x.id]*hit,cost:pc[x.id]*hit*(+x.est||0)}));
+    const pc={};S.tiles.forEach(t=>{const k=perkOf(t);if(k)pc[k.id]=(pc[k.id]||0)+1});const pr=(S.perks||[]).filter(x=>pc[x.id]).map(x=>{const w=cap(x,pc[x.id]*hit);return{c:x,n:pc[x.id],wins:w,cost:w*(+x.est||0)}});
     const qSum=S.quarters.reduce((a,x)=>a+(+x.est||0),0);const totals={perks:sum(pr),prize:sum(reg),special:sum(spc),grand:fb.cost+qSum+grp('grand').reduce((t,l)=>t+lineCost(l),0)};
     const sub=Object.values(totals).reduce((a,b)=>a+b,0),cont=sub*(+B.contingency||0)/100,total=sub+cont;
     h+=`<div class="stat-row"><div class="stat"><b>${$$f(total)}</b><span>Year total</span></div><div class="stat"><b>${$$f(total/B.weeks)}</b><span>Per game week</span></div><div class="stat"><b>${$$f(total/Math.max(1,S.players.length))}</b><span>Per player</span></div></div>`;
     h+=`<p class="small" style="margin:0 0 12px">${B.weeks} game Thursdays, ${S.players.length} players, ${B.attendance}% show up → about ${rolls.toLocaleString('en-US')} rolls a year. Each square gets landed on about ${hit.toFixed(1)} times a year, so every prize square pays out roughly that many times.</p>`;
     if(editMode)h+=`<div class="card" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px"><div class="field"><label for="b-weeks">Weeks</label><input id="b-weeks" data-bset="weeks" value="${B.weeks}" inputmode="numeric"></div><div class="field"><label for="b-att">Attend %</label><input id="b-att" data-bset="attendance" value="${B.attendance}" inputmode="numeric"></div><div class="field"><label for="b-cont">Buffer %</label><input id="b-cont" data-bset="contingency" value="${B.contingency}" inputmode="numeric"></div></div>`;
-    const autoRows=a=>a.map(x=>`<tr><td>${esc(x.c.name)}<span class="bn">${x.n} square${x.n===1?'':'s'} · ~${x.wins.toFixed(0)} wins × $${x.c.est||0}</span></td><td class="amt">${$$f(x.cost)}</td></tr>`).join('');
+    const autoRows=a=>a.map(x=>`<tr><td>${esc(x.c.name)}<span class="bn">${x.n} square${x.n===1?'':'s'} · ~${x.wins.toFixed(0)} wins × $${x.c.est||0}${typeof x.c.stock==='number'?` · ${x.c.stock} in stock`:''}</span></td><td class="amt">${$$f(x.cost)}</td></tr>`).join('');
     const manRows=k=>grp(k).map(l=>editMode?`<tr><td><input data-bl-name="${l.id}" value="${esc(l.name)}" aria-label="Line item"><span class="bn"><input data-bl-amt="${l.id}" value="${l.amount}" inputmode="numeric" class="bamt" aria-label="Amount"> <select data-bl-per="${l.id}" aria-label="How often">${['week','month','quarter','year','once'].map(o=>`<option value="${o}"${o===l.per?' selected':''}>${o==='once'?'one time':'per '+o}</option>`).join('')}</select> <button class="xbtn" type="button" data-bl-x="${l.id}" aria-label="Remove line">×</button></span></td><td class="amt">${$$f(lineCost(l))}</td></tr>`:`<tr><td>${esc(l.name)}<span class="bn">$${l.amount} ${l.per==='once'?'one time':'per '+l.per}</span></td><td class="amt">${$$f(lineCost(l))}</td></tr>`).join('');
     const sec=(title,key,rows,addable)=>`<div class="dsec"><h3>${title}<span class="bsum">${$$f(totals[key])}</span></h3><table class="btab"><tbody>${rows||'<tr><td class="small">Nothing here yet</td><td></td></tr>'}</tbody></table>${addable&&editMode?`<button class="btn btn-sm" type="button" data-bl-add="${key}">+ Add line</button>`:''}</div>`;
     h+=sec('Grand prizes','grand',`<tr><td>Final Boarding Call (year-end drawing): ${esc(S.mega.name)}<span class="bn">Change it in the Prizes tab</span></td><td class="amt">${$$f(fb.cost)}</td></tr>`+S.quarters.map(x=>`<tr><td>Q${x.q} ${esc(x.name)}: ${esc(x.prize)}<span class="bn">Seasonal draw, set in the Prizes tab</span></td><td class="amt">${$$f(+x.est||0)}</td></tr>`).join('')+manRows('grand'),true);
@@ -2047,8 +2071,8 @@ function renderTab(){
     h+=`<div class="stat-row"><div class="stat"><b>${pt.length}</b><span>Prize squares</span></div><div class="stat"><b>${(per*pt.length).toFixed(1)}</b><span>Prizes a week</span></div><div class="stat"><b>${S.tiles.filter(t=>t.type==='raffle').length}</b><span>Upgrade squares</span></div></div>`;
     const used=id=>S.tiles.map((t,i)=>hasPrize(t)&&t.prize===id?i:-1).filter(i=>i>=0);
     const row=(c,i)=>{const sq=used(c.id);return `<li class="pz${c.tier==='special'?' special':''}">${sw(c.tier==='special'?C.ink:C.sun,c.tier==='special'?C.sun:C.ink,c.icon)}
-      ${editMode?`<input data-pz-name="${i}" value="${esc(c.name)}" maxlength="40" aria-label="Prize name"><input data-pz-est="${i}" value="${c.est||0}" inputmode="numeric" class="est" aria-label="Estimated value in dollars"><button class="xbtn" type="button" data-prize-x="${i}" aria-label="Remove ${esc(c.name)}">×</button>`:`<span class="pz-n">${esc(c.name)}</span><span class="pz-v"${unlocked?'':' hidden'}>${c.est?'$'+c.est:'free'}</span>`}
-      <span class="pz-sq">${sq.length?(c.tier==='special'?S.tiles.filter((t,j)=>sq.includes(j)).map(t=>t.title).join(', '):'Square '+sq.join(', ')):'Not on the board'}</span></li>`};
+      ${editMode?`<input data-pz-name="${i}" value="${esc(c.name)}" maxlength="40" aria-label="Prize name"><input data-pz-est="${i}" value="${c.est||0}" inputmode="numeric" class="est" aria-label="Estimated value in dollars"><input data-pz-stock="${i}" value="${c.stock??''}" inputmode="numeric" class="est" placeholder="∞" aria-label="How many in stock"><button class="xbtn" type="button" data-prize-x="${i}" aria-label="Remove ${esc(c.name)}">×</button>`:`<span class="pz-n">${esc(c.name)}</span><span class="pz-v"${unlocked?'':' hidden'}>${c.est?'$'+c.est:'free'}</span>`}
+      <span class="pz-sq">${sq.length?(c.tier==='special'?S.tiles.filter((t,j)=>sq.includes(j)).map(t=>t.title).join(', '):'Square '+sq.join(', ')):'Not on the board'}${typeof c.stock==='number'?` · ${c.stock} left`:''}</span></li>`};
     const idx=S.catalog.map((c,i)=>[c,i]);
     const tix=S.players.filter(p=>p.tickets).sort((a,b)=>b.tickets-a.tickets),allT=tix.reduce((a,p)=>a+p.tickets,0),rq=S.tiles.map((t,i)=>t.type==='raffle'?i:-1).filter(i=>i>=0);
     const cq=curQ(),Q=qOf(cq.q),qt=S.players.filter(p=>p.qt&&p.qt[cq.key]).sort((a,b)=>b.qt[cq.key]-a.qt[cq.key]),qAll=qt.reduce((a,p)=>a+p.qt[cq.key],0);
@@ -2065,7 +2089,7 @@ function renderTab(){
       ${S.raffleWinner?`<p style="margin:8px 0 0;font-weight:900">Winner: ${esc(S.raffleWinner.name)} · ${esc(fmtDate(S.raffleWinner.d))}</p>`:''}
       ${tix.length?`<ul class="odds">${tix.slice(0,10).map(p=>`<li><span class="dot" style="background:${p.color}"></span><span style="min-width:0;flex:0 1 9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</span><span class="bar"><i style="width:${Math.round(p.tickets/allT*100)}%"></i></span><span class="pct">${Math.round(p.tickets/allT*100)}%</span></li>`).join('')}</ul>`:''}
       ${editMode&&allT?`<div style="margin-top:10px"><button class="btn btn-sm btn-ink" type="button" id="draw-raffle">${armed==='draw'?'Tap again to draw':'Draw the winner'}</button></div>`:''}</div></div></div>`;
-    h+=`<div class="dsec"><h3>Task rewards</h3><p class="small" style="margin:0 0 8px">Small rewards for doing a Sketch, Coffee chat, or Trivia square. Change which reward a square gives by tapping it in edit mode.</p><ul class="pzl">${(S.perks||[]).map((x,i)=>{const n=S.tiles.filter(t=>t.perk===x.id).length;return `<li class="pz">${sw(C.sun,C.ink,x.icon)}${editMode?`<input data-pk-name="${i}" value="${esc(x.name)}" maxlength="40" aria-label="Reward name"><input data-pk-est="${i}" value="${x.est||0}" inputmode="numeric" class="est" aria-label="Estimated value in dollars"><button class="xbtn" type="button" data-pk-x="${i}" aria-label="Remove ${esc(x.name)}">×</button>`:`<span class="pz-n">${esc(x.name)}</span><span class="pz-v"${unlocked?'':' hidden'}>$${x.est||0}</span>`}<span class="pz-sq">${n} square${n===1?'':'s'}</span></li>`}).join('')}</ul>${editMode?`<form class="addf" id="perk-form"><input id="perk-name" maxlength="40" placeholder="Add a reward" aria-label="New reward"><button class="btn btn-sm" type="submit">Add</button></form>`:''}</div>`;
+    h+=`<div class="dsec"><h3>Task rewards</h3><p class="small" style="margin:0 0 8px">Small rewards for doing a Sketch, Coffee chat, or Trivia square. Change which reward a square gives by tapping it in edit mode.</p><ul class="pzl">${(S.perks||[]).map((x,i)=>{const n=S.tiles.filter(t=>t.perk===x.id).length;return `<li class="pz">${sw(C.sun,C.ink,x.icon)}${editMode?`<input data-pk-name="${i}" value="${esc(x.name)}" maxlength="40" aria-label="Reward name"><input data-pk-est="${i}" value="${x.est||0}" inputmode="numeric" class="est" aria-label="Estimated value in dollars"><input data-pk-stock="${i}" value="${x.stock??''}" inputmode="numeric" class="est" placeholder="∞" aria-label="How many in stock"><button class="xbtn" type="button" data-pk-x="${i}" aria-label="Remove ${esc(x.name)}">×</button>`:`<span class="pz-n">${esc(x.name)}</span><span class="pz-v"${unlocked?'':' hidden'}>$${x.est||0}</span>`}<span class="pz-sq">${n} square${n===1?'':'s'}${typeof x.stock==='number'?` · ${x.stock} left`:''}</span></li>`}).join('')}</ul>${editMode?`<form class="addf" id="perk-form"><input id="perk-name" maxlength="40" placeholder="Add a reward" aria-label="New reward"><button class="btn btn-sm" type="submit">Add</button></form>`:''}</div>`;
     h+=`<div class="dsec"><h3>Terminal specials</h3><ul class="pzl">${idx.filter(([c])=>c.tier==='special').map(([c,i])=>row(c,i)).join('')||'<li class="small">None yet</li>'}</ul></div>`;
     h+=`<div class="dsec"><h3>Prize squares</h3><ul class="pzl">${idx.filter(([c])=>c.tier!=='special').map(([c,i])=>row(c,i)).join('')}</ul>${editMode?`<form class="addf" id="prize-form"><input id="prize-name" maxlength="40" placeholder="Add an experience" aria-label="New prize"><button class="btn btn-sm" type="submit">Add</button></form>`:''}
       <p class="small">Values are estimates for budgeting. ${editMode?'Edit them to match real quotes. To move a prize, tap its square on the board.':'Tap Edit at the top to change them.'}</p></div>`;
@@ -2142,6 +2166,7 @@ $('#dbody').addEventListener('change',e=>{const d=e.target.dataset||{};
   if(d.qEst!=null){const x=S.quarters[+d.qEst];if(x){x.est=num(e.target.value);save();renderTab()}return}
   if(d.pkName!=null){const x=S.perks[+d.pkName],v=e.target.value.trim();if(x&&v){x.name=v;save()}return}
   if(d.pkEst!=null){const x=S.perks[+d.pkEst];if(x){x.est=num(e.target.value);save();renderTab()}return}
+  if(d.pkStock!=null||d.pzStock!=null){const x=d.pkStock!=null?S.perks[+d.pkStock]:S.catalog[+d.pzStock],v=String(e.target.value).trim();if(x){if(v===''){delete x.stock}else x.stock=Math.max(0,Math.round(num(v)));save();renderTab()}return}
   if(d.bset){S.budget[d.bset]=Math.max(0,num(e.target.value));if(d.bset==='attendance')S.budget.attendance=Math.min(100,S.budget.attendance);save();renderTab();return}
   const bl=S.budget&&S.budget.lines.find(l=>l.id===(d.blName||d.blAmt||d.blPer));
   if(bl){if(d.blName)bl.name=e.target.value.trim()||bl.name;if(d.blAmt)bl.amount=num(e.target.value);if(d.blPer)bl.per=e.target.value;save();renderTab();return}
@@ -2166,7 +2191,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(W3.ok)
 connect();
 
 /* ---------- Gift Wall: every prize as a product card ---------- */
-const GW_BLURB={tape:'A keychain tape for site walks, field checks and settling desk debates.',book:'A great architecture read for your desk or nightstand.',walk:'Explore Chicago’s buildings on foot with a guide.',spa:'A relaxing massage, right here in our building.',movie:'A night at the movies for you and a friend.',swag:'Fresh SCB gear to rep the studio.',art:'An architecture print to hang at home.',card:'Lunch is on the game.',lego:'Build a famous skyline, brick by brick.',boat:'See the city’s architecture from the river.',dinner:'A night out for two, on the studio.',sketchbook:'Fill it with buildings, planes and doodles.',coffee:'Grab a coffee with whoever you chatted with.',notepad:'For to-dos, notes and the next big idea.'};
+const GW_BLURB={tape:'A keychain tape for site walks, field checks and settling desk debates.',book:'A great architecture read for your desk or nightstand.',walk:'Explore Chicago’s buildings on foot with a guide.',spa:'A relaxing massage, right here in our building.',movie:'A night at the movies for you and a friend.',swag:'Fresh SCB gear to rep the studio.',art:'An architecture print to hang at home.',card:'Lunch is on the game.',lego:'Build a famous skyline, brick by brick.',boat:'See the city’s architecture from the river.',dinner:'A night out for two, on the studio.',sketchbook:'Fill it with buildings, planes and doodles.',coffee:'Coffee for two. Grab one with whoever you chatted with.',book101:'The pocket classic every designer keeps by the desk.',bookud:'Big ideas about cities in small, sketchy lessons.',pens:'The fineliners architects swear by, six tip sizes.',coffee25:'A bigger coffee run: treat a few teammates.',notepad:'For to-dos, notes and the next big idea.'};
 function gwArt(kind,bg,acc){const O=`stroke="${C.ink}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"`,I=C.ink,P=C.paper;let s='';
   const tk=(x,y,w,h,f,r)=>`<g transform="rotate(${r} ${x+w/2} ${y+h/2})"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${f}" ${O}/><circle cx="${x}" cy="${y+h/2}" r="8" fill="${bg}" ${O}/><circle cx="${x+w}" cy="${y+h/2}" r="8" fill="${bg}" ${O}/><line x1="${x+w*.68}" y1="${y+8}" x2="${x+w*.68}" y2="${y+h-8}" stroke="${I}" stroke-width="3" stroke-dasharray="4 5"/></g>`;
   const bricks=(arr)=>arr.map(([x,y,w,h,f])=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${O}/>`+Array.from({length:Math.max(1,Math.round(w/16))},(_,k)=>`<rect x="${x+w/Math.max(1,Math.round(w/16))*(k+.5)-4}" y="${y-6}" width="8" height="6" rx="1.5" fill="${f}" stroke="${I}" stroke-width="3"/>`).join('')).join('');
@@ -2343,7 +2368,7 @@ function hostTick(){if(!LEADER)return;if(window.__fixPend&&!PHONE){window.__fixP
   if(st.phase==='done'){curRemote=null;PASS=null;st.pass=null;emit('st',st);lastSent='';if(hostQ.length){const nx=hostQ.shift();setTimeout(()=>hostStart(nx),900)}return}
   const js=JSON.stringify(st);if(js!==lastSent||Date.now()-lastSentAt>3000){lastSent=js;lastSentAt=Date.now();emit('st',st)}}
 // ---- phone side
-const HOW=[[/gift card|meal|dinner|coffee/i,'The game host sends the gift card to your SCB email.'],[/tour|cruise/i,'The game host books a date with you. Tours run most days.'],[/massage/i,'The game host books it with our building\'s front desk for you.'],[/sketchbook/i,'Grab an SCB sketchbook from the game host.'],[/notepad/i,'Grab a studio notepad from the game host.'],[/movie/i,'The game host sends you the Music Box gift card.'],[/./,'The game host orders it and hands it to you at your desk.']];
+const HOW=[[/starbucks|coffee|blick|inkind|gift card|meal|dinner/i,'The game host hands you the card on the spot.'],[/tour|cruise/i,'The game host books a date with you. Tours run most days.'],[/massage/i,'The game host books it with our building\'s front desk for you.'],[/sketchbook/i,'Grab a sketchbook from the game host, plus the sketch card with your square number.'],[/notepad/i,'Grab a studio notepad from the game host.'],[/movie/i,'The game host sends you the Music Box gift card.'],[/./,'The game host hands it to you on the spot.']];
 const howTo=name=>HOW.find(([re])=>re.test(name))[1];
 function phoneOpen(){return PHONE&&!$('#phone').hidden}
 function setPhone(on){PHONE=on;lsSet('hp-mode',on?'phone':'board');$('#phone').hidden=!on;document.body.classList.toggle('phone-mode',on);if(ROOM)ROOM.presence({role:on?'phone':(phoneLike()?'viewer':'board'),pid:on?(myPid()||null):null}).catch(()=>{});electLeader();if(on)renderPhone()}
@@ -2436,7 +2461,7 @@ function tourBeats(){const tape=S.tiles.findIndex((t,i)=>i>0&&t.prize==='tape'),
   {chip:['Sketch',C.red],shot:{tile:sk},ring:'create',text:`Red squares are Sketch squares. Draw something, make something, or bring in something that inspired you. Write the square number on it and keep it. Every quarter the studio picks a Sketch of the Season, and at year end, the Best Sketch of the Year.`},
   {chip:['Coffee chat',C.blue],shot:{tile:so},ring:'social',text:`Blue squares are Coffee chats. Grab a coffee with someone you don't usually sit with, and the card covers two. This is how a studio becomes a team.`},
   {chip:['Trivia',C.green],shot:{tile:cu},ring:'customs',text:`Green squares are Trivia: airports, architects and Chicago. Answer out loud. The studio is your judge.`},
-  {chip:['Prizes',C.sun],shot:{tile:pr},ring:'prize',text:`Gold squares hold prizes, from a mini tape measure to an architecture walking tour. The three Terminals pay out the big ones.`},
+  {chip:['Prizes',C.sun],shot:{tile:pr},ring:'prize',text:`Gold squares hold prizes, from a mini tape measure to an architecture book. The three Terminals pay out the big ones.`},
   {chip:['Upgrade tickets',C.purple],shot:{tile:rf},ring:'raffle',text:`Rainbow squares earn upgrade tickets. Every ticket goes into this season's draw and the Final Boarding Call at the end of the year.`},
   {chip:['Control Tower',C.purple],shot:{tile:tw,dist:6.5},ring:'tower',text:`The taxiway loops and crosses itself, over bridges and around the tower. Land on a Control Tower and you're Studio Champion, until someone takes it from you.`},
   {chip:['Tailwinds',C.orange],shot:{tile:tl},ring:['tailwind','bonus'],text:`Some squares push you ahead with a tailwind or let you roll again.`},
