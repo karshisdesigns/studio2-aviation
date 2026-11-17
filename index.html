@@ -1226,7 +1226,7 @@ const P800={
     {id:'coffee25',name:'$20 coffee card',short:'$20 coffee',icon:'card',est:20,tier:'special',stock:1}],
   perks:[{id:'sketchbook',name:'Sketchbook (5.5 x 8 in)',icon:'book',est:5,stock:24},{id:'coffee',name:'$20 coffee card',icon:'card',est:20,stock:10,perDay:5}],
   mega:{name:'LEGO Architecture New York City (21066)',est:140},
-  quarters:{1:['Announced in 2027',0],2:['Announced in 2027',0],3:['Announced in 2027',0],4:['$20 coffee card',20]},
+  quarters:{1:['Announced in 2027',0],2:['Announced in 2027',0],3:['Announced in 2027',0],4:['Announced in 2027',0]},
   lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): Chicago Architecture Center river cruise for two',amount:114,per:'once'},
     {cat:'grand',name:'Sketch of the Season (studio vote on this quarter\'s sketches): Chicago Architecture Center walking tour for two',amount:70,per:'once'},
     {cat:'grand',name:'Best Sketch of the Year (studio vote at the last game of 2026): winning sketch framed for the studio wall',amount:0,per:'once'}]};
@@ -1304,7 +1304,12 @@ function book1(st){if(!st.budget||st.budget.book==='b1'||!Array.isArray(st.catal
 function nice1(st){if(!st.budget||st.budget.nice==='m1'||!Array.isArray(st.catalog))return 0;
   st.catalog.forEach(c=>{if(c.id==='pens'){c.name='Moleskine Art sketchbook, color cover';c.short='Nice sketchbook';c.icon='book';c.est=26;c.stock=2;c.perDay=1}if(c.id==='book101'||c.id==='bookud')c.perDay=2});
   st.budget.nice='m1';return 1}
-function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);n+=ink1(st);n+=tour1(st);n+=book1(st);n+=nice1(st);
+// budget cut: no Holiday Hangar Draw prize this year, and no Moleskine Terminal prize
+function cut1(st){if(!st.budget||st.budget.cut==='c1'||!Array.isArray(st.catalog))return 0;
+  st.catalog=st.catalog.filter(c=>c.id!=='pens');
+  (st.quarters||[]).forEach(q=>{if(q.q===4){q.prize='Announced in 2027';q.est=0}});
+  st.budget.cut='c1';return 1}
+function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);n+=ink1(st);n+=tour1(st);n+=book1(st);n+=nice1(st);n+=cut1(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
