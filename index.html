@@ -1227,8 +1227,8 @@ const P800={
   perks:[{id:'sketchbook',name:'Sketchbook (5.5 x 8 in)',icon:'book',est:5,stock:24},{id:'coffee',name:'$20 coffee card',icon:'card',est:20,stock:10,perDay:5}],
   mega:{name:'LEGO Architecture New York City (21066)',est:140},
   quarters:{1:['Announced in 2027',0],2:['Announced in 2027',0],3:['Announced in 2027',0],4:['$20 coffee card',20]},
-  lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): $100 inKind dinner card',amount:75,per:'once'},
-    {cat:'grand',name:'Sketch of the Season (studio vote on this quarter\'s sketches): $25 Amazon gift card for art supplies',amount:25,per:'once'},
+  lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): $20 coffee card',amount:20,per:'once'},
+    {cat:'grand',name:'Sketch of the Season (studio vote on this quarter\'s sketches): $20 coffee card',amount:20,per:'once'},
     {cat:'grand',name:'Best Sketch of the Year (studio vote at the last game of 2026): winning sketch framed for the studio wall',amount:0,per:'once'}]};
 function plan800(st){if(!st.budget||st.budget.plan==='p800'||!Array.isArray(st.tiles)||!st.tiles.length)return 0;
   st.catalog=P800.catalog.map(c=>({...c}));st.perks=P800.perks.map(x=>({...x}));st.mega={...P800.mega};
@@ -1284,7 +1284,13 @@ function nd1(st){if(!st.budget||st.budget.grand!=='g3'||st.budget.nd==='n1'||!st
 function cof1(st){if(!st.budget||st.budget.cof==='k1'||!Array.isArray(st.catalog)||!Array.isArray(st.perks))return 0;const fix=v=>typeof v==='string'?v.replace(/\$20 Starbucks card/g,'$20 coffee card'):v;
   st.catalog.forEach(c=>{c.name=fix(c.name)});st.perks.forEach(x=>{x.name=fix(x.name)});(st.quarters||[]).forEach(q=>{q.prize=fix(q.prize)});
   (st.players||[]).forEach(p=>{(p.cards||[]).forEach(x=>{x.c=fix(x.c)});(p.perks||[]).forEach(x=>{x.c=fix(x.c)})});st.budget.cof='k1';return 1}
-function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);
+// 3rd raffle prize is the $100 inKind card; Champion and Sketch of the Season win $20 coffee cards
+function ink1(st){if(!st.budget||st.budget.ink==='i1'||!st.mega||!Array.isArray(st.mega.sets)||st.mega.sets.length<3)return 0;
+  st.mega.sets[2]={name:'$100 inKind dinner card',est:75,url:'https://www.costco.com/p/-/inkind-one-egift-card-thousands-of-restaurants-100-value/4000233859'};
+  st.mega.est=st.mega.sets.reduce((a,x)=>a+(+x.est||0),0);
+  (st.budget.lines||[]).forEach(l=>{if(l.cat!=='grand')return;if(/^Studio Champion/i.test(l.name)||/^Sketch of the Season/i.test(l.name)){l.name=String(l.name).split(':')[0]+': $20 coffee card';l.amount=20;l.url='https://www.amazon.com/s?k=coffee+gift+card';l.pick='Coffee gift card'}});
+  st.budget.ink='i1';return 1}
+function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);n+=ink1(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
@@ -2298,7 +2304,7 @@ function gwArt(kind,bg,acc){const O=`stroke="${C.ink}" stroke-width="5" stroke-l
   case 'ticket':s=tk(44,62,100,48,C.sun,-12)+tk(60,78,100,48,C.pink,8)+`<path d="M92 102l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z" fill="${P}" stroke="${I}" stroke-width="3" stroke-linejoin="round"/>`;break;
   case 'shirt':s=`<path d="M72 44l-20 8-20 26 18 12 10-12v66h80V78l10 12 18-12-20-26-20-8q-28 18-56 0z" fill="${acc}" ${O}/><text x="100" y="112" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="26" fill="${P}" stroke="${I}" stroke-width="5" paint-order="stroke">SCB</text>`;break;
   case 'frame':s=`<path d="M100 22l-30 26M100 22l30 26" stroke="${I}" stroke-width="3" fill="none"/><circle cx="100" cy="22" r="5" fill="${I}"/><rect x="46" y="46" width="108" height="92" rx="6" fill="${C.sun}" ${O}/><rect x="60" y="60" width="80" height="64" fill="${C.sky}" ${O}/><circle cx="118" cy="78" r="9" fill="${C.sun}" stroke="${I}" stroke-width="3"/>`+[[66,98,14,26,C.red],[82,84,14,40,P],[98,92,14,32,C.green],[114,102,18,22,C.purple]].map(([x,y,w,h,f])=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" stroke="${I}" stroke-width="3"/>`).join('');break;
-  case 'card':s=`<rect x="36" y="50" width="128" height="80" rx="12" fill="${acc}" ${O}/><path d="M36 74h128" stroke="${I}" stroke-width="10"/><rect x="50" y="88" width="24" height="18" rx="4" fill="${C.sun}" stroke="${I}" stroke-width="3"/><text x="150" y="120" text-anchor="end" font-family="Arial Black,sans-serif" font-weight="900" font-size="24" fill="${P}" stroke="${I}" stroke-width="5" paint-order="stroke">$25</text><path d="M150 50q-16-22-24-8 4 10 24 8q16-22 24-8-4 10-24 8z" fill="${C.red}" ${O}/>`;break;
+  case 'card':s=`<rect x="36" y="50" width="128" height="80" rx="12" fill="${acc}" ${O}/><path d="M36 74h128" stroke="${I}" stroke-width="10"/><rect x="50" y="88" width="24" height="18" rx="4" fill="${C.sun}" stroke="${I}" stroke-width="3"/><text x="150" y="120" text-anchor="end" font-family="Arial Black,sans-serif" font-weight="900" font-size="24" fill="${P}" stroke="${I}" stroke-width="5" paint-order="stroke">$20</text><path d="M150 50q-16-22-24-8 4 10 24 8q16-22 24-8-4 10-24 8z" fill="${C.red}" ${O}/>`;break;
   case 'coffee':s=[[46,C.paper],[104,acc]].map(([x,f])=>`<path d="M${x} 74h44l-6 52h-32z" fill="${f}" ${O}/><path d="M${x+42} 84q14 0 12 14t-14 12" fill="none" ${O}/><ellipse cx="${x+22}" cy="128" rx="30" ry="6" fill="${P}" ${O}/><path d="M${x+14} 64q-6-8 0-14M${x+28} 64q-6-8 0-14" fill="none" stroke="${I}" stroke-width="4" stroke-linecap="round"/>`).join('');break;
   case 'sketch':s=`<rect x="48" y="40" width="96" height="100" rx="8" fill="${acc}" ${O}/><rect x="60" y="54" width="72" height="72" rx="4" fill="${P}" ${O}/>`+[0,1,2,3,4,5].map(k=>`<circle cx="${62+k*14}" cy="40" r="5" fill="${P}" stroke="${I}" stroke-width="3"/>`).join('')+`<path d="M72 112l14-30 12 18 10-12 16 24z" fill="${C.sky}" stroke="${I}" stroke-width="3" stroke-linejoin="round"/><g transform="rotate(35 140 100)"><rect x="132" y="50" width="16" height="80" fill="${C.sun}" ${O}/><path d="M132 130l8 16 8-16z" fill="${P}" ${O}/></g>`;break;
   case 'notepad':s=`<rect x="56" y="38" width="88" height="104" rx="8" fill="${P}" ${O}/><rect x="56" y="38" width="88" height="20" rx="6" fill="${acc}" ${O}/>`+[74,88,102,116,130].map(y=>`<line x1="68" y1="${y}" x2="132" y2="${y}" stroke="${C.sky}" stroke-width="3"/>`).join('')+`<path d="M72 88l6 6 12-12" fill="none" stroke="${C.green}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;break;
