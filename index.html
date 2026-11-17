@@ -1227,9 +1227,8 @@ const P800={
   perks:[{id:'sketchbook',name:'Sketchbook (5.5 x 8 in)',icon:'book',est:5,stock:24},{id:'coffee',name:'$20 coffee card',icon:'card',est:20,stock:10,perDay:5}],
   mega:{name:'LEGO Architecture New York City (21066)',est:140},
   quarters:{1:['Announced in 2027',0],2:['Announced in 2027',0],3:['Announced in 2027',0],4:['Announced in 2027',0]},
-  lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): $20 coffee card',amount:20,per:'once'},
-    {cat:'grand',name:'Sketch of the Season (studio vote on this quarter\'s sketches): Chicago Architecture Center walking tour for two',amount:70,per:'once'},
-    {cat:'grand',name:'Best Sketch of the Year (studio vote at the last game of 2026): winning sketch in a 3D-printed frame for the studio wall',amount:0,per:'once'}]};
+  lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): the title, and bragging rights',amount:0,per:'once'},
+    {cat:'grand',name:'Best Sketch of the Year (studio vote at the last game of 2026): Chicago Architecture Center walking tour for two, plus the sketch in a 3D-printed frame',amount:70,per:'once'}]};
 function plan800(st){if(!st.budget||st.budget.plan==='p800'||!Array.isArray(st.tiles)||!st.tiles.length)return 0;
   st.catalog=P800.catalog.map(c=>({...c}));st.perks=P800.perks.map(x=>({...x}));st.mega={...P800.mega};
   let k=0;st.tiles.forEach(t=>{if(!t)return;if(t.type==='prize'){if(t.prize!=='tape')t.prize=k++<4?'book101':'bookud';const c=st.catalog.find(c=>c.id===t.prize);t.title=c.short;t.text=''}
@@ -1321,7 +1320,17 @@ function wt1(st){if(!st.budget||st.budget.wt==='w1'||!st.mega||!Array.isArray(st
 function fr1(st){if(!st.budget||st.budget.fr==='f1')return 0;
   (st.budget.lines||[]).forEach(l=>{if(l.cat==='grand'&&/^Best Sketch of the Year/i.test(String(l.name))){l.name=String(l.name).split(':')[0]+': winning sketch in a 3D-printed frame for the studio wall';l.amount=0}});
   st.budget.fr='f1';return 1}
-function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);n+=ink1(st);n+=tour1(st);n+=book1(st);n+=nice1(st);n+=cut1(st);n+=sk1(st);n+=wt1(st);n+=fr1(st);
+// year end = the raffle's top 3 prizes; the walking tour goes to the best sketch; Studio Champion is the title only
+function org1(st){if(!st.budget||st.budget.org==='o1'||!st.mega||!Array.isArray(st.mega.sets))return 0;
+  if(st.mega.sets.length<3)st.mega.sets.push({name:'$20 coffee card',est:20});
+  st.mega.est=st.mega.sets.reduce((a,x)=>a+(+x.est||0),0);st.mega.name=st.mega.sets.length+' grand prizes';
+  const L=st.budget.lines||[];
+  st.budget.lines=L.filter(l=>!(l.cat==='grand'&&/^Sketch of the Season/i.test(String(l.name))));
+  st.budget.lines.forEach(l=>{if(l.cat!=='grand')return;const h=String(l.name).split(':')[0];
+    if(/^Studio Champion/i.test(h)){l.name=h+': the title, and bragging rights';l.amount=0;delete l.url;delete l.pick;delete l.img}
+    if(/^Best Sketch of the Year/i.test(h)){l.name=h+': Chicago Architecture Center walking tour for two, plus the sketch in a 3D-printed frame';l.amount=70;l.url='https://www.architecture.org/city-tours';l.pick='CAC walking tour, 2 tickets';l.img='IMG:tours'}});
+  st.budget.org='o1';return 1}
+function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);n+=ink1(st);n+=tour1(st);n+=book1(st);n+=nice1(st);n+=cut1(st);n+=sk1(st);n+=wt1(st);n+=fr1(st);n+=org1(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
@@ -2611,7 +2620,7 @@ function tourBeats(){const tape=S.tiles.findIndex((t,i)=>i>0&&t.prize==='tape'),
   {chip:['Coffee chat',C.blue],shot:{tile:so},ring:'social',text:`Blue squares are Coffee chats. Grab a coffee with someone you don't usually sit with, and the card covers two. This is how a studio becomes a team.`},
   {chip:['Trivia',C.green],shot:{tile:cu},ring:'customs',text:`Green squares are Trivia: airports, architects and Chicago. Answer out loud. The studio is your judge.`},
   {chip:['Prizes',C.sun],shot:{tile:pr},ring:'prize',text:`Gold squares hold prizes, from a mini tape measure to an architecture book. The three Terminals pay out the big ones.`},
-  {chip:['Upgrade tickets',C.purple],shot:{tile:rf},ring:'raffle',text:`Finish a Sketch square or land on a rainbow square to win a raffle ticket, one per game day. Tickets go into the Final Boarding Call, where two grand prizes are drawn at the end of the year: the Willis Tower set and a $100 dinner card.`},
+  {chip:['Upgrade tickets',C.purple],shot:{tile:rf},ring:'raffle',text:`Finish a Sketch square or land on a rainbow square to win a raffle ticket, one per game day. Tickets go into the Final Boarding Call, where three grand prizes are drawn at the end of the year: the Willis Tower set, a $100 dinner card and a $20 coffee card.`},
   {chip:['Control Tower',C.purple],shot:{tile:tw,dist:6.5},ring:'tower',text:`The taxiway loops and crosses itself, over bridges and around the tower. Land on a Control Tower and you're Studio Champion, until someone takes it from you.`},
   {chip:['Tailwinds',C.orange],shot:{tile:tl},ring:['tailwind','bonus'],text:`Some squares push you ahead with a tailwind or let you roll again.`},
   {chip:['Check-In',C.ink],shot:{tile:0,dist:5},ring:'start',text:`Pass Check-In and you just keep going. There's no last square, only the next Thursday.`},
