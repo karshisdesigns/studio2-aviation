@@ -2261,7 +2261,6 @@ const MEDIA={
   dinner:{url:'https://www.costco.com/p/-/inkind-one-egift-card-thousands-of-restaurants-100-value/4000233859',pick:'inKind One eGift Card, $100 at thousands of restaurants (Costco)'},
   tape:{img:'IMG:tape',fit:'contain',url:'https://www.amazon.com/Keychain-Retractable-Measuring-Multicolor-Portable/dp/B0GV29GPK2',pick:'Keychain tape measure (Amazon)'},
   mega:{url:'https://www.amazon.com/LEGO-Architecture-New-York-City/dp/B0G2T1ZFL6',pick:'LEGO Architecture New York City, 21066 (Amazon)'},
-  q2:{img:'IMG:tours',url:'https://www.architecture.org/city-tours'},
   ff:{img:'IMG:cruise',url:'https://www.architecture.org/city-tours/river-cruise'}};
 const imgSrc=s=>!s||s==='none'?'':s.startsWith('IMG:')?(IMG[s.slice(4)]||''):s;
 function media(ref,key){const d=MEDIA[key]||{};return{img:imgSrc(ref&&ref.img!=null&&ref.img!==''?ref.img:d.img),fit:ref&&ref.img&&ref.img!=='none'&&!String(ref.img).startsWith('IMG:')?(ref.fit||'cover'):(d.fit||'cover'),url:(ref&&ref.url!=null&&ref.url!==''?ref.url:d.url)||'',pick:(ref&&ref.pick)||d.pick||''}}
