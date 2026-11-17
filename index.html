@@ -1271,7 +1271,7 @@ function mix3(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.mix==='m3'||
 // three grand prizes in the year-end raffle; winners live in mega.won so they save with the game
 const ORD=['1st','2nd','3rd','4th','5th'];
 function megaSets(){const m=S.mega||{};return Array.isArray(m.sets)&&m.sets.length?m.sets:[{name:m.name||'Grand prize',est:+m.est||0}]}
-function megaSync(){if(!S.mega)return;const ss=megaSets();if(ss.length>1){S.mega.est=ss.reduce((a,x)=>a+(+x.est||0),0);S.mega.name=`${ss.length} LEGO sets`}}
+function megaSync(){if(!S.mega)return;const ss=megaSets();if(ss.length>1){S.mega.est=ss.reduce((a,x)=>a+(+x.est||0),0);S.mega.name=`${ss.length} grand prizes`}}
 function three1(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.grand==='g3')return 0;
   st.mega={name:'3 LEGO sets',est:0,won:[],sets:[{name:'Chicago Willis Tower building set',est:0,url:'https://www.amazon.com/dp/B0DR5LLW6N'},{name:'LEGO set 2 (coming soon)',est:0},{name:'LEGO set 3 (coming soon)',est:0}]};
   st.raffleWinner=null;st.budget.tixPerDay=4;st.budget.grand='g3';return 1}
@@ -1313,7 +1313,11 @@ function cut1(st){if(!st.budget||st.budget.cut==='c1'||!Array.isArray(st.catalog
 function sk1(st){if(!st.budget||st.budget.sk==='s1')return 0;st.budget.tixPerDay=null;
   (st.budget.lines||[]).forEach(l=>{if(l.cat==='grand'&&/^Studio Champion/i.test(String(l.name))){l.name=String(l.name).split(':')[0]+': $20 coffee card';l.amount=20;l.url='https://www.amazon.com/s?k=coffee+gift+card';l.pick='Coffee gift card';delete l.img}});
   st.budget.sk='s1';return 1}
-function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);n+=ink1(st);n+=tour1(st);n+=book1(st);n+=nice1(st);n+=cut1(st);n+=sk1(st);
+// this year's raffle: 1st Willis Tower set, 2nd $100 inKind. Notre-Dame waits for next year's budget
+function wt1(st){if(!st.budget||st.budget.wt==='w1'||!st.mega||!Array.isArray(st.mega.sets))return 0;
+  st.mega.sets=[{name:'Chicago Willis Tower building set (1,241 pieces)',est:60,url:'https://www.amazon.com/dp/B0D4TBNCTR'},{name:'$100 inKind dinner card',est:75,url:'https://www.costco.com/p/-/inkind-one-egift-card-thousands-of-restaurants-100-value/4000233859'}];
+  st.mega.est=135;st.mega.name='2 grand prizes';st.mega.won=[];st.raffleWinner=null;st.budget.wt='w1';return 1}
+function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);n+=ink1(st);n+=tour1(st);n+=book1(st);n+=nice1(st);n+=cut1(st);n+=sk1(st);n+=wt1(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
@@ -2360,7 +2364,7 @@ const MEDIA={
   pens:{url:'https://www.barnesandnoble.com/w/moleskine-art-collection-sketchbook-large-plain-blue-sapphire-hard-cover-moleskine/1138129548',pick:'Moleskine Art sketchbook, large, solid color hard cover'},
   dinner:{url:'https://www.costco.com/p/-/inkind-one-egift-card-thousands-of-restaurants-100-value/4000233859',pick:'inKind One eGift Card, $100 at thousands of restaurants (Costco)'},
   tape:{img:'IMG:tape',fit:'contain',url:'https://www.amazon.com/Keychain-Retractable-Measuring-Multicolor-Portable/dp/B0GV29GPK2',pick:'Keychain tape measure (Amazon)'},
-  mega:{img:'IMG:lego21061',fit:'contain',url:'https://www.lego.com/en-us/product/notre-dame-de-paris-21061',pick:'LEGO Architecture Notre-Dame de Paris, 21061 (LEGO.com)'},
+  mega:{url:'https://www.amazon.com/dp/B0D4TBNCTR',pick:'CAXIMSY Willis Tower building set, 1,241 pieces (Amazon)'},
   ff:{img:'IMG:cruise',url:'https://www.architecture.org/city-tours/river-cruise'}};
 const imgSrc=s=>!s||s==='none'?'':s.startsWith('IMG:')?(IMG[s.slice(4)]||''):s;
 function media(ref,key){const d=MEDIA[key]||{};return{img:imgSrc(ref&&ref.img!=null&&ref.img!==''?ref.img:d.img),fit:ref&&ref.img&&ref.img!=='none'&&!String(ref.img).startsWith('IMG:')?(ref.fit||'cover'):(d.fit||'cover'),url:(ref&&ref.url!=null&&ref.url!==''?ref.url:d.url)||'',pick:(ref&&ref.pick)||d.pick||''}}
@@ -2369,7 +2373,7 @@ function gwItems(){const ICON2KIND={tape:'tape',book:'book',pin:'pin',spa:'spa',
   const BG=[C.sky,C.pink,C.lime,C.orange,C.lav,C.sun,C.green,C.red,C.blue,C.purple],secs=[];let bi=0;const bg=()=>BG[bi++%BG.length];GW_REFS=[];
   const R=(ref,key,o)=>{const m=media(ref,key);GW_REFS.push(ref);return{...o,...m,ri:GW_REFS.length-1}};
   const tix=S.players.reduce((a,p)=>a+(p.tickets||0),0),lapLead=[...S.players].sort((a,b)=>(b.laps||0)-(a.laps||0))[0];
-  const seasonSk=[];const grand=[R(S.mega,'mega',{tag:'Grand prize',kind:'mega',title:'Final Boarding Call',sub:megaSets().length>1?megaSets().map((x,i)=>ORD[i]+': '+x.name).join(' · '):S.mega.name,blurb:megaSets().length>1?`The year-end raffle. ${megaSets().length} names are drawn, one for each LEGO set.`:'The year-end raffle for the biggest prize on the wall.',how:'Finish a Sketch square or land on an upgrade square. One ticket per person each game day.',meta:(S.mega.won||[]).length?'Won by '+S.mega.won.map(x=>x.name).join(', '):`${tix} ticket${tix===1?'':'s'} in so far`,bg:C.sun,acc:C.red,gold:true})];
+  const seasonSk=[];const grand=[R(S.mega,'mega',{tag:'Grand prize',kind:'mega',title:'Final Boarding Call',sub:megaSets().length>1?megaSets().map((x,i)=>ORD[i]+': '+x.name).join(' · '):S.mega.name,blurb:megaSets().length>1?`The year-end raffle. ${megaSets().length} names are drawn, one for each prize.`:'The year-end raffle for the biggest prize on the wall.',how:'Finish a Sketch square or land on an upgrade square. One ticket per person each game day.',meta:(S.mega.won||[]).length?'Won by '+S.mega.won.map(x=>x.name).join(', '):`${tix} ticket${tix===1?'':'s'} in so far`,bg:C.sun,acc:C.red,gold:true})];
   ((S.budget&&S.budget.lines)||[]).filter(l=>l.cat==='grand').forEach(l=>{const [head,...rest]=String(l.name).split(':'),paren=(head.match(/\(([^)]+)\)/)||[])[1],ttl=head.replace(/\s*\(.*\)/,'').replace(/ award$/i,'').trim(),prize=(rest.join(':')||'').trim();
     const champ=/champion/i.test(ttl),ff=/frequent/i.test(ttl),sk=/sketch/i.test(ttl);
     if(sk&&(l.per==='quarter'||/season/i.test(ttl))){seasonSk.push(R(l,'',{tag:'Seasonal sketch award',kind:'sketch',title:ttl,sub:prize?prize[0].toUpperCase()+prize.slice(1):'',blurb:'At the end of every quarter the studio votes on that season\'s sketches. Four chances a year to win.',how:'Studio vote each quarter',meta:'Every Sketch square this season counts',bg:C.pink,acc:C.sun}));return}
@@ -2539,7 +2543,7 @@ function renderPhone(){if(!PHONE)return;const el=$('#ph-body');if(!el)return;con
     ${me.started?`<button class="ph-pass" type="button" data-ph="pass" aria-label="Open my boarding pass"><span class="pps-rb"></span><span class="pps-m"><span class="pps-k">My boarding pass</span><b>Square ${me.pos}</b><span class="pps-t">${esc(sty.name)}${sq.title&&sq.title!==sty.name?' · '+esc(sq.title):''}</span></span><span class="pps-r"><span class="pps-k">Seat</span><b>${me.pos}</b><span class="pps-open">Open</span></span></button>`:''}
     ${note}<div class="ph-act">${act}</div>
     <h3 class="ph-sub">${me.started?'Where you landed':'The board'}</h3><div class="pm-card" id="pm-slot"></div>
-    ${me.tickets?`<div class="ph-tix"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ticket"/></svg><div><b>You're in the LEGO drawing</b><span>${me.tickets} raffle ticket${me.tickets===1?'':'s'}${(me.tk||[]).length?' · won '+me.tk.map(x=>fmtDate(x.d)+(x.sq!=null?' on #'+x.sq:'')).join(', '):''}</span><span>${megaSets().length>1?megaSets().length+' sets are drawn the last studio Thursday of the year: '+megaSets().map(x=>x.name).join(', '):'Drawn the last studio Thursday of the year: '+esc(S.mega.name)}</span>${(S.mega.won||[]).some(x=>x.id===me.id)?`<b class="ph-tix-win">You won: ${esc(S.mega.won.find(x=>x.id===me.id).prize)}!</b>`:''}</div></div>`:''}
+    ${me.tickets?`<div class="ph-tix"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ticket"/></svg><div><b>You're in the year-end raffle</b><span>${me.tickets} raffle ticket${me.tickets===1?'':'s'}${(me.tk||[]).length?' · won '+me.tk.map(x=>fmtDate(x.d)+(x.sq!=null?' on #'+x.sq:'')).join(', '):''}</span><span>${megaSets().length>1?megaSets().length+' prizes are drawn the last studio Thursday of the year: '+megaSets().map(x=>x.name).join(', '):'Drawn the last studio Thursday of the year: '+esc(S.mega.name)}</span>${(S.mega.won||[]).some(x=>x.id===me.id)?`<b class="ph-tix-win">You won: ${esc(S.mega.won.find(x=>x.id===me.id).prize)}!</b>`:''}</div></div>`:''}
     <h3 class="ph-sub">Your prizes</h3>${items.length?`<ul class="ph-prizes">${items.map(({x,i,kind})=>`<li class="${x.got?'got':''}"><b>${esc(x.c)}</b><span>${esc(fmtDate(x.d))}${x.sq!=null?` · square #${x.sq}`:''}</span><p>${x.got?'Collected. Enjoy!':esc(howTo(x.c))}</p>${x.got?'':`<button class="ph-got" data-got="${kind}:${i}">Host: mark collected</button>`}</li>`).join('')}</ul>`:'<p class="ph-msg">No prizes yet. Land on a gold square, a Terminal, or finish a Sketch or Coffee chat to win one.</p>'}
     <p class="ph-msg small">Upgrade tickets: ${qt} in the ${esc(((S.quarters||QUARTERS)[cq.q-1]||QUARTERS[cq.q-1]).name)}, ${me.tickets||0} in the Final Boarding Call.</p>
     <button class="ph-link" data-ph="switch">Not ${esc(fn)}? Switch player</button>`;
@@ -2603,7 +2607,7 @@ function tourBeats(){const tape=S.tiles.findIndex((t,i)=>i>0&&t.prize==='tape'),
   {chip:['Coffee chat',C.blue],shot:{tile:so},ring:'social',text:`Blue squares are Coffee chats. Grab a coffee with someone you don't usually sit with, and the card covers two. This is how a studio becomes a team.`},
   {chip:['Trivia',C.green],shot:{tile:cu},ring:'customs',text:`Green squares are Trivia: airports, architects and Chicago. Answer out loud. The studio is your judge.`},
   {chip:['Prizes',C.sun],shot:{tile:pr},ring:'prize',text:`Gold squares hold prizes, from a mini tape measure to an architecture book. The three Terminals pay out the big ones.`},
-  {chip:['Upgrade tickets',C.purple],shot:{tile:rf},ring:'raffle',text:`Finish a Sketch square or land on a rainbow square to win a raffle ticket, one per game day. Tickets go into the Final Boarding Call, where three grand prizes are drawn at the end of the year.`},
+  {chip:['Upgrade tickets',C.purple],shot:{tile:rf},ring:'raffle',text:`Finish a Sketch square or land on a rainbow square to win a raffle ticket, one per game day. Tickets go into the Final Boarding Call, where two grand prizes are drawn at the end of the year: the Willis Tower set and a $100 dinner card.`},
   {chip:['Control Tower',C.purple],shot:{tile:tw,dist:6.5},ring:'tower',text:`The taxiway loops and crosses itself, over bridges and around the tower. Land on a Control Tower and you're Studio Champion, until someone takes it from you.`},
   {chip:['Tailwinds',C.orange],shot:{tile:tl},ring:['tailwind','bonus'],text:`Some squares push you ahead with a tailwind or let you roll again.`},
   {chip:['Check-In',C.ink],shot:{tile:0,dist:5},ring:'start',text:`Pass Check-In and you just keep going. There's no last square, only the next Thursday.`},
