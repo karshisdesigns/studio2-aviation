@@ -1220,15 +1220,15 @@ function boardV2(){if(!S.budget||S.budget.boardV>=2)return false;S.budget.boardV
 const P800={
   catalog:[
     {id:'tape',name:'Mini tape measure',short:'Tape measure',icon:'tape',est:1,tier:'prize',stock:12},
-    {id:'book101',name:'Book: 101 Things I Learned in Architecture School',short:'Arch book',icon:'book',est:15,tier:'prize',stock:3},
-    {id:'bookud',name:'Book: 101 Things I Learned in Urban Design School',short:'Design book',icon:'book',est:19,tier:'prize',stock:3},
+    {id:'book101',name:'Chicago architecture book',short:'Arch book',icon:'book',est:20,tier:'prize',stock:3},
+    {id:'bookud',name:'Chicago architecture book',short:'Arch book',icon:'book',est:20,tier:'prize',stock:3},
     {id:'pens',name:'Pro sketch pens (Sakura Micron 6-pack)',short:'Sketch pens',icon:'pencil',est:27,tier:'special',stock:1},
     {id:'coffee25',name:'$20 coffee card',short:'$20 coffee',icon:'card',est:20,tier:'special',stock:1}],
   perks:[{id:'sketchbook',name:'Sketchbook (5.5 x 8 in)',icon:'book',est:5,stock:24},{id:'coffee',name:'$20 coffee card',icon:'card',est:20,stock:10,perDay:5}],
   mega:{name:'LEGO Architecture New York City (21066)',est:140},
   quarters:{1:['Announced in 2027',0],2:['Announced in 2027',0],3:['Announced in 2027',0],4:['$20 coffee card',20]},
-  lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): $20 coffee card',amount:20,per:'once'},
-    {cat:'grand',name:'Sketch of the Season (studio vote on this quarter\'s sketches): $20 coffee card',amount:20,per:'once'},
+  lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): Chicago Architecture Center river cruise for two',amount:114,per:'once'},
+    {cat:'grand',name:'Sketch of the Season (studio vote on this quarter\'s sketches): Chicago Architecture Center walking tour for two',amount:70,per:'once'},
     {cat:'grand',name:'Best Sketch of the Year (studio vote at the last game of 2026): winning sketch framed for the studio wall',amount:0,per:'once'}]};
 function plan800(st){if(!st.budget||st.budget.plan==='p800'||!Array.isArray(st.tiles)||!st.tiles.length)return 0;
   st.catalog=P800.catalog.map(c=>({...c}));st.perks=P800.perks.map(x=>({...x}));st.mega={...P800.mega};
@@ -1290,7 +1290,17 @@ function ink1(st){if(!st.budget||st.budget.ink==='i1'||!st.mega||!Array.isArray(
   st.mega.est=st.mega.sets.reduce((a,x)=>a+(+x.est||0),0);
   (st.budget.lines||[]).forEach(l=>{if(l.cat!=='grand')return;if(/^Studio Champion/i.test(l.name)||/^Sketch of the Season/i.test(l.name)){l.name=String(l.name).split(':')[0]+': $20 coffee card';l.amount=20;l.url='https://www.amazon.com/s?k=coffee+gift+card';l.pick='Coffee gift card'}});
   st.budget.ink='i1';return 1}
-function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);n+=ink1(st);
+// Studio Champion wins the CAC river cruise for two; Sketch of the Season wins a CAC walking tour for two
+function tour1(st){if(!st.budget||st.budget.tour==='t1')return 0;
+  (st.budget.lines||[]).forEach(l=>{if(l.cat!=='grand')return;const h=String(l.name).split(':')[0];
+    if(/^Studio Champion/i.test(h)){l.name=h+': Chicago Architecture Center river cruise for two';l.amount=114;l.url='https://www.architecture.org/city-tours/river-cruise';l.pick='CAC River Cruise aboard Chicago\'s First Lady, 2 tickets';l.img='IMG:cruise'}
+    if(/^Sketch of the Season/i.test(h)){l.name=h+': Chicago Architecture Center walking tour for two';l.amount=70;l.url='https://www.architecture.org/city-tours';l.pick='CAC walking tour, 2 tickets (for example Art Deco Skyscrapers: Landmark Lobbies)';l.img='IMG:tours'}});
+  st.budget.tour='t1';return 1}
+// books come from the Chicago Architecture Center shop
+function book1(st){if(!st.budget||st.budget.book==='b1'||!Array.isArray(st.catalog))return 0;
+  st.catalog.forEach(c=>{if(c.id==='book101'||c.id==='bookud'){c.name='Chicago architecture book';c.short='Arch book';c.est=20}});
+  st.budget.book='b1';return 1}
+function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);n+=cof1(st);n+=ink1(st);n+=tour1(st);n+=book1(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
@@ -2292,7 +2302,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(W3.ok)
 connect();
 
 /* ---------- Gift Wall: every prize as a product card ---------- */
-const GW_BLURB={tape:'A keychain tape for site walks, field checks and settling desk debates.',book:'A great architecture read for your desk or nightstand.',walk:'Explore Chicago’s buildings on foot with a guide.',spa:'A relaxing massage, right here in our building.',movie:'A night at the movies for you and a friend.',swag:'Fresh SCB gear to rep the studio.',art:'An architecture print to hang at home.',card:'Lunch is on the game.',lego:'Build a famous skyline, brick by brick.',boat:'See the city’s architecture from the river.',dinner:'A night out for two, on the studio.',sketchbook:'Fill it with buildings, planes and doodles.',coffee:'Coffee for two. Grab one with whoever you chatted with.',book101:'The pocket classic every designer keeps by the desk.',bookud:'Big ideas about cities in small, sketchy lessons.',pens:'The fineliners architects swear by, six tip sizes.',coffee25:'A bigger coffee run: treat a few teammates.',notepad:'For to-dos, notes and the next big idea.'};
+const GW_BLURB={tape:'A keychain tape for site walks, field checks and settling desk debates.',book:'A great architecture read for your desk or nightstand.',walk:'Explore Chicago’s buildings on foot with a guide.',spa:'A relaxing massage, right here in our building.',movie:'A night at the movies for you and a friend.',swag:'Fresh SCB gear to rep the studio.',art:'An architecture print to hang at home.',card:'Lunch is on the game.',lego:'Build a famous skyline, brick by brick.',boat:'See the city’s architecture from the river.',dinner:'A night out for two, on the studio.',sketchbook:'Fill it with buildings, planes and doodles.',coffee:'Coffee for two. Grab one with whoever you chatted with.',book101:'A Chicago architecture book from the Architecture Center shop.',bookud:'A Chicago architecture book from the Architecture Center shop.',pens:'The fineliners architects swear by, six tip sizes.',coffee25:'A bigger coffee run: treat a few teammates.',notepad:'For to-dos, notes and the next big idea.'};
 function gwArt(kind,bg,acc){const O=`stroke="${C.ink}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"`,I=C.ink,P=C.paper;let s='';
   const tk=(x,y,w,h,f,r)=>`<g transform="rotate(${r} ${x+w/2} ${y+h/2})"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${f}" ${O}/><circle cx="${x}" cy="${y+h/2}" r="8" fill="${bg}" ${O}/><circle cx="${x+w}" cy="${y+h/2}" r="8" fill="${bg}" ${O}/><line x1="${x+w*.68}" y1="${y+8}" x2="${x+w*.68}" y2="${y+h-8}" stroke="${I}" stroke-width="3" stroke-dasharray="4 5"/></g>`;
   const bricks=(arr)=>arr.map(([x,y,w,h,f])=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${O}/>`+Array.from({length:Math.max(1,Math.round(w/16))},(_,k)=>`<rect x="${x+w/Math.max(1,Math.round(w/16))*(k+.5)-4}" y="${y-6}" width="8" height="6" rx="1.5" fill="${f}" stroke="${I}" stroke-width="3"/>`).join('')).join('');
@@ -2332,12 +2342,12 @@ const MEDIA={
   coffee:{url:'https://www.amazon.com/s?k=coffee+gift+card',pick:'Coffee gift card (Amazon)'},
   coffee25:{url:'https://www.amazon.com/s?k=coffee+gift+card',pick:'Coffee gift card (Amazon)'},
   sketchbook:{url:'https://www.amazon.com/Pack-Sketchbook-Artists-LoftTM-Fundamentals/dp/B0BGYGHV8P',pick:'Artist\'s Loft 5.5 x 8 in sketchbook (Amazon)'},
-  book101:{url:'https://www.amazon.com/101-Things-Learned-Architecture-School/dp/0262062666',pick:'Matthew Frederick, MIT Press (Amazon)'},
-  bookud:{url:'https://www.amazon.com/Things-Learned%C2%AE-Urban-Design-School/dp/0451496698',pick:'Matthew Frederick and Vikas Mehta (Amazon)'},
+  book101:{url:'https://shop.architecture.org/collections/books-about-chicago',pick:'Picked at the Chicago Architecture Center shop'},
+  bookud:{url:'https://shop.architecture.org/collections/books-about-chicago',pick:'Picked at the Chicago Architecture Center shop'},
   pens:{url:'https://www.amazon.com/Sakura-Pigma-30062-Micron-Blister/dp/B0008G8G8Y',pick:'Sakura Pigma Micron, 6 tip sizes (Amazon)'},
   dinner:{url:'https://www.costco.com/p/-/inkind-one-egift-card-thousands-of-restaurants-100-value/4000233859',pick:'inKind One eGift Card, $100 at thousands of restaurants (Costco)'},
   tape:{img:'IMG:tape',fit:'contain',url:'https://www.amazon.com/Keychain-Retractable-Measuring-Multicolor-Portable/dp/B0GV29GPK2',pick:'Keychain tape measure (Amazon)'},
-  mega:{url:'https://www.lego.com/en-us/product/notre-dame-de-paris-21061',pick:'LEGO Architecture Notre-Dame de Paris, 21061 (LEGO.com)'},
+  mega:{img:'IMG:lego21061',fit:'contain',url:'https://www.lego.com/en-us/product/notre-dame-de-paris-21061',pick:'LEGO Architecture Notre-Dame de Paris, 21061 (LEGO.com)'},
   ff:{img:'IMG:cruise',url:'https://www.architecture.org/city-tours/river-cruise'}};
 const imgSrc=s=>!s||s==='none'?'':s.startsWith('IMG:')?(IMG[s.slice(4)]||''):s;
 function media(ref,key){const d=MEDIA[key]||{};return{img:imgSrc(ref&&ref.img!=null&&ref.img!==''?ref.img:d.img),fit:ref&&ref.img&&ref.img!=='none'&&!String(ref.img).startsWith('IMG:')?(ref.fit||'cover'):(d.fit||'cover'),url:(ref&&ref.url!=null&&ref.url!==''?ref.url:d.url)||'',pick:(ref&&ref.pick)||d.pick||''}}
