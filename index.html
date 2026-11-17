@@ -116,7 +116,7 @@ body.touring .dock,body.touring .hl-btns,body.touring .menu-btn,body.touring #ca
 .gp-btns{display:grid;gap:8px}
 .view-btns{flex-wrap:wrap}.view-btns .vbtn{flex:1 1 0;min-width:92px;min-height:34px;font-size:13px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:4px 10px}.view-btns .vbtn svg{width:15px;height:15px;flex:none}
 
-.dock{position:fixed;z-index:6;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom,0px));width:min(560px,calc(100vw - 32px));
+.dock{box-sizing:border-box;grid-template-columns:minmax(0,1fr);position:fixed;z-index:6;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom,0px));width:min(560px,calc(100vw - 32px));
   background:var(--paper);border:4px solid var(--ink);border-radius:26px;box-shadow:6px 6px 0 var(--ink);padding:12px 14px;display:grid;gap:8px}
 .msg{margin:0;font-weight:700;font-size:15px;min-height:1.4em;text-align:center}
 .dock-row{display:flex;align-items:center;gap:10px}
@@ -132,7 +132,18 @@ body.touring .dock,body.touring .hl-btns,body.touring .menu-btn,body.touring #ca
 .btn-roll{flex:none;font-family:var(--display);font-size:22px;padding:12px 22px;border:4px solid var(--ink);border-radius:18px;background:var(--red);color:var(--paper);box-shadow:4px 4px 0 var(--ink);cursor:pointer;-webkit-text-stroke:1px var(--ink)}
 .btn-roll:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
 .btn-roll:disabled{opacity:.6;cursor:wait}
-@media (max-width:420px){.die{display:none}.btn-roll{padding:12px 16px}}
+@media (max-width:520px){.die{display:none}.dock{padding:10px 12px;border-radius:22px;box-shadow:4px 4px 0 var(--ink);width:calc(100vw - 24px);bottom:max(12px,env(safe-area-inset-bottom,0px))}.btn-roll{font-size:19px;padding:10px 14px;border-radius:16px;max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.who{padding:6px 10px}.msg{font-size:14px;line-height:1.3}.view-btns .vbtn{min-width:0}}
+.menu-pop{position:fixed;z-index:45;right:max(16px,env(safe-area-inset-right,0px));top:72px;width:min(300px,calc(100vw - 32px));box-sizing:border-box;background:var(--paper);border:4px solid var(--ink);border-radius:22px;box-shadow:6px 6px 0 var(--ink);padding:8px;display:grid;gap:6px}
+.menu-pop[hidden]{display:none}
+.menu-pop button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--paper);border:3px solid transparent;border-radius:16px;padding:8px 10px;cursor:pointer;min-height:56px}
+.menu-pop button:hover,.menu-pop button:focus-visible{border-color:var(--ink);background:var(--wash);outline:none}
+.menu-pop button[hidden]{display:none}
+.menu-pop .mi{flex:none;width:40px;height:40px;border-radius:12px;border:3px solid var(--ink);background:var(--bg);display:grid;place-items:center}
+.menu-pop .mi svg{width:22px;height:22px}
+.menu-pop b{display:block;font-weight:900;font-size:16px}.menu-pop small{display:block;font-size:12.5px;font-weight:700;opacity:.65}
+.menu-pop .m-host{margin-top:4px;border-top:2px dashed rgba(20,20,20,.25);border-radius:0 0 16px 16px}
+.menu-pop .m-host:hover,.menu-pop .m-host:focus-visible{border-radius:16px}
+body.touring .menu-pop,body.phone-mode .menu-pop{display:none}
 
 .btn{font-weight:800;font-size:15px;padding:9px 16px;border:3px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:3px 3px 0 var(--ink);cursor:pointer;white-space:nowrap}
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
@@ -144,8 +155,8 @@ body.touring .dock,body.touring .hl-btns,body.touring .menu-btn,body.touring #ca
 /* menu */
 .scrim{position:fixed;inset:0;background:rgba(20,20,20,.4);opacity:0;visibility:hidden;transition:opacity .25s;z-index:39}
 .scrim.open{opacity:1;visibility:visible}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100vw);background:var(--wash);border-left:5px solid var(--ink);z-index:40;transform:translateX(105%);visibility:hidden;transition:transform .3s cubic-bezier(.2,.9,.3,1.05),visibility .3s;display:flex;flex-direction:column}
-.drawer.open{transform:none;visibility:visible}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100vw);background:var(--wash);border-left:5px solid var(--ink);z-index:40;transform:translateY(18px);opacity:0;visibility:hidden;transition:transform .3s cubic-bezier(.2,.9,.3,1.05),opacity .2s,visibility .3s;display:flex;flex-direction:column}
+.drawer.open{transform:none;opacity:1;visibility:visible}
 .dhead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:max(16px,env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-right,0px)) 10px 18px}
 .dhead h2{font-family:var(--display);font-weight:400;font-size:24px}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:0 max(18px,env(safe-area-inset-right,0px)) 12px 18px;scrollbar-width:none}
@@ -398,7 +409,7 @@ body.editing .edit-flag{display:inline-flex;background:var(--pink)}
 .gw-foot small{display:block;margin-top:6px;font-weight:800}
 @media (max-width:640px){.gw{padding:0}.gw-panel{border-radius:0;border-width:0;height:100%;box-shadow:none}.gw-grid,.gw-grid.big{grid-template-columns:1fr 1fr;gap:10px}.gw-txt{padding:8px 9px 10px}.gw-txt h4{font-size:14px}.gw-desc{font-size:12px}.gw-how{font-size:10.5px}.gw-scroll{padding:4px 12px 18px}.gw-top{padding:14px 14px 10px}#gw-close{top:12px;right:12px}.gw-go{font-size:16px;padding:12px 16px}.gw-foot{padding:10px 12px}.gw-foot small{font-size:11px}.gw-chips button{font-size:12px;padding:4px 10px}}
 /* phone play */
-.dock.has-qr{display:flex;gap:12px;align-items:center;width:min(690px,calc(100vw - 32px))}.dock-main{flex:1;min-width:0;display:grid;gap:8px}
+.dock.has-qr{display:flex;gap:12px;align-items:center;width:min(690px,calc(100vw - 32px))}.dock-main{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
 .dock-qr{flex:none;width:104px;padding:6px 6px 4px;background:#fff;border:3px solid var(--ink);border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit}
 #dock-qr-code{display:block;width:90px;height:90px}#dock-qr-code svg{width:100%;height:100%;display:block}.dock-qr b{font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
 .dock-qr[hidden]{display:none}
@@ -521,9 +532,14 @@ body.phone-mode .hud-top,body.phone-mode .dock{visibility:hidden}
       <button class="pill edit-flag" id="edit-done" type="button">Editing &middot; tap when done</button>
     </div>
   </div>
-  <div class="hl-btns"><button class="gifts-btn" id="btn-gifts" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"/></svg>Gift Wall</button></div>
-  <button class="menu-btn" id="btn-menu" type="button" aria-haspopup="dialog"><i aria-hidden="true"><b></b><b></b><b></b></i><span class="mlabel">Back Room</span></button>
+  <button class="menu-btn" id="btn-menu" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-pop"><i aria-hidden="true"><b></b><b></b><b></b></i><span class="mlabel">Menu</span></button>
 </header>
+<div class="menu-pop" id="menu-pop" role="menu" aria-label="Menu" hidden>
+  <button role="menuitem" type="button" id="m-how" style="--bg:var(--sky)"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-book"/></svg></span><span><b>How to play</b><small>The rules in one minute</small></span></button>
+  <button role="menuitem" type="button" id="m-gifts" style="--bg:var(--pink)"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"/></svg></span><span><b>Gift Wall</b><small>Every prize, with photos</small></span></button>
+  <button role="menuitem" type="button" id="m-phone" style="--bg:var(--lime)"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-passport"/></svg></span><span><b>Play on phone</b><small>Big buttons and your boarding pass</small></span></button>
+  <button role="menuitem" type="button" id="m-back" class="m-host" style="--bg:var(--lav)"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pencil"/></svg></span><span><b>Back Room</b><small>For the host. Needs the code</small></span></button>
+</div>
 
 
 <div class="dock">
@@ -535,7 +551,7 @@ body.phone-mode .hud-top,body.phone-mode .dock{visibility:hidden}
     <div class="die" id="die" aria-hidden="true"></div>
     <button class="btn-roll" id="btn-roll" type="button">Roll</button>
   </div>
-  <div class="view-btns"><button class="vbtn" id="v-all" type="button">Whole board</button><button class="vbtn" id="v-follow" type="button" aria-pressed="false">Follow</button><button class="vbtn" id="v-how" type="button">How to play</button><button class="vbtn" id="v-gifts" type="button">Gift Wall</button><button class="vbtn" id="v-phone" type="button">Play on phone</button></div>
+  <div class="view-btns"><button class="vbtn" id="v-all" type="button">Whole board</button><button class="vbtn" id="v-follow" type="button" aria-pressed="false">Follow</button></div>
   </div>
 </div>
 
@@ -1201,10 +1217,10 @@ const P800={
     {id:'book101',name:'Book: 101 Things I Learned in Architecture School',short:'Arch book',icon:'book',est:15,tier:'prize',stock:3},
     {id:'bookud',name:'Book: 101 Things I Learned in Urban Design School',short:'Design book',icon:'book',est:19,tier:'prize',stock:3},
     {id:'pens',name:'Pro sketch pens (Sakura Micron 6-pack)',short:'Sketch pens',icon:'pencil',est:27,tier:'special',stock:1},
-    {id:'coffee25',name:'$25 Starbucks card',short:'$25 coffee',icon:'card',est:25,tier:'special',stock:1}],
-  perks:[{id:'sketchbook',name:'Sketchbook (5.5 x 8 in)',icon:'book',est:5,stock:24},{id:'coffee',name:'$10 Starbucks card (coffee for two)',icon:'card',est:10,stock:18}],
+    {id:'coffee25',name:'$20 Starbucks card',short:'$20 coffee',icon:'card',est:20,tier:'special',stock:1}],
+  perks:[{id:'sketchbook',name:'Sketchbook (5.5 x 8 in)',icon:'book',est:5,stock:24},{id:'coffee',name:'$20 Starbucks card',icon:'card',est:20,stock:10}],
   mega:{name:'LEGO Architecture New York City (21066)',est:140},
-  quarters:{1:['Announced in 2027',0],2:['Announced in 2027',0],3:['Announced in 2027',0],4:['$25 Starbucks card',25]},
+  quarters:{1:['Announced in 2027',0],2:['Announced in 2027',0],3:['Announced in 2027',0],4:['$20 Starbucks card',20]},
   lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): $100 inKind dinner card',amount:75,per:'once'},
     {cat:'grand',name:'Sketch of the Season (studio vote on this quarter\'s sketches): $25 Amazon gift card for art supplies',amount:25,per:'once'},
     {cat:'grand',name:'Best Sketch of the Year (studio vote at the last game of 2026): winning sketch framed for the studio wall',amount:0,per:'once'}]};
@@ -1230,7 +1246,13 @@ function links1(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.links==='l
 function stock2(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.stock==='s2'||!Array.isArray(st.catalog)||!Array.isArray(st.perks))return 0;
   const set={tape:15,book101:2,bookud:2,pens:1,coffee25:1},pk={coffee:20,sketchbook:24};
   st.catalog.forEach(c=>{if(set[c.id]!=null)c.stock=set[c.id]});st.perks.forEach(x=>{if(pk[x.id]!=null)x.stock=pk[x.id]});st.budget.stock='s2';return 1}
-function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);
+// every coffee card is $20: 10 for Coffee/Trivia squares, 1 terminal prize, 1 for the Q4 draw; the saved money buys 12 more tape gifts
+function coffee20(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.coffee==='c20'||!Array.isArray(st.catalog)||!Array.isArray(st.perks))return 0;
+  st.catalog.forEach(c=>{if(c.id==='coffee25'){c.name='$20 Starbucks card';c.short='$20 coffee';c.est=20}if(c.id==='tape'&&typeof c.stock==='number')c.stock+=12});
+  st.perks.forEach(x=>{if(x.id==='coffee'){x.name='$20 Starbucks card';x.est=20;x.stock=Math.min(10,typeof x.stock==='number'?x.stock:10)}});
+  if(Array.isArray(st.quarters))st.quarters.forEach(q=>{if(q.q===4&&/starbucks/i.test(q.prize||'')){q.prize='$20 Starbucks card';q.est=20}});
+  st.budget.coffee='c20';return 1}
+function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
@@ -2033,8 +2055,13 @@ $('#champ-pill').onclick=()=>{const c=S.champion;if(c){const i=S.tiles.findIndex
 let drawerOpen=false,tab='home',armed=null;const openAcc=new Set(['Upgrade ticket drawings']);
 function openDrawer(t){tab=t||'home';drawerOpen=true;armed=null;renderTab();$('#drawer').classList.add('open');$('#drawer').setAttribute('aria-hidden','false');$('#scrim').classList.add('open');$('#drawer-close').focus()}
 function closeDrawer(){drawerOpen=false;if(PUBLIC_HOW){PUBLIC_HOW=false}else if(!EDIT_OUT){unlocked=false;if(editMode)setEdit(false)}EDIT_OUT=false;$('#drawer').classList.remove('open');$('#drawer').setAttribute('aria-hidden','true');$('#scrim').classList.remove('open');$('#btn-menu').focus()}
-$('#btn-menu').onclick=()=>requireUnlock(()=>{PUBLIC_HOW=false;setEdit(true);openDrawer('home')});
-$('#v-how').onclick=()=>{PUBLIC_HOW=true;openDrawer('how')};
+function menuOpen(on){const m=$('#menu-pop'),b=$('#btn-menu');if(on){const r=b.getBoundingClientRect();m.style.top=Math.round(r.bottom+10)+'px';$('#m-phone').hidden=!(phoneLike()||innerWidth<=640)}m.hidden=!on;b.setAttribute('aria-expanded',on);if(on)setTimeout(()=>{const f=m.querySelector('button:not([hidden])');f&&f.focus()},0)}
+$('#btn-menu').onclick=e=>{e.stopPropagation();menuOpen($('#menu-pop').hidden)};
+document.addEventListener('pointerdown',e=>{if(!$('#menu-pop').hidden&&!e.target.closest('#menu-pop,#btn-menu'))menuOpen(false)},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#menu-pop').hidden){menuOpen(false);$('#btn-menu').focus()}});
+const menuGo=f=>()=>{menuOpen(false);f()};
+$('#m-back').onclick=menuGo(()=>requireUnlock(()=>{PUBLIC_HOW=false;setEdit(true);openDrawer('home')}));
+$('#m-how').onclick=menuGo(()=>{PUBLIC_HOW=true;openDrawer('how')});
 $('#edit-done').onclick=()=>{setEdit(false);unlocked=false;if(gwOpen)renderGiftWall();toast('Done editing. The Back Room is locked.')};$('#drawer-close').onclick=closeDrawer;$('#scrim').onclick=closeDrawer;
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;armed=null;renderTab()};
 const sw=(fill,fg,icon)=>`<span class="sw" style="background:${fill==='url(#rbw)'?TYPES.raffle.css:fill}"><svg viewBox="0 0 24 24" style="color:${fg}"><use href="#i-${icon}"/></svg></span>`;
@@ -2320,7 +2347,7 @@ $('#gw-body').addEventListener('click',e=>{const b=e.target.closest('[data-gw-no
 let gwOpen=false;
 function openGiftWall(){if(busy)return;renderGiftWall();const w=$('#giftwall');w.hidden=false;w.scrollTop=0;$('#gw-scroll').scrollTop=0;gwOpen=true;requestAnimationFrame(()=>w.classList.add('open'));$('#gw-close').focus()}
 function closeGiftWall(){if(editMode&&!drawerOpen){setEdit(false);unlocked=false}const w=$('#giftwall');w.classList.remove('open');gwOpen=false;setTimeout(()=>{if(!gwOpen)w.hidden=true},250)}
-$('#btn-gifts').onclick=openGiftWall;$('#v-gifts').onclick=openGiftWall;$('#gw-close').onclick=closeGiftWall;$('#gw-go').onclick=closeGiftWall;
+$('#m-gifts').onclick=menuGo(openGiftWall);$('#gw-close').onclick=closeGiftWall;$('#gw-go').onclick=closeGiftWall;
 $('#giftwall').addEventListener('click',e=>{if(e.target.id==='giftwall')closeGiftWall();const j=e.target.closest('[data-gw-jump]');if(j){const el=$('#gw-'+j.dataset.gwJump);if(el)$('#gw-scroll').scrollTo({top:el.offsetTop-8,behavior:'smooth'})}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&gwOpen)closeGiftWall()});
 
@@ -2683,7 +2710,7 @@ function showPass(ps,opt={}){const me=S.players.find(p=>p.id===ps.pid);if(!me)re
   clearTimeout(passT);if(!W)passT=setTimeout(()=>{el.hidden=true},14000)}
 function phonePass(L){if(L&&L.phase==='card'&&!$('#pp').hidden&&!phonePass.c){phonePass.c=1;clearTimeout(passT);passT=setTimeout(()=>{$('#pp').hidden=true;phonePass.c=0},2500)}if(!L||!L.pass||L.pass.pid!==myPid())return;const key=L.pass.pid+':'+L.pass.seat+':'+L.pass.at;if(key===passSeen)return;passSeen=key;showPass(L.pass)}
 $('#dock-qr').onclick=openQR;$('#qr-close').onclick=()=>{$('#qr-modal').hidden=true};$('#qr-modal').addEventListener('click',e=>{if(e.target.id==='qr-modal')$('#qr-modal').hidden=true});
-window.addEventListener('resize',renderQRCorner);$('#v-phone').onclick=()=>setPhone(true);
+window.addEventListener('resize',renderQRCorner);$('#m-phone').onclick=menuGo(()=>setPhone(true));
 if(PHONE)setPhone(true);renderQRCorner();setInterval(renderQRCorner,60000);startRoom();
 
 })();
