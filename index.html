@@ -425,7 +425,11 @@ body.phone-mode .hud-top,body.phone-mode .dock{visibility:hidden}
 #ph-body{padding:14px 16px 28px;max-width:520px;margin:0 auto}
 .ph-h{font-family:var(--display);font-weight:400;font-size:26px;margin:6px 0 10px}
 .ph-search{width:100%;font:inherit;font-size:17px;font-weight:700;padding:12px 14px;border:3px solid var(--ink);border-radius:14px;margin-bottom:10px;box-sizing:border-box}
-.ph-list{display:grid;gap:8px}.ph-who{display:flex;align-items:center;gap:12px;font:inherit;font-size:17px;font-weight:800;text-align:left;padding:10px 12px;background:var(--paper);border:3px solid var(--ink);border-radius:16px;box-shadow:3px 3px 0 var(--ink)}
+.ph-list{display:grid;gap:8px}.ph-who small{margin-left:auto;font-size:12px;font-weight:800;opacity:.6;white-space:nowrap}
+.ph-join{margin-top:14px;padding:14px;border:3px dashed var(--ink);border-radius:16px;display:grid;gap:10px}.ph-join b{font-size:17px}.ph-join p{margin:0;font-weight:600;font-size:14px;opacity:.8}
+.ph-join form{display:flex;gap:8px}.ph-join input{flex:1;min-width:0;font:inherit;font-size:16px;font-weight:700;padding:10px 12px;border:3px solid var(--ink);border-radius:12px}
+.ph-join button{font:inherit;font-weight:900;padding:10px 14px;border:3px solid var(--ink);border-radius:12px;background:var(--green,#14A04A);color:#fff;box-shadow:3px 3px 0 var(--ink)}
+.ph-err{color:#B3121A;font-weight:800;font-size:14px}.ph-none{padding:6px 2px;font-weight:700;opacity:.75}.ph-who{display:flex;align-items:center;gap:12px;font:inherit;font-size:17px;font-weight:800;text-align:left;padding:10px 12px;background:var(--paper);border:3px solid var(--ink);border-radius:16px;box-shadow:3px 3px 0 var(--ink)}
 .ph-dot{width:38px;height:38px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:13px;color:#141414;background:#fff;flex:none}.ph-dot.big{width:62px;height:62px;font-size:20px}
 .ph-me{display:flex;gap:12px;align-items:center;background:var(--paper);border:4px solid var(--ink);border-radius:20px;padding:12px;box-shadow:5px 5px 0 var(--ink)}.ph-me h2{font-family:var(--display);font-weight:400;font-size:22px;margin:0}.ph-me p{margin:2px 0 0;font-weight:700;font-size:14px}
 .ph-act{margin:16px 0 8px;text-align:center}
@@ -1084,6 +1088,10 @@ function resolveLanding(p,n,effects){
     else{giveTicket(p);outTix=true;effects.push(pz.none==='limit'?'You already won a prize today, so this one is an upgrade ticket. Spread the love!':'Those prizes are all claimed, so you get an upgrade ticket instead.');summary=`${p.name} landed on ${t.type==='terminal'?t.title:'square '+at} and earned an upgrade ticket${pz.none==='limit'?' (one prize per day)':' (prizes all claimed)'}.`}}
   else if(t.type==='hold'){p.hold=true;effects.push('Skip your next Thursday roll.')}
   else if(t.type==='bonus'){effects.push('Roll again right now.')}
+  // everyone's a winner: a turn that would end with nothing in hand gives a mini tape measure, if you haven't won anything yet today
+  const wonToday=(p.cards||[]).some(x=>x.d===today())||(p.perks||[]).some(x=>x.d===today());
+  if(!prize&&!wonToday&&(t.type==='raffle'||t.type==='tower'||isJump(t,at)||(outTix&&!/one prize per day/.test(summary)))){const tp=S.catalog.find(c=>c.id==='tape');
+    if(tp&&takeStock(tp)){prize=tp;(p.cards=p.cards||[]).push({d:today(),c:tp.name,gift:true});p.won=(p.won||0)+(+tp.est||0);effects.push('Everyone wins today: take home a mini tape measure too.');summary+=` Boarding gift: ${tp.name}.`}}
   p.lastRoll=today();logIt(summary);return{at,prize,bonus:t.type==='bonus',swap:t.type==='swap',special:t.type==='terminal'&&!outTix,raffle:t.type==='raffle'||outTix}}
 const modal=$('#modal');let lastFocus=null;
 function showModal(){lastFocus=document.activeElement;modal.hidden=false;const f=modal.querySelector('input,select:not([disabled]),textarea,.sheet-foot button');f&&f.focus()}
@@ -1219,7 +1227,10 @@ function links1(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.links==='l
   st.budget.lines.forEach(l=>{if(/champion/i.test(l.name)){l.url='https://www.costco.com/p/-/inkind-one-egift-card-thousands-of-restaurants-100-value/4000233859';l.pick='inKind $100 restaurant eGift card (Costco)'}
     if(/sketch of the season/i.test(l.name)){l.name=l.name.replace(/\$25 Blick art supply gift card/,'$25 Amazon gift card for art supplies');l.url='https://www.amazon.com/gift-cards/b?node=2238192011';l.pick='Amazon gift card'}});
   if(st.mega){delete st.mega.img;delete st.mega.url}st.budget.links='l1';return 1}
-function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);
+function stock2(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.stock==='s2'||!Array.isArray(st.catalog)||!Array.isArray(st.perks))return 0;
+  const set={tape:15,book101:2,bookud:2,pens:1,coffee25:1},pk={coffee:20,sketchbook:24};
+  st.catalog.forEach(c=>{if(set[c.id]!=null)c.stock=set[c.id]});st.perks.forEach(x=>{if(pk[x.id]!=null)x.stock=pk[x.id]});st.budget.stock='s2';return 1}
+function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
@@ -2346,7 +2357,7 @@ const boardOnline=()=>!!(ROOM&&ROOM.peers().some(p=>p.presence&&p.presence.role=
 async function startRoom(){const cl=window.claude;if(!cl||!cl.use){renderPhone();return}let r=null;try{r=await cl.use('room')}catch(e){}if(!r){renderPhone();return}ROOM=r;
   r.presence({role:PHONE?'phone':(phoneLike()?'viewer':'board'),since:effSince(),pid:PHONE?(myPid()||null):null}).catch(()=>{});
   r.onPeers(()=>{electLeader();renderQRCount();if(PHONE)renderPhone()});r.onConnection(()=>{if(PHONE)renderPhone()});
-  r.on('roll',m=>{if(LEADER)hostRoll(m.data||{})});r.on('stop',m=>{if(LEADER)hostStop(m.data||{})});r.on('act',m=>{if(!LEADER)return;const d=m.data||{};if(d.id==='call')hostCall(d);else hostAct(d)});r.on('got',m=>{if(LEADER)hostGot(m.data||{})});r.on('face',m=>{if(LEADER)hostFace(m.data||{})});
+  r.on('roll',m=>{if(LEADER)hostRoll(m.data||{})});r.on('stop',m=>{if(LEADER)hostStop(m.data||{})});r.on('act',m=>{if(!LEADER)return;const d=m.data||{};if(d.id==='call')hostCall(d);else hostAct(d)});r.on('got',m=>{if(LEADER)hostGot(m.data||{})});r.on('face',m=>{if(LEADER)hostFace(m.data||{})});r.on('join',m=>{if(LEADER)hostJoin(m.data||{})});
   r.on('st',m=>{if(m.sameTab)return;LAST=m.data||null;if(PHONE){renderPhone();phonePass(LAST)}});
   setInterval(hostTick,300)}
 const emit=(t,d)=>{if(ROOM)ROOM.emit(t,d).catch(()=>{})};
@@ -2375,6 +2386,12 @@ function hostStop(d){if(d.pid===curRemote&&DIESTOP)DIESTOP()}
 function hostAct(d){if(modal.hidden||d.pid!==curRemote)return;lastActAt=Date.now();const ok=['m-perk','m-close','m-again','m-ans','m-swap','reveal'];if(!ok.includes(d.id))return;
   if(d.id==='m-swap'&&d.val&&$('#swap-sel'))$('#swap-sel').value=d.val;const el=$('#'+d.id);if(el&&!el.disabled)el.click();lastSent=''}
 function hostGot(d){const p=S.players.find(x=>x.id===d.pid);if(!p||!['cards','perks'].includes(d.kind))return;const it=(p[d.kind]||[])[d.i];if(!it)return;it.got=d.got!==false;logIt(`${p.name} collected: ${it.c}.`);save();lastSent=''}
+// joining from a phone: a new name becomes a new traveler at Gate A; a name already on the list just picks that person
+const cleanName=v=>String(v||'').replace(/[<>"`]/g,'').replace(/\s+/g,' ').trim().slice(0,24);
+const byName=n=>S.players.find(p=>p.name.trim().toLowerCase()===n.toLowerCase());
+function addTraveler(name,id){const used=S.players.map(p=>p.color);const p={id,name,color:PCOLORS.find(c=>!used.includes(c))||PCOLORS[S.players.length%PCOLORS.length],pos:0,laps:0,hold:false,lastRoll:null,won:0,cards:[],started:false,tickets:0};S.players.push(p);return p}
+function hostJoin(d){const name=cleanName(d.name),id=String(d.id||'');if(name.length<2||!/^[a-z0-9]{4,20}$/i.test(id))return;if(S.players.some(p=>p.id===id)||byName(name))return;
+  addTraveler(name,id);save();syncPieces();renderHud();if(drawerOpen)renderTab();lastSent='';toast(`${name} joined the game`)}
 function hostFace(d){const p=S.players.find(x=>x.id===d.pid);if(!p)return;if(d.url==null)delete p.face;else if(faceOk(d.url))p.face=d.url;else return;save();if(W3.ok)W3.pieces.forEach(pc=>pc.key='');syncPieces();lastSent=''}
 function cardInfo(){const b=$('#m-body').cloneNode(true),f=b.querySelector('#flip');if(f&&!$('#flip').classList.contains('flipped'))f.querySelectorAll('.back').forEach(e=>e.remove());
   const rv=$('#reveal'),sealed=rv&&!rv.classList.contains('open');if(sealed)b.querySelectorAll('.gcard,.reveal').forEach(e=>e.remove());
@@ -2403,9 +2420,15 @@ function setPhone(on){PHONE=on;lsSet('hp-mode',on?'phone':'board');$('#phone').h
 function renderPhone(){if(!PHONE)return;const el=$('#ph-body');if(!el)return;const me=S.players.find(p=>p.id===myPid());
   const conn=ROOM&&ROOM.connected(),board=boardOnline();
   $('#ph-status').innerHTML=!ROOM?'<i class="off"></i>Connecting…':!conn?'<i class="off"></i>Connecting…':board?'<i class="on"></i>Big screen connected':'<i class="off"></i>Big screen not open yet';
-  if(!me){el._h='';const q=phPick.trim().toLowerCase();el.innerHTML=`<h2 class="ph-h">Who's playing?</h2><input class="ph-search" id="ph-search" placeholder="Find your name" value="${esc(phPick)}" autocomplete="off">
-    <div class="ph-list">${S.players.filter(p=>!q||p.name.toLowerCase().includes(q)).map(p=>`<button class="ph-who" data-pick="${esc(p.id)}">${dotHTML(p,'ph-dot')}${esc(p.name)}</button>`).join('')}</div>`;
-    const s=$('#ph-search');s.oninput=()=>{phPick=s.value;renderPhone();const s2=$('#ph-search');s2.focus();s2.setSelectionRange(s2.value.length,s2.value.length)};return}
+  if(!me&&PJ&&PJ.id===myPid()){if(Date.now()-PJ.t<20000){el._h='';el.innerHTML=`<h2 class="ph-h">Adding you…</h2><p class="ph-none">Saving ${esc(PJ.name)} to the game. This takes a second.</p>`;clearTimeout(PJ.tm);PJ.tm=setTimeout(renderPhone,1500);return}
+    lsSet('hp-me',null);PJ={...PJ,failed:true}}
+  if(!me){el._h='';const q=phPick.trim().toLowerCase();const others=new Set(ROOM?ROOM.peers().filter(x=>!x.sameTab&&x.presence&&x.presence.role==='phone'&&x.presence.pid).map(x=>x.presence.pid):[]);
+    const list=S.players.filter(p=>!q||p.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+    el.innerHTML=`<h2 class="ph-h">Who's playing?</h2><input class="ph-search" id="ph-search" placeholder="Find your name" value="${esc(phPick)}" autocomplete="off">
+    <div class="ph-list">${list.map(p=>`<button class="ph-who" data-pick="${esc(p.id)}">${dotHTML(p,'ph-dot')}${esc(p.name)}${others.has(p.id)?'<small>on another phone</small>':''}</button>`).join('')||`<p class="ph-none">No one named “${esc(phPick.trim())}” yet.</p>`}</div>
+    <div class="ph-join"><b>Not on the list?</b><p>Add yourself and you start at Gate A.</p><form id="ph-join-f"><input id="ph-join-n" maxlength="24" placeholder="First and last name" autocomplete="name" value="${esc(list.length?'':phPick.trim())}"><button type="submit">Add me</button></form>${PJ&&PJ.failed?'<span class="ph-err">That did not save. Check the big screen is open, then try again.</span>':''}</div>`;
+    const s=$('#ph-search');s.oninput=()=>{phPick=s.value;renderPhone();const s2=$('#ph-search');s2.focus();s2.setSelectionRange(s2.value.length,s2.value.length)};
+    $('#ph-join-f').onsubmit=e=>{e.preventDefault();phJoin($('#ph-join-n').value)};return}
   const fn=me.name.split(/\s+/)[0],L=LAST||{},mine=L.pid===me.id,inQ=(L.q||[]).indexOf(me.id),flew=me.lastRoll===today()&&!mine;let act='';
   if(mine&&L.phase==='spin')act=`<p class="ph-msg">The die is spinning on the big screen…</p><button class="ph-big ph-stop" data-ph="stop">STOP THE DIE</button>`;
   else if(mine&&L.phase==='move')act=`<p class="ph-msg">${esc(L.msg||'Watch the big screen!')}</p><div class="ph-watch">Watch the big screen</div>`;
@@ -2548,6 +2571,11 @@ function cropFace(file){return new Promise((res,rej)=>{const u=URL.createObjectU
   img.onload=()=>{const iw=img.naturalWidth,ih=img.naturalHeight,s=Math.min(iw,ih),c=document.createElement('canvas');c.width=c.height=360;
     c.getContext('2d').drawImage(img,(iw-s)/2,(ih-s)*.35,s,s,0,0,360,360);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('crop')),'image/jpeg',.86)};
   img.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('image'))};img.src=u})}
+let PJ=null;
+function phJoin(v){const name=cleanName(v);if(name.length<2){const i=$('#ph-join-n');if(i){i.focus();i.placeholder='Type your name first'}return}
+  const ex=byName(name);if(ex){lsSet('hp-me',ex.id);if(ROOM)ROOM.presence({pid:ex.id}).catch(()=>{});PJ=null;phPick='';renderPhone();return}
+  const id=uid();PJ={id,name,t:Date.now()};lsSet('hp-me',id);if(ROOM)ROOM.presence({pid:id}).catch(()=>{});emit('join',{id,name});
+  if(!boardOnline()){addTraveler(name,id);save()}phPick='';renderPhone()}
 function setFace(pid,url){PHF={...PHF,pid,url,t:Date.now()};emit('face',{pid,url});
   if(!boardOnline()){const p=S.players.find(x=>x.id===pid);if(p){if(url)p.face=url;else delete p.face;save()}}phRefresh()}
 async function phFace(file){const pid=myPid();if(!pid||PHF.busy)return;PHF={...PHF,pid,busy:true,msg:'Uploading your photo…'};phRefresh();
