@@ -875,7 +875,7 @@ const hasPrize=t=>t.type==='prize'||t.type==='terminal';
 // Mystery squares draw a random prize when you land. Limits: only what's in stock, rarer items weigh less, no repeat of a prize you already have, one prize per person per game day
 const isMyst=t=>t&&(t.prize==='mystery'||t.prize==='mysterybig');
 const poolOf=c=>c.pool||(c.tier==='special'?'terminal':'prize');
-const drawW=c=>Math.max(0,+c.weight||1)*(typeof c.stock==='number'?c.stock:3);
+const drawW=c=>capped(c)?0:Math.max(0,+c.weight||1)*(typeof c.stock==='number'?c.stock:3);
 function poolShare(pool){const it=S.catalog.filter(c=>poolOf(c)===pool),tot=it.reduce((a,c)=>a+drawW(c),0)||1;return it.map(c=>[c,drawW(c)/tot])}
 function mystOf(t){const big=t.prize==='mysterybig',sh=poolShare(big?'terminal':'prize');return{id:t.prize,name:big?'Terminal prize (random)':'Mystery prize',short:big?'Terminal prize':'Mystery prize',icon:'star',est:Math.round(sh.reduce((a,[c,f])=>a+f*(+c.est||0),0))}}
 const prizeOf=t=>isMyst(t)?mystOf(t):(S.catalog.find(c=>c.id===t.prize)||S.catalog[0]||{id:'',name:'Prize',short:'Prize',icon:'star',est:0});
@@ -1106,8 +1106,10 @@ function resolveLanding(p,n,effects){
   else if(t.type==='bonus'){effects.push('Roll again right now.')}
   // everyone's a winner: a turn that would end with nothing in hand gives a mini tape measure, if you haven't won anything yet today
   const wonToday=(p.cards||[]).some(x=>x.d===today())||(p.perks||[]).some(x=>x.d===today());
-  if(!prize&&!wonToday&&(t.type==='raffle'||t.type==='tower'||isJump(t,at)||(outTix&&!/one prize per day/.test(summary)))){const tp=S.catalog.find(c=>c.id==='tape');
-    if(tp&&takeStock(tp)){prize=tp;(p.cards=p.cards||[]).push({d:today(),c:tp.name,gift:true});p.won=(p.won||0)+(+tp.est||0);effects.push('Everyone wins today: take home a mini tape measure too.');summary+=` Boarding gift: ${tp.name}.`}}
+  if(!prize&&!wonToday&&(t.type==='raffle'||t.type==='tower'||isJump(t,at)||(outTix&&!/one prize per day/.test(summary)))){
+    const sb=(S.perks||[]).find(x=>x.id==='sketchbook'),tp=S.catalog.find(c=>c.id==='tape');let g=null,line='';
+    if(sb&&takeStock(sb)){g=sb;line='Everyone wins today: take home a sketchbook and a sketch card too.'}else if(tp&&takeStock(tp)){g=tp;line='Everyone wins today: take home a mini tape measure too.'}
+    if(g){prize=g;(p.cards=p.cards||[]).push({d:today(),c:g.name,gift:true});p.won=(p.won||0)+(+g.est||0);effects.push(line);summary+=` Boarding gift: ${g.name}.`}}
   p.lastRoll=today();logIt(summary);return{at,prize,bonus:t.type==='bonus',swap:t.type==='swap',special:t.type==='terminal'&&!outTix,raffle:t.type==='raffle'||outTix}}
 const modal=$('#modal');let lastFocus=null;
 function showModal(){lastFocus=document.activeElement;modal.hidden=false;const f=modal.querySelector('input,select:not([disabled]),textarea,.sheet-foot button');f&&f.focus()}
@@ -1129,7 +1131,7 @@ function openTile(i,land){
   const sealed=land&&(land.prize||land.raffle);
   if(land&&land.raffle){const pl=S.players.find(x=>x.id===land.pid),tk=pl?pl.tickets||0:1,all=S.players.reduce((a,x)=>a+(x.tickets||0),0);b+=`<div class="gcard"><div class="gc-top"><span>Studio 2 Aviation</span><span>Upgrade ticket</span></div><div class="gc-main"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ticket"/></svg><div class="gc-amt">${tk} upgrade ticket${tk===1?'':'s'}</div></div><div class="gc-to">In the ${esc(qOf(curQ().q).name)} this quarter and the Final Boarding Call at year end. No limit on tickets.</div></div>`}
   if(land&&land.prize){const pz=land.prize;b+=`<div class="gcard"><div class="gc-top"><span>Studio 2 Aviation</span><span>${land.special?'Special prize':'Prize pass'}</span></div><div class="gc-main"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${pz.icon}"/></svg><div class="gc-amt">${esc(pz.name)}</div></div><div class="gc-to">Won by ${esc(land.name)} · ${esc(fmtDate(today()))}${pz.est?` · est. $${pz.est}`:''}</div></div>`}
-  const pk=perkOf(t);if(pk)b+=`<div class="perk"><span class="sw" style="background:${C.sun}"><svg viewBox="0 0 24 24"><use href="#i-${pk.icon}"/></svg></span><div><span class="fk">${land?'Do it, then tap Done! Collect':'Do it and earn'}</span><b>${esc(pk.name)}</b></div></div>`;
+  const pk0=perkOf(t),pk=pk0&&pk0.id!=='sketchbook'&&(capped(pk0)||(typeof pk0.stock==='number'&&pk0.stock<=0))?((S.perks||[]).find(x=>x.id==='sketchbook')||pk0):pk0;if(pk)b+=`<div class="perk"><span class="sw" style="background:${C.sun}"><svg viewBox="0 0 24 24"><use href="#i-${pk.icon}"/></svg></span><div><span class="fk">${land?'Do it, then tap Done! Collect':'Do it and earn'}</span><b>${esc(pk.name)}</b></div></div>`;
   if(land)(land.effects||[]).forEach(x=>b+=`<div class="effect">${esc(x)}</div>`);
   if(land&&land.swap){const others=S.players.filter(o=>o.id!==land.pid);b+=`<div class="field"><label for="swap-sel">Trade places with</label><select id="swap-sel">${others.map(o=>`<option value="${o.id}">${esc(o.name)} (square ${o.pos})</option>`).join('')}</select></div>`}
   const qa=t.type==='customs'&&String(t.text||'').match(/^([\s\S]*?)\s*\(Answer:\s*([\s\S]*?)\)\s*$/);
@@ -1145,9 +1147,10 @@ function openTile(i,land){
   if(land&&land.swap){$('#m-foot').insertAdjacentHTML('afterbegin','<button class="btn btn-sm" type="button" id="m-swap" style="background:var(--lav)">Swap seats</button>');
     $('#m-swap').onclick=()=>{const me=S.players.find(o=>o.id===land.pid),o=S.players.find(x=>x.id===$('#swap-sel').value);if(me&&o){if(!o.started){o.pos=boardingSeat();o.started=true}[me.pos,o.pos]=[o.pos,me.pos];logIt(`${me.name} swapped seats with ${o.name}.`);save();renderAll();toast(`${me.name} and ${o.name} swapped seats`)}closeModal()}}
   if(land&&pk&&!land.bonus){$('#m-foot').insertAdjacentHTML('afterbegin','<button class="btn" type="button" id="m-perk" style="background:var(--sun)">Done! Collect</button>');
-    $('#m-perk').onclick=()=>{const pl=S.players.find(x=>x.id===land.pid);if(pl){const got=takeStock(pk);(pl.perks=pl.perks||[]).push({d:today(),c:got?pk.name:'Upgrade ticket',sq:i,t:t.title||'',k:t.type});if(got){logIt(`${pl.name} finished #${i} "${t.title||TYPES[t.type].name}" and collected a ${pk.name}.`);toast(`${pk.name} for ${pl.name.split(/\s+/)[0]}`)}else{giveTicket(pl);logIt(`${pl.name} finished #${i} "${t.title||TYPES[t.type].name}". The ${pk.name} stack is empty, so they got an upgrade ticket.`);toast(`Out of ${pk.name}: upgrade ticket for ${pl.name.split(/\s+/)[0]}`)}save()}const bt=$('#m-perk');bt.disabled=true;bt.textContent='Collected';const cb=$('#m-close');if(cb)cb.textContent=S.players.some(x=>x.lastRoll!==today())?'Next roller':'Done'}}
+    $('#m-perk').onclick=()=>{const pl=S.players.find(x=>x.id===land.pid);if(pl){collectPerk(pl,t,i,pk);save()}const bt=$('#m-perk');bt.disabled=true;bt.textContent='Collected';const cb=$('#m-close');if(cb)cb.textContent=S.players.some(x=>x.lastRoll!==today())?'Next roller':'Done'}}
   if($('#m-close'))$('#m-close').onclick=closeModal;if($('#m-edit'))$('#m-edit').onclick=()=>{afterClose=null;requireUnlock(()=>{setEdit(true);editTile(i)})};
   showModal();}
+function collectPerk(pl,t,i,pk){let k=pk,got=takeStock(k);if(!got&&k.id!=='sketchbook'){const sb=(S.perks||[]).find(x=>x.id==='sketchbook');if(sb&&takeStock(sb)){k=sb;got=true}}(pl.perks=pl.perks||[]).push({d:today(),c:got?k.name:'Upgrade ticket',sq:i,t:t.title||'',k:t.type});if(got){logIt(`${pl.name} finished #${i} "${t.title||TYPES[t.type].name}" and collected a ${k.name}.`);toast(`${k.name} for ${pl.name.split(/\s+/)[0]}`)}else{giveTicket(pl);logIt(`${pl.name} finished #${i} "${t.title||TYPES[t.type].name}". The ${k.name} stack is empty, so they got an upgrade ticket.`);toast(`Out of ${k.name}: upgrade ticket for ${pl.name.split(/\s+/)[0]}`)}return got?k:null}
 function b2note(){const n=document.createElement('p');n.className='small';n.style.margin='0';n.textContent='Show this card to the game host to collect.';$('#m-body').appendChild(n)}
 function editTile(i){
   const t=S.tiles[i],ty=TYPES[t.type]||TYPES.blank;setHead(t.type,'Edit square',i===0?'START':'SQ '+i);
@@ -1218,7 +1221,7 @@ const P800={
     {id:'bookud',name:'Book: 101 Things I Learned in Urban Design School',short:'Design book',icon:'book',est:19,tier:'prize',stock:3},
     {id:'pens',name:'Pro sketch pens (Sakura Micron 6-pack)',short:'Sketch pens',icon:'pencil',est:27,tier:'special',stock:1},
     {id:'coffee25',name:'$20 Starbucks card',short:'$20 coffee',icon:'card',est:20,tier:'special',stock:1}],
-  perks:[{id:'sketchbook',name:'Sketchbook (5.5 x 8 in)',icon:'book',est:5,stock:24},{id:'coffee',name:'$20 Starbucks card',icon:'card',est:20,stock:10}],
+  perks:[{id:'sketchbook',name:'Sketchbook (5.5 x 8 in)',icon:'book',est:5,stock:24},{id:'coffee',name:'$20 Starbucks card',icon:'card',est:20,stock:10,perDay:5}],
   mega:{name:'LEGO Architecture New York City (21066)',est:140},
   quarters:{1:['Announced in 2027',0],2:['Announced in 2027',0],3:['Announced in 2027',0],4:['$20 Starbucks card',20]},
   lines:[{cat:'grand',name:'Studio Champion (holds a Control Tower after the last game of 2026): $100 inKind dinner card',amount:75,per:'once'},
@@ -1232,7 +1235,9 @@ function plan800(st){if(!st.budget||st.budget.plan==='p800'||!Array.isArray(st.t
   if(Array.isArray(st.quarters))st.quarters.forEach(q=>{const v=P800.quarters[q.q];if(v){q.prize=v[0];q.est=v[1]}});
   st.budget.lines=P800.lines.map(l=>({id:uid(),note:'',...l}));st.budget.weeks=2;st.budget.attendance=100;st.budget.contingency=0;st.budget.plan='p800';return 1}
 // stock: a prize or reward with a count pays out until it runs out; after that the player gets an upgrade ticket instead
-function takeStock(o){if(!o||typeof o.stock!=='number')return true;if(o.stock<=0)return false;o.stock--;return true}
+function givenToday(name){const td=today();let n=0;(S.players||[]).forEach(p=>{(p.cards||[]).forEach(x=>{if(x.d===td&&x.c===name)n++});(p.perks||[]).forEach(x=>{if(x.d===td&&x.c===name)n++})});return n}
+const capped=o=>!!o&&typeof o.perDay==='number'&&givenToday(o.name)>=o.perDay;
+function takeStock(o){if(!o)return true;if(capped(o))return false;if(typeof o.stock!=='number')return true;if(o.stock<=0)return false;o.stock--;return true}
 function giveTicket(p){p.tickets=(p.tickets||0)+1;const cq=curQ();p.qt=p.qt||{};p.qt[cq.key]=(p.qt[cq.key]||0)+1}
 function drawR1(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.draw==='r1'||!Array.isArray(st.catalog))return 0;
   const W={tape:['prize',1],book101:['prize',3],bookud:['prize',3],pens:['terminal',1],coffee25:['terminal',1]};
@@ -1252,7 +1257,12 @@ function coffee20(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.coffee==
   st.perks.forEach(x=>{if(x.id==='coffee'){x.name='$20 Starbucks card';x.est=20;x.stock=Math.min(10,typeof x.stock==='number'?x.stock:10)}});
   if(Array.isArray(st.quarters))st.quarters.forEach(q=>{if(q.q===4&&/starbucks/i.test(q.prize||'')){q.prize='$20 Starbucks card';q.est=20}});
   st.budget.coffee='c20';return 1}
-function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);
+// most winners get coffee or a sketchbook: coffee 5 per game day, tapes 4 per game day, sketchbooks 15 per game day
+function mix3(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.mix==='m3'||!Array.isArray(st.catalog)||!Array.isArray(st.perks))return 0;
+  st.catalog.forEach(c=>{if(c.id==='tape'){c.stock=8;c.perDay=4}});
+  st.perks.forEach(x=>{if(x.id==='coffee'){x.stock=10;x.perDay=5}if(x.id==='sketchbook'){x.stock=30;x.perDay=15}});
+  st.budget.mix='m3';return 1}
+function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
