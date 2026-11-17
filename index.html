@@ -1275,7 +1275,12 @@ function megaSync(){if(!S.mega)return;const ss=megaSets();if(ss.length>1){S.mega
 function three1(st){if(!st.budget||st.budget.plan!=='p800'||st.budget.grand==='g3')return 0;
   st.mega={name:'3 LEGO sets',est:0,won:[],sets:[{name:'Chicago Willis Tower building set',est:0,url:'https://www.amazon.com/dp/B0DR5LLW6N'},{name:'LEGO set 2 (coming soon)',est:0},{name:'LEGO set 3 (coming soon)',est:0}]};
   st.raffleWinner=null;st.budget.tixPerDay=4;st.budget.grand='g3';return 1}
-function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);
+// grand prize: LEGO Architecture Notre-Dame de Paris
+function nd1(st){if(!st.budget||st.budget.grand!=='g3'||st.budget.nd==='n1'||!st.mega||!Array.isArray(st.mega.sets))return 0;
+  const ss=st.mega.sets,wt=ss.find(x=>/willis/i.test(x.name))||{name:'Chicago Willis Tower building set',est:0,url:'https://www.amazon.com/dp/B0DR5LLW6N'};
+  st.mega.sets=[{name:'LEGO Architecture Notre-Dame de Paris (21061)',est:230,url:'https://www.lego.com/en-us/product/notre-dame-de-paris-21061'},wt,(()=>{const o=ss.find(x=>!/willis|coming soon/i.test(x.name));return o||{name:'3rd prize (coming soon)',est:0}})()];
+  st.mega.est=st.mega.sets.reduce((a,x)=>a+(+x.est||0),0);st.budget.nd='n1';return 1}
+function happyOnly(st){let n=plan800(st);n+=drawR1(st);n+=links1(st);n+=stock2(st);n+=coffee20(st);n+=mix3(st);n+=three1(st);n+=nd1(st);
   (st.tiles||[]).forEach((t,i)=>{if(t&&(t.type==='hold'||t.type==='swap')){st.tiles[i]={type:'raffle',title:'Upgrade',text:''};n++}});
   (st.players||[]).forEach(p=>{if(p.hold){p.hold=false;n++}});
   if(st.budget&&Array.isArray(st.budget.lines)&&!st.budget.sketchSeason){st.budget.sketchSeason=true;
@@ -2322,7 +2327,7 @@ const MEDIA={
   pens:{url:'https://www.amazon.com/Sakura-Pigma-30062-Micron-Blister/dp/B0008G8G8Y',pick:'Sakura Pigma Micron, 6 tip sizes (Amazon)'},
   dinner:{url:'https://www.costco.com/p/-/inkind-one-egift-card-thousands-of-restaurants-100-value/4000233859',pick:'inKind One eGift Card, $100 at thousands of restaurants (Costco)'},
   tape:{img:'IMG:tape',fit:'contain',url:'https://www.amazon.com/Keychain-Retractable-Measuring-Multicolor-Portable/dp/B0GV29GPK2',pick:'Keychain tape measure (Amazon)'},
-  mega:{url:'https://www.amazon.com/LEGO-Architecture-New-York-City/dp/B0G2T1ZFL6',pick:'LEGO Architecture New York City, 21066 (Amazon)'},
+  mega:{url:'https://www.lego.com/en-us/product/notre-dame-de-paris-21061',pick:'LEGO Architecture Notre-Dame de Paris, 21061 (LEGO.com)'},
   ff:{img:'IMG:cruise',url:'https://www.architecture.org/city-tours/river-cruise'}};
 const imgSrc=s=>!s||s==='none'?'':s.startsWith('IMG:')?(IMG[s.slice(4)]||''):s;
 function media(ref,key){const d=MEDIA[key]||{};return{img:imgSrc(ref&&ref.img!=null&&ref.img!==''?ref.img:d.img),fit:ref&&ref.img&&ref.img!=='none'&&!String(ref.img).startsWith('IMG:')?(ref.fit||'cover'):(d.fit||'cover'),url:(ref&&ref.url!=null&&ref.url!==''?ref.url:d.url)||'',pick:(ref&&ref.pick)||d.pick||''}}
